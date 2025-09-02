@@ -10,7 +10,7 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import {
-  LineChart, Line, BarChart, Bar, PieChart, Pie, Cell,
+  LineChart, Line, PieChart, Pie, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
   RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar
 } from 'recharts'
@@ -64,7 +64,6 @@ export default function AnalyticsPage() {
   const [loading, setLoading] = useState(true)
   const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null)
   const [timeRange, setTimeRange] = useState<'week' | 'month' | 'all'>('month')
-  const [testHistory, setTestHistory] = useState<any[]>([])
 
   useEffect(() => {
     loadAnalytics()
@@ -110,8 +109,6 @@ export default function AnalyticsPage() {
         
         // Calculate streak (simplified)
         const today = new Date()
-        const lastTestDate = history.length > 0 ? new Date(history[history.length - 1].date) : today
-        const daysSinceLastTest = Math.floor((today.getTime() - lastTestDate.getTime()) / (1000 * 60 * 60 * 24))
         // Calculate real streak based on consecutive days with tests
         let studyStreak = 0
         if (history.length > 0) {

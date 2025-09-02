@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { type, params } = body
     
-    console.log('Question generation request:', { type, params })
+    // Question generation request received
 
     if (type === 'single') {
       // Generate a single question

@@ -37,7 +37,7 @@ export async function GET(request: Request) {
           console.error('Error creating profile in callback:', insertError)
           // Don't fail auth, trigger should handle it
         } else {
-          console.log('Profile created successfully in callback')
+          // Profile created successfully in callback
         }
       }
     }

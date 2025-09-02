@@ -150,7 +150,7 @@ Generate a physics question about ${topic}:`
                 return questionData as GeneratedQuestion
               } catch (firstError) {
                 // If direct parsing fails, try more aggressive cleaning
-                console.log('First parse attempt failed, trying aggressive cleaning')
+                // First parse attempt failed, trying aggressive cleaning
                 
                 // Extract the structure manually
                 const questionMatch = jsonString.match(/"question":\s*"([^"]+(?:\\.[^"]+)*)"/);
@@ -222,7 +222,7 @@ Generate a physics question about ${topic}:`
               }
             } catch (parseError) {
               console.error('JSON parse error:', parseError)
-              console.log('Raw response:', content.text)
+              // Raw response available in content.text for debugging
               throw new Error('Failed to parse AI response as JSON')
             }
           } else {
@@ -237,7 +237,7 @@ Generate a physics question about ${topic}:`
         if (error.status === 529) {
           // API is overloaded, use exponential backoff
           const waitTime = Math.min(1000 * Math.pow(2, attempt - 1), 30000) // Max 30 seconds
-          console.log(`Claude API overloaded (attempt ${attempt}/${maxRetries}). Retrying in ${waitTime/1000} seconds...`)
+          // Claude API overloaded, retrying...
           await new Promise(resolve => setTimeout(resolve, waitTime))
         } else if (error.status === 401) {
           // Authentication error - don't retry
@@ -245,12 +245,12 @@ Generate a physics question about ${topic}:`
         } else if (error.status === 429) {
           // Rate limit - wait longer
           const waitTime = 60000 // 1 minute
-          console.log(`Rate limited. Waiting ${waitTime/1000} seconds...`)
+          // Rate limited, waiting...
           await new Promise(resolve => setTimeout(resolve, waitTime))
         } else if (attempt < maxRetries) {
           // Other errors - retry with shorter delay
           const waitTime = 2000 * attempt
-          console.log(`Error occurred (attempt ${attempt}/${maxRetries}). Retrying in ${waitTime/1000} seconds...`)
+          // Error occurred, retrying...
           await new Promise(resolve => setTimeout(resolve, waitTime))
         } else {
           // Final attempt failed
@@ -345,7 +345,7 @@ export async function generateMockTest(params: {
           throw new Error('Unable to generate questions. Please try again later.')
         }
         // Return partial results if we have some questions
-        console.log(`Returning ${questions.length} questions out of ${totalQuestions} requested`)
+        // Returning partial results
         break
       }
       

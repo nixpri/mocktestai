@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
 }
 
 // GET - Fetch test results for analytics
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const supabase = await createClient()
     
@@ -113,43 +113,4 @@ export async function GET(request: NextRequest) {
     console.error('Error in GET /api/tests/results:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
-}
-
-// Helper functions to extract breakdowns from questions
-function extractTopicBreakdown(questions: any) {
-  if (!questions || !Array.isArray(questions)) return {}
-  
-  const breakdown: any = {}
-  questions.forEach((q: any) => {
-    const topic = q.topicId || 'General'
-    if (!breakdown[topic]) {
-      breakdown[topic] = { attempted: 0, correct: 0, totalTime: 0 }
-    }
-    // This is simplified - in real app, you'd track actual attempts
-    breakdown[topic].attempted++
-    breakdown[topic].totalTime += 120
-  })
-  
-  return breakdown
-}
-
-function extractDifficultyBreakdown(questions: any) {
-  if (!questions || !Array.isArray(questions)) return {}
-  
-  const breakdown: any = {
-    'Easy': { attempted: 0, correct: 0 },
-    'Medium': { attempted: 0, correct: 0 },
-    'Hard': { attempted: 0, correct: 0 }
-  }
-  
-  questions.forEach((q: any) => {
-    const difficulty = q.difficulty ? 
-      q.difficulty.charAt(0).toUpperCase() + q.difficulty.slice(1) : 
-      'Medium'
-    if (breakdown[difficulty]) {
-      breakdown[difficulty].attempted++
-    }
-  })
-  
-  return breakdown
 }

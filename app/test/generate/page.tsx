@@ -43,7 +43,7 @@ export default function GenerateTestPage() {
       const data = await response.json()
 
       if (!response.ok) {
-        console.error('API Error:', data)
+        // API Error details available in data
         // Provide more specific error messages
         if (data.error?.includes('overloaded')) {
           throw new Error('The AI service is currently busy. Please wait a moment and try again.')
@@ -107,7 +107,7 @@ export default function GenerateTestPage() {
 
       if (data.success) {
         alert('Question generated successfully! Check the console for details.')
-        console.log('Generated Question:', data.question)
+        // Question generated successfully
       }
     } catch (err: any) {
       setError(err.message || 'An error occurred while generating the question')
