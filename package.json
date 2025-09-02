@@ -6,9 +6,14 @@
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "db:init": "node scripts/dev-tools.js --init-db",
+    "db:reset": "node scripts/dev-tools.js --reset-db",
+    "dev:clean": "node scripts/dev-tools.js --clear-all",
+    "dev:help": "node scripts/dev-tools.js --help"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.60.0",
     "@supabase/ssr": "^0.7.0",
     "@supabase/supabase-js": "^2.56.1",
     "katex": "^0.16.22",

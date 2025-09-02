@@ -52,7 +52,7 @@ export interface Question {
 export interface Test {
   id: string
   userId: string
-  testType: 'mock' | 'topic_wise' | 'custom' | 'daily_practice'
+  testType: 'mock' | 'topic_wise' | 'custom' | 'daily_practice' | 'quick'
   title: string
   questions: string[] // Array of question IDs
   totalMarks: number

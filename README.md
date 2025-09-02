@@ -1,20 +1,43 @@
-# MockTest AI - JEE Physics Portal
+# MockTest AI - AI-Powered Competitive Exam Preparation Platform
 
-AI-powered mock test platform for JEE Main Physics preparation with adaptive learning and personalized question generation.
+An advanced AI-driven mock test platform designed for Indian competitive exam aspirants (JEE, NEET, etc.), starting with JEE Physics. Our platform leverages machine learning models trained on decades of exam papers, official syllabi, and question patterns to generate intelligent, exam-relevant mock tests that adapt to each student's learning level.
 
 ![MockTest AI](https://img.shields.io/badge/MockTest-AI-blue)
 ![Next.js](https://img.shields.io/badge/Next.js-14-black)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)
 ![Supabase](https://img.shields.io/badge/Supabase-Database-green)
 
+## 🎯 Product Vision
+
+MockTest AI is building the future of competitive exam preparation in India by combining:
+- **AI Question Generation**: Models trained on 20+ years of JEE/NEET papers
+- **Pattern Recognition**: Deep understanding of exam trends and question styles
+- **Personalized Learning**: Adaptive difficulty based on individual performance
+- **Comprehensive Coverage**: Starting with JEE Physics, expanding to all subjects
+
+### Core Differentiators
+1. **Exam-Authentic Questions**: AI generates questions indistinguishable from actual JEE papers
+2. **Intelligent Adaptation**: Difficulty adjusts in real-time based on student performance
+3. **Concept Mapping**: Questions tagged with detailed concept hierarchies for targeted practice
+4. **Predictive Analytics**: ML models predict likely exam scores and weak areas
+
 ## 🚀 Features
 
-- **AI-Powered Questions**: Intelligent question generation based on JEE patterns
-- **Google Authentication**: Secure, one-click sign-in with Google OAuth
-- **Adaptive Learning**: Questions adapt to your performance level
-- **Performance Analytics**: Track progress and identify weak areas
-- **Real-time Dashboard**: Monitor your preparation journey
-- **Physics Topics Coverage**: Complete JEE Main Physics syllabus
+### Current (Phase 1 - JEE Physics)
+- **AI Question Engine**: Generates unique questions matching JEE patterns
+- **Smart Mock Tests**: Auto-generated tests based on JEE Main format
+- **Performance Analytics**: Detailed analysis of strengths and weaknesses
+- **Adaptive Difficulty**: Questions adjust to student's current level
+- **Google Authentication**: Secure, seamless sign-in
+- **Real-time Dashboard**: Track preparation progress
+
+### Planned (Phase 2-3)
+- **Multi-Subject Support**: Chemistry, Mathematics for JEE
+- **NEET Expansion**: Physics, Chemistry, Biology for medical entrance
+- **AI Doubt Resolution**: Instant explanations and concept clarification
+- **Rank Prediction**: ML-based exam rank prediction
+- **Study Plan Generation**: Personalized preparation schedules
+- **Video Solutions**: AI-generated step-by-step video explanations
 
 ## 🛠️ Tech Stack
 
