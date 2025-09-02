@@ -218,7 +218,10 @@ export default function GenerateTestPage() {
                 <input
                   type="number"
                   value={formData.totalQuestions}
-                  onChange={(e) => setFormData({ ...formData, totalQuestions: parseInt(e.target.value) })}
+                  onChange={(e) => {
+                    const value = parseInt(e.target.value)
+                    setFormData({ ...formData, totalQuestions: isNaN(value) ? 0 : value })
+                  }}
                   min="1"
                   max="50"
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
@@ -231,7 +234,10 @@ export default function GenerateTestPage() {
                 <input
                   type="number"
                   value={formData.duration}
-                  onChange={(e) => setFormData({ ...formData, duration: parseInt(e.target.value) })}
+                  onChange={(e) => {
+                    const value = parseInt(e.target.value)
+                    setFormData({ ...formData, duration: isNaN(value) ? 0 : value })
+                  }}
                   min="10"
                   max="180"
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
@@ -249,10 +255,13 @@ export default function GenerateTestPage() {
                   <input
                     type="number"
                     value={formData.difficulty.easy}
-                    onChange={(e) => setFormData({ 
-                      ...formData, 
-                      difficulty: { ...formData.difficulty, easy: parseInt(e.target.value) }
-                    })}
+                    onChange={(e) => {
+                      const value = parseInt(e.target.value)
+                      setFormData({ 
+                        ...formData, 
+                        difficulty: { ...formData.difficulty, easy: isNaN(value) ? 0 : value }
+                      })
+                    }}
                     min="0"
                     max="50"
                     className="w-full px-3 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-indigo-500"
@@ -263,10 +272,13 @@ export default function GenerateTestPage() {
                   <input
                     type="number"
                     value={formData.difficulty.medium}
-                    onChange={(e) => setFormData({ 
-                      ...formData, 
-                      difficulty: { ...formData.difficulty, medium: parseInt(e.target.value) }
-                    })}
+                    onChange={(e) => {
+                      const value = parseInt(e.target.value)
+                      setFormData({ 
+                        ...formData, 
+                        difficulty: { ...formData.difficulty, medium: isNaN(value) ? 0 : value }
+                      })
+                    }}
                     min="0"
                     max="50"
                     className="w-full px-3 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-indigo-500"
@@ -277,10 +289,13 @@ export default function GenerateTestPage() {
                   <input
                     type="number"
                     value={formData.difficulty.hard}
-                    onChange={(e) => setFormData({ 
-                      ...formData, 
-                      difficulty: { ...formData.difficulty, hard: parseInt(e.target.value) }
-                    })}
+                    onChange={(e) => {
+                      const value = parseInt(e.target.value)
+                      setFormData({ 
+                        ...formData, 
+                        difficulty: { ...formData.difficulty, hard: isNaN(value) ? 0 : value }
+                      })
+                    }}
                     min="0"
                     max="50"
                     className="w-full px-3 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-indigo-500"

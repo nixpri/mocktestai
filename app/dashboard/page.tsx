@@ -175,15 +175,15 @@ export default function DashboardPage() {
             </div>
           </Link>
 
-          <Link href="/test/topic" className="bg-purple-600 text-white p-6 rounded-xl hover:bg-purple-700 transition">
+          <div className="bg-purple-600 text-white p-6 rounded-xl opacity-50 cursor-not-allowed">
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-lg font-semibold mb-2">Topic Test</h3>
-                <p className="text-purple-100">Choose your topic</p>
+                <p className="text-purple-100">Coming Soon</p>
               </div>
               <BookOpen className="h-8 w-8 text-purple-200" />
             </div>
-          </Link>
+          </div>
         </div>
 
         {/* Stats Grid */}
