@@ -5,6 +5,7 @@ import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import { Trophy, Target, Clock, BarChart, CheckCircle, XCircle, AlertCircle } from 'lucide-react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
+import LatexRenderer from '@/components/test/LatexRenderer'
 
 interface TestResult {
   testId: string
@@ -277,8 +278,35 @@ export default function TestResultPage() {
             <div className="space-y-4">
               {result.questionsData.map((question: any, index: number) => {
                 const userAnswer = result.userAnswers?.[question.id]
-                const isCorrect = userAnswer === question.content.correctAnswer
-                const wasAttempted = userAnswer !== undefined
+                
+                // Handle different ways correct answer might be stored
+                let correctAnswer = question.content?.correctAnswer || 
+                                   question.correctAnswer || 
+                                   question.correct_answer || ''
+                
+                // Normalize the answer for comparison
+                const normalizedUserAnswer = userAnswer?.toString().toLowerCase()
+                const normalizedCorrectAnswer = correctAnswer?.toString().toLowerCase()
+                
+                // Check if answer is correct based on question type
+                let isCorrect = false
+                if (question.questionType === 'numerical' || question.type === 'numerical') {
+                  const numericalAnswer = question.content?.numericalAnswer || 
+                                         question.numericalAnswer || 
+                                         question.numerical_answer
+                  const tolerance = question.content?.numericalTolerance || 
+                                   question.numericalTolerance || 
+                                   question.numerical_tolerance || 0.01
+                  if (numericalAnswer !== undefined && userAnswer !== undefined) {
+                    const userNum = parseFloat(userAnswer)
+                    const correctNum = parseFloat(numericalAnswer)
+                    isCorrect = Math.abs(userNum - correctNum) <= tolerance
+                  }
+                } else {
+                  isCorrect = normalizedUserAnswer === normalizedCorrectAnswer
+                }
+                
+                const wasAttempted = userAnswer !== undefined && userAnswer !== null && userAnswer !== ''
                 
                 return (
                   <div key={question.id} className="border border-gray-200 rounded-lg p-4">
@@ -304,49 +332,151 @@ export default function TestResultPage() {
                               Not Attempted
                             </span>
                           )}
+                          <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
+                            {question.difficulty || 'Medium'}
+                          </span>
+                          <span className="text-xs text-gray-500">
+                            {question.topicId || question.topic || 'General'}
+                          </span>
                         </div>
-                        <p className="text-gray-800 mb-3">{question.content.questionText}</p>
+                        <div className="text-gray-800 mb-3">
+                          <LatexRenderer 
+                            content={question.content?.text || question.content?.questionText || question.question || 'Question text not available'}
+                            className="text-base"
+                          />
+                        </div>
                         
-                        {/* Options */}
-                        <div className="space-y-2">
-                          {question.content.options.map((option: any, optIndex: number) => {
-                            const optionLetter = String.fromCharCode(65 + optIndex)
-                            const isUserAnswer = userAnswer === optionLetter
-                            const isCorrectOption = question.content.correctAnswer === optionLetter
-                            // Handle both string and object format for options
-                            const optionText = typeof option === 'string' ? option : option.text
+                        {/* Options for MCQ */}
+                        {(question.questionType === 'mcq' || question.type === 'mcq') && question.content?.options && (
+                          <div className="space-y-2 mb-3">
+                            {question.content.options.map((option: any, optIndex: number) => {
+                              const optionLetter = String.fromCharCode(65 + optIndex) // A, B, C, D
+                              const optionId = String.fromCharCode(97 + optIndex) // a, b, c, d
+                              
+                              // Check if this is the user's answer
+                              const isUserAnswer = userAnswer === optionId || 
+                                                  userAnswer === optionLetter || 
+                                                  userAnswer === optionLetter.toLowerCase()
+                              
+                              // Check if this is the correct answer
+                              const isCorrectOption = normalizedCorrectAnswer === optionId || 
+                                                     normalizedCorrectAnswer === optionLetter.toLowerCase()
+                              
+                              // Handle both string and object format for options
+                              const optionText = typeof option === 'string' ? option : (option.text || option)
                             
                             return (
                               <div 
                                 key={optIndex}
-                                className={`p-2 rounded-lg border ${
+                                className={`p-3 rounded-lg border ${
                                   isCorrectOption 
-                                    ? 'bg-green-50 border-green-300' 
+                                    ? 'bg-green-50 border-green-400' 
                                     : isUserAnswer && !isCorrect
                                     ? 'bg-red-50 border-red-300'
                                     : 'bg-gray-50 border-gray-200'
                                 }`}
                               >
                                 <div className="flex items-center">
-                                  <span className="font-medium mr-2">{optionLetter}.</span>
-                                  <span className="flex-1">{optionText}</span>
+                                  <span className="font-semibold mr-3 text-gray-700">{optionLetter}.</span>
+                                  <div className="flex-1 text-gray-800">
+                                    <LatexRenderer content={optionText} className="text-sm" />
+                                  </div>
                                   {isCorrectOption && (
-                                    <CheckCircle className="h-4 w-4 text-green-600 ml-2" />
+                                    <span className="flex items-center ml-2 text-green-600 text-sm font-medium">
+                                      <CheckCircle className="h-4 w-4 mr-1" />
+                                      Correct
+                                    </span>
                                   )}
                                   {isUserAnswer && !isCorrect && (
-                                    <XCircle className="h-4 w-4 text-red-600 ml-2" />
+                                    <span className="flex items-center ml-2 text-red-600 text-sm font-medium">
+                                      <XCircle className="h-4 w-4 mr-1" />
+                                      Your Answer
+                                    </span>
                                   )}
                                 </div>
                               </div>
                             )
                           })}
-                        </div>
+                          </div>
+                        )}
                         
-                        {/* Explanation if available */}
-                        {question.content.explanation && (
-                          <div className="mt-3 p-3 bg-blue-50 rounded-lg">
-                            <p className="text-sm font-medium text-blue-900 mb-1">Explanation:</p>
-                            <p className="text-sm text-blue-800">{question.content.explanation}</p>
+                        {/* Numerical Answer */}
+                        {(question.questionType === 'numerical' || question.type === 'numerical') && (
+                          <div className="mt-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                            <div className="grid grid-cols-2 gap-4">
+                              <div>
+                                <p className="text-sm font-medium text-gray-600 mb-1">Your Answer:</p>
+                                <p className={`text-lg font-semibold ${wasAttempted ? (isCorrect ? 'text-green-600' : 'text-red-600') : 'text-gray-400'}`}>
+                                  {wasAttempted ? userAnswer : 'Not attempted'}
+                                </p>
+                              </div>
+                              <div>
+                                <p className="text-sm font-medium text-gray-600 mb-1">Correct Answer:</p>
+                                <p className="text-lg font-semibold text-green-600">
+                                  {question.content?.numericalAnswer || question.numericalAnswer || question.numerical_answer || 'N/A'}
+                                  {(question.content?.numericalTolerance || question.numericalTolerance || question.numerical_tolerance) && (
+                                    <span className="text-sm text-gray-500 ml-1">
+                                      (±{question.content?.numericalTolerance || question.numericalTolerance || question.numerical_tolerance})
+                                    </span>
+                                  )}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                        
+                        {/* Assertion Reasoning */}
+                        {(question.questionType === 'assertion' || question.type === 'assertion') && (
+                          <div className="mt-3 space-y-2">
+                            <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+                              <p className="text-sm font-medium text-blue-900 mb-1">Assertion:</p>
+                              <div className="text-sm text-blue-800">
+                                <LatexRenderer 
+                                  content={question.content?.assertion || question.assertion || 'N/A'}
+                                  className="text-sm"
+                                />
+                              </div>
+                            </div>
+                            <div className="p-3 bg-purple-50 rounded-lg border border-purple-200">
+                              <p className="text-sm font-medium text-purple-900 mb-1">Reason:</p>
+                              <div className="text-sm text-purple-800">
+                                <LatexRenderer 
+                                  content={question.content?.reason || question.reason || 'N/A'}
+                                  className="text-sm"
+                                />
+                              </div>
+                            </div>
+                            <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
+                              <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                  <p className="text-sm font-medium text-gray-600">Your Answer:</p>
+                                  <p className={`text-sm font-semibold ${wasAttempted ? (isCorrect ? 'text-green-600' : 'text-red-600') : 'text-gray-400'}`}>
+                                    {wasAttempted ? userAnswer : 'Not attempted'}
+                                  </p>
+                                </div>
+                                <div>
+                                  <p className="text-sm font-medium text-gray-600">Correct Answer:</p>
+                                  <p className="text-sm font-semibold text-green-600">
+                                    {question.content?.correctAnswer || question.correctAnswer || question.correct_answer || 'N/A'}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                        
+                        {/* Explanation - Always show if available */}
+                        {(question.solution?.text || question.content?.explanation || question.explanation) && (
+                          <div className="mt-4 p-4 bg-indigo-50 rounded-lg border border-indigo-200">
+                            <p className="text-sm font-semibold text-indigo-900 mb-2">
+                              💡 Explanation:
+                            </p>
+                            <div className="text-sm text-indigo-800 leading-relaxed">
+                              <LatexRenderer 
+                                content={question.solution?.text || question.content?.explanation || question.explanation}
+                                className="text-sm"
+                              />
+                            </div>
                           </div>
                         )}
                       </div>
