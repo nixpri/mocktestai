@@ -22,6 +22,10 @@ Please review these documents in order to understand the project:
 ✅ Fixed all padding and spacing issues across pages
 ✅ Enhanced LaTeX rendering for mathematical expressions
 ✅ Redesigned homepage with modern testimonials section
+✅ Fixed UI consistency issues (Quick Practice panel, Analytics CTA)
+✅ Resolved NaN time display and modal overlay bugs
+✅ Implemented actual test time tracking (start to submission)
+✅ Added centralized time formatting utilities
 
 ### Current Status
 - **Development**: 40% complete (auth + database + UI/UX ready)
@@ -90,6 +94,8 @@ git status                       # Check current status
 3. **Use KaTeX for LaTeX rendering** (not MathJax)
 4. **Cache AI responses** to reduce API costs
 5. **Mobile-first design** - 60% users on phones
+6. **Time tracking** - Now properly tracks actual test duration
+7. **Use time utilities** - Import from `/lib/utils/timeUtils.ts` for consistency
 
 ## 🐛 Known Issues
 
