@@ -252,6 +252,11 @@ export default function TestPage() {
   const handleSubmit = async () => {
     setSaving(true)
     try {
+      // Calculate actual time taken
+      const actualTimeTaken = test && testStartTime ? 
+        Math.floor((new Date().getTime() - testStartTime.getTime()) / 1000) : 
+        (test?.durationMinutes || 60) * 60 - timeRemaining
+      
       // Calculate results immediately
       let correct = 0
       let incorrect = 0
@@ -322,7 +327,7 @@ export default function TestPage() {
         score,
         totalMarks,
         percentage: Math.round(percentage * 10) / 10,
-        timeTaken: test.durationMinutes * 60,
+        timeTaken: actualTimeTaken,
         date: new Date().toISOString(),
         topicBreakdown,
         difficultyBreakdown,

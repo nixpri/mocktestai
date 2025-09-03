@@ -561,7 +561,7 @@ export default function AnalyticsPage() {
           <>
             {/* Hero Stats Section */}
             <div className="mb-10 animate-slide-up">
-              <h2 className="heading-airbnb-2 mb-6">Your Performance Overview</h2>
+              <h2 className="heading-airbnb-2 pt-8 pb-6">Your Performance Overview</h2>
               
               {/* Overview Cards - Airbnb Style */}
               <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4 mb-8">
