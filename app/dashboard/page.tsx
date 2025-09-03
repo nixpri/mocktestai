@@ -3,13 +3,14 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { Brain, BookOpen, Trophy, Target, LogOut, Plus, Clock, TrendingUp, ArrowRight, Zap, BarChart3, Calendar, ShieldCheck, GraduationCap } from 'lucide-react'
+import { Brain, BookOpen, Trophy, Target, LogOut, Plus, Clock, TrendingUp, ArrowRight, Zap, BarChart3, Calendar, ShieldCheck, GraduationCap, Menu, X } from 'lucide-react'
 import Link from 'next/link'
 
 export default function DashboardPage() {
   const [user, setUser] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [isAdmin, setIsAdmin] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [stats, setStats] = useState({
     totalTests: 0,
     avgScore: '-',
@@ -122,11 +123,12 @@ export default function DashboardPage() {
       <nav className="bg-[var(--background-elevated)] border-b border-[var(--border-color-light)]">
         <div className="container-airbnb">
           <div className="flex justify-between h-[72px] items-center">
-            <div className="flex items-center space-x-3">
-              <Brain className="h-8 w-8 text-[var(--color-primary)]" />
-              <span className="text-[var(--text-xl)] font-semibold text-[var(--foreground)]">MockTest AI</span>
+            <div className="flex items-center space-x-2 sm:space-x-3">
+              <Brain className="h-6 w-6 sm:h-8 sm:w-8 text-[var(--color-primary)]" />
+              <span className="text-base sm:text-[var(--text-xl)] font-semibold text-[var(--foreground)]">MockTest AI</span>
             </div>
-            <div className="flex items-center gap-6">
+            {/* Desktop Menu */}
+            <div className="hidden sm:flex items-center gap-4 lg:gap-6">
               <Link
                 href="/analytics"
                 className="flex items-center gap-2 text-[var(--foreground-secondary)] hover:text-[var(--foreground)] transition-colors duration-[var(--transition-base)]"
@@ -134,7 +136,7 @@ export default function DashboardPage() {
                 <BarChart3 className="h-5 w-5" />
                 <span className="text-[var(--text-base)] font-medium">Analytics</span>
               </Link>
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2 lg:gap-4">
                 {isAdmin && (
                   <Link
                     href="/admin/questions"
@@ -144,7 +146,7 @@ export default function DashboardPage() {
                     <ShieldCheck className="h-5 w-5" />
                   </Link>
                 )}
-                <span className="text-[var(--text-sm)] text-[var(--foreground-secondary)]">
+                <span className="hidden lg:inline text-[var(--text-sm)] text-[var(--foreground-secondary)] max-w-[200px] truncate">
                   {user?.email}
                 </span>
                 <button
@@ -155,16 +157,58 @@ export default function DashboardPage() {
                 </button>
               </div>
             </div>
+            
+            {/* Mobile Menu Button */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="sm:hidden p-2 text-[var(--foreground-secondary)] hover:text-[var(--foreground)] transition-colors"
+            >
+              {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </button>
           </div>
         </div>
       </nav>
+      
+      {/* Mobile Menu */}
+      {mobileMenuOpen && (
+        <div className="sm:hidden bg-[var(--background-elevated)] border-b border-[var(--border-color-light)] px-4 py-3">
+          <Link
+            href="/analytics"
+            onClick={() => setMobileMenuOpen(false)}
+            className="flex items-center gap-2 p-3 text-[var(--foreground-secondary)] hover:text-[var(--foreground)] hover:bg-[var(--background-secondary)] rounded-lg transition-colors"
+          >
+            <BarChart3 className="h-5 w-5" />
+            <span>Analytics</span>
+          </Link>
+          {isAdmin && (
+            <Link
+              href="/admin/questions"
+              onClick={() => setMobileMenuOpen(false)}
+              className="flex items-center gap-2 p-3 text-[var(--foreground-secondary)] hover:text-[var(--foreground)] hover:bg-[var(--background-secondary)] rounded-lg transition-colors"
+            >
+              <ShieldCheck className="h-5 w-5" />
+              <span>Admin Panel</span>
+            </Link>
+          )}
+          <div className="p-3 text-sm text-[var(--foreground-secondary)]">
+            {user?.email}
+          </div>
+          <button
+            onClick={handleSignOut}
+            className="flex items-center gap-2 w-full p-3 text-[var(--foreground-secondary)] hover:text-[var(--color-error)] hover:bg-[var(--background-secondary)] rounded-lg transition-colors"
+          >
+            <LogOut className="h-5 w-5" />
+            <span>Sign Out</span>
+          </button>
+        </div>
+      )}
 
       {/* Dashboard Content */}
-      <div className="container-airbnb py-12">
+      <div className="container-airbnb py-6 sm:py-12">
         {/* Welcome Section - Airbnb Style */}
-        <div className="mb-10 animate-slide-up pt-6">
-          <h1 className="heading-airbnb-1 mb-3">Welcome back!</h1>
-          <p className="text-airbnb-body">Choose your practice mode and start improving today</p>
+        <div className="mb-6 sm:mb-10 animate-slide-up pt-3 sm:pt-6">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2 sm:mb-3">Welcome back!</h1>
+          <p className="text-sm sm:text-base text-[var(--foreground-secondary)]">Choose your practice mode and start improving today</p>
         </div>
 
         {/* Quick Actions - Epic Card Design */}
@@ -179,8 +223,8 @@ export default function DashboardPage() {
                   <ArrowRight className="h-6 w-6 text-[var(--foreground-muted)] opacity-0 group-hover:opacity-100 group-hover:translate-x-2 transition-all duration-300" />
                 </div>
                 <div className="flex-grow">
-                  <h3 className="text-2xl font-bold mb-3 text-[var(--foreground)]">Quick Practice</h3>
-                  <p className="text-base text-[var(--foreground-secondary)] mb-4">Jump right in with 5 curated questions</p>
+                  <h3 className="text-lg sm:text-xl lg:text-2xl font-bold mb-2 sm:mb-3 text-[var(--foreground)]">Quick Practice</h3>
+                  <p className="text-sm sm:text-base text-[var(--foreground-secondary)] mb-3 sm:mb-4">Jump right in with 5 curated questions</p>
                   <div className="flex items-center gap-3 text-sm text-[var(--foreground-secondary)]">
                     <span>📝 5 questions</span>
                     <span>⏱️ 60 minutes</span>

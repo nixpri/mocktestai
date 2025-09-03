@@ -234,3 +234,16 @@ button, a, input, textarea, select {
 .animate-scale-in {
   animation: scaleIn var(--transition-base) ease-out;
 }
+
+@keyframes slide-in-right {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.animate-slide-in-right {
+  animation: slide-in-right var(--transition-base) ease-out;
+}
