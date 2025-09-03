@@ -210,18 +210,18 @@ export default function TestResultPage() {
       </nav>
 
       {/* Hero Section - Score Display */}
-      <div className={`bg-gradient-to-br ${performance.color} py-20`}>
+      <div className={`bg-gradient-to-br ${performance.color} py-12`}>
         <div className="container-airbnb">
           <div className="text-center text-white animate-fade-in">
-            <Trophy className="h-20 w-20 mx-auto mb-6 text-white/90" />
-            <h1 className="text-6xl font-bold mb-3">{performance.level}</h1>
-            <p className="text-2xl text-white/90 mb-12">{performance.message}</p>
+            <Trophy className="h-12 w-12 mx-auto mb-3 text-white/90" />
+            <h1 className="text-3xl font-bold mb-2">{performance.level}</h1>
+            <p className="text-lg text-white/90 mb-6">{performance.message}</p>
             
-            <div className="inline-flex bg-white/20 backdrop-blur-md rounded-[var(--radius-xl)] px-24 py-12">
+            <div className="inline-flex bg-white/20 backdrop-blur-md rounded-[var(--radius-xl)] px-12 py-6">
               <div className="text-center">
-                <div className="text-8xl font-bold mb-4">{result.score}</div>
-                <div className="text-xl text-white/90 mb-6">out of {result.totalMarks}</div>
-                <div className="text-5xl font-bold text-white/95">{result.percentage}%</div>
+                <div className="text-5xl font-bold mb-2">{result.score}</div>
+                <div className="text-sm text-white/90 mb-3">out of {result.totalMarks}</div>
+                <div className="text-3xl font-bold text-white/95">{result.percentage}%</div>
               </div>
             </div>
           </div>
@@ -230,7 +230,7 @@ export default function TestResultPage() {
 
       <div className="container-airbnb py-10">
         {/* Quick Stats */}
-        <div className="grid md:grid-cols-4 gap-4 mb-8 -mt-12">
+        <div className="grid md:grid-cols-4 gap-4 mb-8 -mt-8">
           <div className="card-airbnb p-6 border border-[var(--border-color-light)] bg-white animate-slide-up" style={{animationDelay: '0.1s'}}>
             <div className="flex items-center justify-between mb-3">
               <Target className="h-5 w-5 text-[var(--color-primary)]" />
