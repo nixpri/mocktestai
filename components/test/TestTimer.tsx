@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { Clock, Pause, Play } from 'lucide-react'
 import { formatTime } from '@/lib/utils/timeUtils'
 
@@ -18,22 +18,46 @@ export default function TestTimer({
   setTimeRemaining 
 }: TestTimerProps) {
   const [isPaused, setIsPaused] = useState(false)
+  const lastUpdateTime = useRef(Date.now())
+  const timerRef = useRef<NodeJS.Timeout>()
 
   useEffect(() => {
     if (isPaused) return
 
-    const timer = setInterval(() => {
-      setTimeRemaining((prev) => {
-        if (prev <= 1) {
-          clearInterval(timer)
-          onTimeUp()
-          return 0
-        }
-        return prev - 1
-      })
-    }, 1000)
+    lastUpdateTime.current = Date.now()
+    
+    const updateTimer = () => {
+      const now = Date.now()
+      const elapsed = Math.floor((now - lastUpdateTime.current) / 1000)
+      
+      if (elapsed > 0) {
+        lastUpdateTime.current = now
+        setTimeRemaining((prev) => {
+          const newTime = Math.max(0, prev - elapsed)
+          if (newTime === 0 && prev > 0) {
+            onTimeUp()
+          }
+          return newTime
+        })
+      }
+    }
 
-    return () => clearInterval(timer)
+    // Update every second
+    timerRef.current = setInterval(updateTimer, 1000)
+    
+    // Also update when tab becomes visible to catch up
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        updateTimer()
+      }
+    }
+    
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current)
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+    }
   }, [isPaused, onTimeUp, setTimeRemaining])
 
 

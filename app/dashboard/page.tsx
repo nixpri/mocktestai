@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { Brain, BookOpen, Trophy, Target, LogOut, Plus, Clock, TrendingUp, ArrowRight, Zap, BarChart3, Calendar, ShieldCheck, GraduationCap, Menu, X } from 'lucide-react'
+import { Brain, BookOpen, Trophy, Target, LogOut, Plus, Clock, TrendingUp, ArrowRight, Zap, BarChart3, Calendar, ShieldCheck, GraduationCap, Menu, X, FileText } from 'lucide-react'
 import Link from 'next/link'
 
 export default function DashboardPage() {
@@ -320,6 +320,19 @@ export default function DashboardPage() {
               </div>
               <p className="text-[var(--text-sm)] text-[var(--foreground-secondary)]">Questions Solved</p>
             </div>
+          </div>
+
+          {/* Quick Links */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+            <Link
+              href="/formulas"
+              className="p-4 bg-[var(--background-elevated)] rounded-[var(--radius-base)] border border-[var(--border-color-light)] hover:border-[var(--color-primary)] transition-all group"
+            >
+              <div className="flex flex-col items-center text-center">
+                <FileText className="h-6 w-6 text-[var(--color-primary)] mb-2 group-hover:scale-110 transition-transform" />
+                <span className="text-sm font-medium">Formula Sheets</span>
+              </div>
+            </Link>
           </div>
 
           {/* Prominent Analytics CTA Button */}
