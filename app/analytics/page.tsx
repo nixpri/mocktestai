@@ -88,18 +88,18 @@ interface AnalyticsData {
 }
 
 const CHART_COLORS = {
-  primary: '#6366f1',
-  success: '#10b981',
-  warning: '#f59e0b',
-  danger: '#ef4444',
-  purple: '#8b5cf6',
-  pink: '#ec4899'
+  primary: '#0891B2',
+  success: '#10B981',
+  warning: '#F59E0B',
+  danger: '#F43F5E',
+  purple: '#8B5CF6',
+  pink: '#EC4899'
 }
 
 const DIFFICULTY_COLORS = {
-  Easy: '#10b981',
-  Medium: '#f59e0b',
-  Hard: '#ef4444'
+  Easy: '#10B981',
+  Medium: '#F59E0B',
+  Hard: '#F43F5E'
 }
 
 export default function AnalyticsPage() {
@@ -444,10 +444,10 @@ export default function AnalyticsPage() {
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-white p-3 rounded-lg shadow-lg border border-gray-200">
-          <p className="text-sm font-semibold text-gray-900">{label}</p>
+        <div className="bg-[var(--background-elevated)] p-3 rounded-[var(--radius-sm)] shadow-lg border border-[var(--border-color)]">
+          <p className="text-[var(--text-sm)] font-semibold text-[var(--foreground)]">{label}</p>
           {payload.map((entry: any, index: number) => (
-            <p key={index} className="text-sm" style={{ color: entry.color }}>
+            <p key={index} className="text-[var(--text-sm)]" style={{ color: entry.color }}>
               {entry.name}: {entry.value}%
             </p>
           ))}
@@ -459,13 +459,10 @@ export default function AnalyticsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
-        <div className="text-center">
-          <div className="relative">
-            <div className="animate-spin rounded-full h-16 w-16 border-4 border-indigo-200 mx-auto"></div>
-            <div className="absolute inset-0 animate-spin rounded-full h-16 w-16 border-4 border-indigo-600 border-t-transparent mx-auto"></div>
-          </div>
-          <p className="mt-4 text-gray-600 font-medium">Analyzing your performance...</p>
+      <div className="min-h-screen bg-[var(--background-secondary)] flex items-center justify-center">
+        <div className="text-center animate-fade-in">
+          <Brain className="h-12 w-12 text-[var(--color-primary)] animate-pulse mx-auto mb-4" />
+          <p className="text-[var(--foreground-secondary)]">Analyzing your performance...</p>
         </div>
       </div>
     )
@@ -473,26 +470,28 @@ export default function AnalyticsPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
-        <div className="bg-white rounded-xl shadow-lg p-8 max-w-md w-full">
-          <div className="flex items-center justify-center w-12 h-12 bg-red-100 rounded-full mx-auto mb-4">
-            <AlertCircle className="h-6 w-6 text-red-600" />
-          </div>
-          <h2 className="text-xl font-semibold text-gray-900 text-center mb-2">Error Loading Analytics</h2>
-          <p className="text-gray-600 text-center mb-4">{error}</p>
-          <div className="flex space-x-3">
-            <button
-              onClick={loadAnalytics}
-              className="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
-            >
-              Retry
-            </button>
-            <Link
-              href="/dashboard"
-              className="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition text-center"
-            >
-              Back to Dashboard
-            </Link>
+      <div className="min-h-screen bg-[var(--background-secondary)] flex items-center justify-center">
+        <div className="card-airbnb max-w-md w-full animate-scale-in">
+          <div className="text-center">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-[var(--color-error)]/10 rounded-full mb-4">
+              <AlertCircle className="h-8 w-8 text-[var(--color-error)]" />
+            </div>
+            <h2 className="heading-airbnb-4 mb-2">Error Loading Analytics</h2>
+            <p className="text-airbnb-body mb-6">{error}</p>
+            <div className="flex gap-3">
+              <button
+                onClick={loadAnalytics}
+                className="btn-airbnb btn-airbnb-primary flex-1"
+              >
+                Retry
+              </button>
+              <Link
+                href="/dashboard"
+                className="btn-airbnb btn-airbnb-secondary flex-1 text-center"
+              >
+                Back to Dashboard
+              </Link>
+            </div>
           </div>
         </div>
       </div>
@@ -503,25 +502,23 @@ export default function AnalyticsPage() {
   const hasData = data.overview.totalTests > 0
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16 items-center">
-            <div className="flex items-center space-x-3">
-              <div className="p-2 bg-indigo-100 rounded-lg">
-                <Brain className="h-6 w-6 text-indigo-600" />
-              </div>
+    <div className="min-h-screen bg-[var(--background-secondary)]">
+      {/* Navigation - Airbnb Style */}
+      <nav className="bg-[var(--background-elevated)] border-b border-[var(--border-color-light)] sticky top-0 z-10">
+        <div className="container-airbnb">
+          <div className="flex justify-between h-[72px] items-center">
+            <div className="flex items-center gap-3">
+              <BarChart3 className="h-8 w-8 text-[var(--color-primary)]" />
               <div>
-                <h1 className="text-xl font-bold text-gray-900">Performance Analytics</h1>
-                <p className="text-xs text-gray-500">Track your progress and improve</p>
+                <h1 className="heading-airbnb-4 mb-0">Performance Analytics</h1>
+                <p className="text-[var(--text-xs)] text-[var(--foreground-secondary)]">Track your progress and improve</p>
               </div>
             </div>
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center gap-4">
               <select
                 value={timeRange}
                 onChange={(e) => setTimeRange(e.target.value as 'week' | 'month' | 'all')}
-                className="px-3 py-1.5 bg-gray-100 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="select-airbnb"
               >
                 <option value="week">Last 7 days</option>
                 <option value="month">Last 30 days</option>
@@ -529,125 +526,128 @@ export default function AnalyticsPage() {
               </select>
               <Link
                 href="/dashboard"
-                className="px-4 py-1.5 text-indigo-600 hover:bg-indigo-50 rounded-lg transition font-medium text-sm"
+                className="btn-airbnb btn-airbnb-ghost"
               >
                 Back to Dashboard
               </Link>
             </div>
           </div>
         </div>
-      </header>
+      </nav>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div className="container-airbnb py-10">
         {/* Empty State */}
         {!hasData ? (
-          <div className="bg-white rounded-xl shadow-sm p-12 text-center">
+          <div className="card-airbnb text-center py-16 animate-fade-in">
             <div className="max-w-md mx-auto">
-              <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <BarChart3 className="h-10 w-10 text-gray-400" />
+              <div className="inline-flex items-center justify-center w-20 h-20 bg-[var(--background-secondary)] rounded-full mb-6">
+                <BarChart3 className="h-10 w-10 text-[var(--foreground-muted)]" />
               </div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">No Data Available</h2>
-              <p className="text-gray-600 mb-6">
+              <h2 className="heading-airbnb-2 mb-3">No Data Available</h2>
+              <p className="text-airbnb-body mb-8">
                 Start taking tests to see your performance analytics and track your progress.
               </p>
               <Link
                 href="/dashboard"
-                className="inline-flex items-center px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
+                className="btn-airbnb btn-airbnb-primary inline-flex items-center gap-2"
               >
                 Take Your First Test
-                <ChevronRight className="h-4 w-4 ml-2" />
+                <ChevronRight className="h-4 w-4" />
               </Link>
             </div>
           </div>
         ) : (
           <>
-            {/* Overview Cards */}
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3 mb-6">
-              <div className="bg-white p-4 rounded-xl shadow-sm hover:shadow-md transition">
-                <div className="flex items-center justify-between mb-2">
-                  <Trophy className="h-5 w-5 text-yellow-500" />
-                  <span className="text-xl font-bold text-gray-900">{data.overview.totalTests}</span>
-                </div>
-                <p className="text-xs text-gray-600">Tests Taken</p>
-              </div>
+            {/* Hero Stats Section */}
+            <div className="mb-10 animate-slide-up">
+              <h2 className="heading-airbnb-2 mb-6">Your Performance Overview</h2>
               
-              <div className="bg-white p-4 rounded-xl shadow-sm hover:shadow-md transition">
-                <div className="flex items-center justify-between mb-2">
-                  <Target className="h-5 w-5 text-green-500" />
-                  <div className="text-right">
-                    <span className="text-xl font-bold text-gray-900">{data.overview.averageScore}%</span>
-                    {data.overview.improvement !== 0 && (
-                      <div className={`flex items-center justify-end text-xs ${data.overview.improvement > 0 ? 'text-green-600' : 'text-red-600'}`}>
-                        {data.overview.improvement > 0 ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />}
-                        {Math.abs(data.overview.improvement)}%
-                      </div>
-                    )}
+              {/* Overview Cards - Airbnb Style */}
+              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4 mb-8">
+                <div className="card-airbnb p-6 border border-[var(--border-color-light)] hover-scale">
+                  <div className="flex items-center justify-between mb-3">
+                    <Trophy className="h-5 w-5 text-[var(--color-warning)]" />
+                    <span className="heading-airbnb-3">{data.overview.totalTests}</span>
                   </div>
+                  <p className="text-airbnb-small text-[var(--foreground-secondary)]">Tests Taken</p>
                 </div>
-                <p className="text-xs text-gray-600">Avg Score</p>
-              </div>
               
-              <div className="bg-white p-4 rounded-xl shadow-sm hover:shadow-md transition">
-                <div className="flex items-center justify-between mb-2">
-                  <CheckCircle className="h-5 w-5 text-blue-500" />
-                  <span className="text-xl font-bold text-gray-900">{data.overview.overallAccuracy}%</span>
+                <div className="card-airbnb p-6 border border-[var(--border-color-light)] hover-scale">
+                  <div className="flex items-center justify-between mb-3">
+                    <Target className="h-5 w-5 text-[var(--color-success)]" />
+                    <div className="text-right">
+                      <span className="heading-airbnb-3">{data.overview.averageScore}%</span>
+                      {data.overview.improvement !== 0 && (
+                        <div className={`flex items-center justify-end text-[var(--text-xs)] mt-1 ${data.overview.improvement > 0 ? 'text-[var(--color-success)]' : 'text-[var(--color-error)]'}`}>
+                          {data.overview.improvement > 0 ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />}
+                          {Math.abs(data.overview.improvement)}%
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <p className="text-airbnb-small text-[var(--foreground-secondary)]">Avg Score</p>
                 </div>
-                <p className="text-xs text-gray-600">Accuracy</p>
-              </div>
               
-              <div className="bg-white p-4 rounded-xl shadow-sm hover:shadow-md transition">
-                <div className="flex items-center justify-between mb-2">
-                  <Zap className="h-5 w-5 text-purple-500" />
-                  <span className="text-xl font-bold text-gray-900">{data.overview.studyStreak}</span>
+                <div className="card-airbnb p-6 border border-[var(--border-color-light)] hover-scale">
+                  <div className="flex items-center justify-between mb-3">
+                    <CheckCircle className="h-5 w-5 text-[var(--color-info)]" />
+                    <span className="heading-airbnb-3">{data.overview.overallAccuracy}%</span>
+                  </div>
+                  <p className="text-airbnb-small text-[var(--foreground-secondary)]">Accuracy</p>
                 </div>
-                <p className="text-xs text-gray-600">Day Streak</p>
-              </div>
-              
-              <div className="bg-white p-4 rounded-xl shadow-sm hover:shadow-md transition">
-                <div className="flex items-center justify-between mb-2">
-                  <BookOpen className="h-5 w-5 text-indigo-500" />
-                  <span className="text-xl font-bold text-gray-900">{data.overview.totalQuestions}</span>
+                
+                <div className="card-airbnb p-6 border border-[var(--border-color-light)] hover-scale">
+                  <div className="flex items-center justify-between mb-3">
+                    <Zap className="h-5 w-5 text-[var(--color-primary)]" />
+                    <span className="heading-airbnb-3">{data.overview.studyStreak}</span>
+                  </div>
+                  <p className="text-airbnb-small text-[var(--foreground-secondary)]">Day Streak</p>
                 </div>
-                <p className="text-xs text-gray-600">Questions</p>
-              </div>
-              
-              <div className="bg-white p-4 rounded-xl shadow-sm hover:shadow-md transition">
-                <div className="flex items-center justify-between mb-2">
-                  <Clock className="h-5 w-5 text-red-500" />
-                  <span className="text-xl font-bold text-gray-900">{Math.floor(data.overview.totalTimeSpent / 3600)}h</span>
+                
+                <div className="card-airbnb p-6 border border-[var(--border-color-light)] hover-scale">
+                  <div className="flex items-center justify-between mb-3">
+                    <BookOpen className="h-5 w-5 text-[var(--color-primary)]" />
+                    <span className="heading-airbnb-3">{data.overview.totalQuestions}</span>
+                  </div>
+                  <p className="text-airbnb-small text-[var(--foreground-secondary)]">Questions</p>
                 </div>
-                <p className="text-xs text-gray-600">Time Spent</p>
-              </div>
-              
-              <div className="bg-white p-4 rounded-xl shadow-sm hover:shadow-md transition">
-                <div className="flex items-center justify-between mb-2">
-                  <Award className="h-5 w-5 text-green-500" />
-                  <span className="text-xl font-bold text-gray-900">{data.overview.bestScore}%</span>
+                
+                <div className="card-airbnb p-6 border border-[var(--border-color-light)] hover-scale">
+                  <div className="flex items-center justify-between mb-3">
+                    <Clock className="h-5 w-5 text-[var(--color-error)]" />
+                    <span className="heading-airbnb-3">{Math.floor(data.overview.totalTimeSpent / 3600)}h</span>
+                  </div>
+                  <p className="text-airbnb-small text-[var(--foreground-secondary)]">Time Spent</p>
                 </div>
-                <p className="text-xs text-gray-600">Best Score</p>
-              </div>
-              
-              <div className="bg-white p-4 rounded-xl shadow-sm hover:shadow-md transition">
-                <div className="flex items-center justify-between mb-2">
-                  <Percent className="h-5 w-5 text-orange-500" />
-                  <span className="text-xl font-bold text-gray-900">
-                    {data.overview.improvement > 0 ? '+' : ''}{data.overview.improvement}%
-                  </span>
+                
+                <div className="card-airbnb p-6 border border-[var(--border-color-light)] hover-scale">
+                  <div className="flex items-center justify-between mb-3">
+                    <Award className="h-5 w-5 text-[var(--color-success)]" />
+                    <span className="heading-airbnb-3">{data.overview.bestScore}%</span>
+                  </div>
+                  <p className="text-airbnb-small text-[var(--foreground-secondary)]">Best Score</p>
                 </div>
-                <p className="text-xs text-gray-600">Improvement</p>
+                
+                <div className="card-airbnb p-6 border border-[var(--border-color-light)] hover-scale">
+                  <div className="flex items-center justify-between mb-3">
+                    <Percent className="h-5 w-5 text-[var(--color-warning)]" />
+                    <span className="heading-airbnb-3">
+                      {data.overview.improvement > 0 ? '+' : ''}{data.overview.improvement}%
+                    </span>
+                  </div>
+                  <p className="text-airbnb-small text-[var(--foreground-secondary)]">Improvement</p>
+                </div>
               </div>
-            </div>
-
-            {/* Charts Section */}
-            <div className="grid lg:grid-cols-2 gap-6 mb-6">
+            {/* Charts Section - Airbnb Style */}
+            <div className="grid lg:grid-cols-2 gap-6 mb-8">
               {/* Performance Trend */}
-              <div className="bg-white p-6 rounded-xl shadow-sm">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-gray-900 flex items-center">
-                    <TrendingUp className="h-5 w-5 text-indigo-600 mr-2" />
+              <div className="card-airbnb">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="heading-airbnb-3 flex items-center gap-2">
+                    <TrendingUp className="h-5 w-5 text-[var(--color-primary)]" />
                     Performance Trend
                   </h3>
-                  <span className="text-xs text-gray-500">Score & Accuracy over time</span>
+                  <span className="text-airbnb-xs">Score & Accuracy over time</span>
                 </div>
                 {data.performanceTrend.length > 0 ? (
                   <ResponsiveContainer width="100%" height={250}>
@@ -662,43 +662,43 @@ export default function AnalyticsPage() {
                           <stop offset="95%" stopColor={CHART_COLORS.success} stopOpacity={0}/>
                         </linearGradient>
                       </defs>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                      <XAxis dataKey="date" tick={{ fontSize: 12 }} />
-                      <YAxis tick={{ fontSize: 12 }} />
+                      <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color-light)" />
+                      <XAxis dataKey="date" tick={{ fontSize: 12, fill: 'var(--foreground-secondary)' }} />
+                      <YAxis tick={{ fontSize: 12, fill: 'var(--foreground-secondary)' }} />
                       <Tooltip content={<CustomTooltip />} />
-                      <Legend />
+                      <Legend wrapperStyle={{ fontSize: 'var(--text-sm)' }} />
                       <Area type="monotone" dataKey="score" stroke={CHART_COLORS.primary} fillOpacity={1} fill="url(#colorScore)" name="Score %" strokeWidth={2} />
                       <Area type="monotone" dataKey="accuracy" stroke={CHART_COLORS.success} fillOpacity={1} fill="url(#colorAccuracy)" name="Accuracy %" strokeWidth={2} />
                     </AreaChart>
                   </ResponsiveContainer>
                 ) : (
-                  <div className="h-[250px] flex items-center justify-center text-gray-400">
+                  <div className="h-[250px] flex items-center justify-center text-[var(--foreground-muted)]">
                     <p>No trend data available</p>
                   </div>
                 )}
               </div>
 
               {/* Topic Performance */}
-              <div className="bg-white p-6 rounded-xl shadow-sm">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-gray-900 flex items-center">
-                    <BarChart3 className="h-5 w-5 text-indigo-600 mr-2" />
+              <div className="card-airbnb">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="heading-airbnb-3 flex items-center gap-2">
+                    <BarChart3 className="h-5 w-5 text-[var(--color-primary)]" />
                     Topic Performance
                   </h3>
-                  <span className="text-xs text-gray-500">Accuracy by topic</span>
+                  <span className="text-airbnb-xs">Accuracy by topic</span>
                 </div>
                 {data.topicPerformance.length > 0 ? (
                   <ResponsiveContainer width="100%" height={250}>
                     <BarChart data={data.topicPerformance.slice(0, 6)}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                      <XAxis dataKey="topic" tick={{ fontSize: 11 }} angle={-45} textAnchor="end" height={80} />
-                      <YAxis tick={{ fontSize: 12 }} />
+                      <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color-light)" />
+                      <XAxis dataKey="topic" tick={{ fontSize: 11, fill: 'var(--foreground-secondary)' }} angle={-45} textAnchor="end" height={80} />
+                      <YAxis tick={{ fontSize: 12, fill: 'var(--foreground-secondary)' }} />
                       <Tooltip content={<CustomTooltip />} />
                       <Bar dataKey="accuracy" fill={CHART_COLORS.primary} radius={[8, 8, 0, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
                 ) : (
-                  <div className="h-[250px] flex items-center justify-center text-gray-400">
+                  <div className="h-[250px] flex items-center justify-center text-[var(--foreground-muted)]">
                     <p>No topic data available</p>
                   </div>
                 )}
@@ -706,10 +706,10 @@ export default function AnalyticsPage() {
             </div>
 
             {/* Difficulty Analysis & Topic Details */}
-            <div className="grid lg:grid-cols-3 gap-6 mb-6">
+            <div className="grid lg:grid-cols-3 gap-6 mb-8">
               {/* Difficulty Pie Chart */}
-              <div className="bg-white p-6 rounded-xl shadow-sm">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Difficulty Analysis</h3>
+              <div className="card-airbnb">
+                <h3 className="heading-airbnb-3 mb-6">Difficulty Analysis</h3>
                 {data.difficultyAnalysis.some(d => d.attempted > 0) ? (
                   <>
                     <ResponsiveContainer width="100%" height={200}>
@@ -734,54 +734,54 @@ export default function AnalyticsPage() {
                     <div className="flex justify-around mt-4">
                       {data.difficultyAnalysis.map((item) => (
                         <div key={item.difficulty} className="text-center">
-                          <div className="flex items-center space-x-1 mb-1">
+                          <div className="flex items-center gap-1 mb-1">
                             <div 
                               className="w-3 h-3 rounded-full" 
                               style={{ backgroundColor: DIFFICULTY_COLORS[item.difficulty as keyof typeof DIFFICULTY_COLORS] }}
                             />
-                            <span className="text-xs text-gray-600">{item.difficulty}</span>
+                            <span className="text-airbnb-xs">{item.difficulty}</span>
                           </div>
-                          <p className="text-sm font-semibold">{item.accuracy}%</p>
+                          <p className="text-[var(--text-sm)] font-semibold text-[var(--foreground)]">{item.accuracy}%</p>
                         </div>
                       ))}
                     </div>
                   </>
                 ) : (
-                  <div className="h-[200px] flex items-center justify-center text-gray-400">
-                    <p className="text-sm">No difficulty data</p>
+                  <div className="h-[200px] flex items-center justify-center text-[var(--foreground-muted)]">
+                    <p className="text-[var(--text-sm)]">No difficulty data</p>
                   </div>
                 )}
               </div>
 
               {/* Topic Breakdown */}
-              <div className="bg-white p-6 rounded-xl shadow-sm lg:col-span-2">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Topic Breakdown</h3>
+              <div className="card-airbnb lg:col-span-2">
+                <h3 className="heading-airbnb-3 mb-6">Topic Breakdown</h3>
                 {data.topicPerformance.length > 0 ? (
-                  <div className="space-y-3 max-h-[280px] overflow-y-auto">
+                  <div className="space-y-4 max-h-[280px] overflow-y-auto">
                     {data.topicPerformance.map((topic, index) => (
                       <div key={index} className="group">
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="text-sm font-medium text-gray-700">{topic.topic}</span>
-                          <div className="flex items-center space-x-2">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-[var(--text-base)] font-medium text-[var(--foreground)]">{topic.topic}</span>
+                          <div className="flex items-center gap-3">
                             {topic.trend !== 0 && (
-                              <span className={`text-xs flex items-center ${topic.trend > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                              <span className={`text-[var(--text-xs)] flex items-center gap-1 ${topic.trend > 0 ? 'text-[var(--color-success)]' : 'text-[var(--color-error)]'}`}>
                                 {topic.trend > 0 ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />}
                                 {Math.abs(topic.trend)}%
                               </span>
                             )}
-                            <span className="text-sm text-gray-500">
+                            <span className="text-[var(--text-sm)] text-[var(--foreground-secondary)]">
                               {topic.correct}/{topic.attempted} • {topic.accuracy}%
                             </span>
                           </div>
                         </div>
-                        <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                        <div className="w-full bg-[var(--background-secondary)] rounded-full h-2 overflow-hidden">
                           <div
-                            className="h-2 rounded-full transition-all duration-500 ease-out"
+                            className="h-2 rounded-full transition-all duration-[var(--transition-slow)] ease-out"
                             style={{ 
                               width: `${topic.accuracy}%`,
-                              backgroundColor: topic.accuracy >= 70 ? CHART_COLORS.success : 
-                                             topic.accuracy >= 50 ? CHART_COLORS.warning : 
-                                             CHART_COLORS.danger
+                              backgroundColor: topic.accuracy >= 70 ? 'var(--color-success)' : 
+                                             topic.accuracy >= 50 ? 'var(--color-warning)' : 
+                                             'var(--color-error)'
                             }}
                           />
                         </div>
@@ -789,7 +789,7 @@ export default function AnalyticsPage() {
                     ))}
                   </div>
                 ) : (
-                  <div className="h-[200px] flex items-center justify-center text-gray-400">
+                  <div className="h-[200px] flex items-center justify-center text-[var(--foreground-muted)]">
                     <p>No topic performance data</p>
                   </div>
                 )}
@@ -797,50 +797,50 @@ export default function AnalyticsPage() {
             </div>
 
             {/* Recent Tests & Weak Areas */}
-            <div className="grid lg:grid-cols-2 gap-6 mb-6">
+            <div className="grid lg:grid-cols-2 gap-6 mb-8">
               {/* Recent Tests */}
-              <div className="bg-white p-6 rounded-xl shadow-sm">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                  <Calendar className="h-5 w-5 text-indigo-600 mr-2" />
+              <div className="card-airbnb">
+                <h3 className="heading-airbnb-3 mb-6 flex items-center gap-2">
+                  <Calendar className="h-5 w-5 text-[var(--color-primary)]" />
                   Recent Tests
                 </h3>
-                <div className="space-y-3">
+                <div className="space-y-2">
                   {data.recentTests.length > 0 ? (
                     data.recentTests.map((test) => (
                       <Link
                         key={test.id}
                         href={`/test/${test.testId}/result?resultId=${test.id}`}
-                        className="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition group"
+                        className="flex items-center justify-between p-4 -mx-4 rounded-[var(--radius-base)] hover:bg-[var(--background-secondary)] transition-all duration-[var(--transition-base)] group"
                       >
                         <div className="flex-1">
-                          <p className="font-medium text-gray-900 group-hover:text-indigo-600 transition">
+                          <p className="text-[var(--text-base)] font-medium text-[var(--foreground)] group-hover:text-[var(--color-primary)] transition-colors">
                             {test.title}
                           </p>
-                          <p className="text-sm text-gray-500">
+                          <p className="text-[var(--text-sm)] text-[var(--foreground-secondary)]">
                             {test.date} • {test.timeTaken} min
                           </p>
                         </div>
-                        <div className="flex items-center space-x-2">
+                        <div className="flex items-center gap-3">
                           {test.trend !== 'same' && (
-                            <div className={`${test.trend === 'up' ? 'text-green-600' : 'text-red-600'}`}>
+                            <div className={`${test.trend === 'up' ? 'text-[var(--color-success)]' : 'text-[var(--color-error)]'}`}>
                               {test.trend === 'up' ? <ArrowUp className="h-4 w-4" /> : <ArrowDown className="h-4 w-4" />}
                             </div>
                           )}
                           <span className={`font-semibold ${
-                            test.percentage >= 80 ? 'text-green-600' :
-                            test.percentage >= 60 ? 'text-yellow-600' :
-                            'text-red-600'
+                            test.percentage >= 80 ? 'text-[var(--color-success)]' :
+                            test.percentage >= 60 ? 'text-[var(--color-warning)]' :
+                            'text-[var(--color-error)]'
                           }`}>
                             {test.percentage}%
                           </span>
-                          <ChevronRight className="h-4 w-4 text-gray-400 group-hover:text-indigo-600 transition" />
+                          <ChevronRight className="h-4 w-4 text-[var(--foreground-muted)] group-hover:text-[var(--foreground)] group-hover:translate-x-1 transition-all" />
                         </div>
                       </Link>
                     ))
                   ) : (
-                    <div className="text-center py-8 text-gray-500">
+                    <div className="text-center py-8 text-[var(--foreground-secondary)]">
                       <p className="mb-2">No tests taken yet</p>
-                      <Link href="/dashboard" className="text-indigo-600 hover:underline text-sm">
+                      <Link href="/dashboard" className="text-[var(--color-primary)] hover:underline text-[var(--text-sm)]">
                         Take your first test →
                       </Link>
                     </div>
@@ -849,9 +849,9 @@ export default function AnalyticsPage() {
               </div>
 
               {/* Weak Areas */}
-              <div className="bg-white p-6 rounded-xl shadow-sm">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                  <AlertCircle className="h-5 w-5 text-red-600 mr-2" />
+              <div className="card-airbnb">
+                <h3 className="heading-airbnb-3 mb-6 flex items-center gap-2">
+                  <AlertCircle className="h-5 w-5 text-[var(--color-error)]" />
                   Areas for Improvement
                 </h3>
                 <div className="space-y-4">
@@ -860,52 +860,52 @@ export default function AnalyticsPage() {
                       <div 
                         key={index} 
                         className={`border-l-4 pl-4 ${
-                          area.priority === 'high' ? 'border-red-500' :
-                          area.priority === 'medium' ? 'border-yellow-500' :
-                          'border-blue-500'
+                          area.priority === 'high' ? 'border-[var(--color-error)]' :
+                          area.priority === 'medium' ? 'border-[var(--color-warning)]' :
+                          'border-[var(--color-info)]'
                         }`}
                       >
-                        <div className="flex items-center justify-between mb-1">
-                          <p className="font-medium text-gray-900">{area.topic}</p>
-                          <div className="flex items-center space-x-2">
-                            <span className={`text-xs px-2 py-0.5 rounded-full ${
-                              area.priority === 'high' ? 'bg-red-100 text-red-700' :
-                              area.priority === 'medium' ? 'bg-yellow-100 text-yellow-700' :
-                              'bg-blue-100 text-blue-700'
+                        <div className="flex items-center justify-between mb-2">
+                          <p className="text-[var(--text-base)] font-medium text-[var(--foreground)]">{area.topic}</p>
+                          <div className="flex items-center gap-2">
+                            <span className={`badge-airbnb ${
+                              area.priority === 'high' ? 'badge-airbnb-error' :
+                              area.priority === 'medium' ? 'badge-airbnb-warning' :
+                              'badge-airbnb-primary'
                             }`}>
                               {area.priority}
                             </span>
-                            <span className="text-sm text-red-600 font-medium">{area.accuracy}%</span>
+                            <span className="text-[var(--text-sm)] text-[var(--color-error)] font-medium">{area.accuracy}%</span>
                           </div>
                         </div>
-                        <p className="text-sm text-gray-600 mb-2">{area.subtopic}</p>
-                        <p className="text-xs text-gray-500 italic">{area.suggestion}</p>
+                        <p className="text-[var(--text-sm)] text-[var(--foreground-secondary)] mb-2">{area.subtopic}</p>
+                        <p className="text-[var(--text-xs)] text-[var(--foreground-muted)] italic">{area.suggestion}</p>
                       </div>
                     ))
                   ) : (
-                    <div className="text-center py-8 text-gray-500">
-                      <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                        <CheckCircle className="h-8 w-8 text-green-600" />
+                    <div className="text-center py-8">
+                      <div className="inline-flex items-center justify-center w-16 h-16 bg-[var(--color-success)]/10 rounded-full mb-4">
+                        <CheckCircle className="h-8 w-8 text-[var(--color-success)]" />
                       </div>
-                      <p className="mb-2 font-medium">Excellent Performance!</p>
-                      <p className="text-sm">No weak areas detected. Keep up the great work!</p>
+                      <p className="text-[var(--text-base)] font-medium text-[var(--foreground)] mb-2">Excellent Performance!</p>
+                      <p className="text-[var(--text-sm)] text-[var(--foreground-secondary)]">No weak areas detected. Keep up the great work!</p>
                     </div>
                   )}
                 </div>
               </div>
             </div>
 
-            {/* Study Recommendations */}
+            {/* Study Recommendations - Airbnb Style */}
             {data.overview.totalTests > 0 && (
-              <div className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl p-6 text-white">
-                <h3 className="text-xl font-semibold mb-4">Personalized Study Plan</h3>
-                <div className="grid md:grid-cols-3 gap-4">
-                  <div className="bg-white/10 backdrop-blur rounded-lg p-4">
-                    <h4 className="font-semibold mb-2 flex items-center">
-                      <Target className="h-4 w-4 mr-2" />
+              <div className="card-airbnb bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-primary-hover)] text-white p-8">
+                <h3 className="heading-airbnb-2 mb-8 text-white">Your Personalized Study Plan</h3>
+                <div className="grid md:grid-cols-3 gap-6">
+                  <div className="bg-white/20 backdrop-blur rounded-[var(--radius-base)] p-6">
+                    <h4 className="text-[var(--text-lg)] font-semibold mb-4 flex items-center gap-2">
+                      <Target className="h-5 w-5" />
                       Focus Areas
                     </h4>
-                    <ul className="text-sm space-y-1">
+                    <ul className="text-[var(--text-sm)] space-y-2 text-white/90">
                       {data.weakAreas.length > 0 ? (
                         data.weakAreas.slice(0, 3).map((area, i) => (
                           <li key={i}>• {area.topic} ({area.accuracy}%)</li>
@@ -920,24 +920,24 @@ export default function AnalyticsPage() {
                     </ul>
                   </div>
                   
-                  <div className="bg-white/10 backdrop-blur rounded-lg p-4">
-                    <h4 className="font-semibold mb-2 flex items-center">
-                      <BookOpen className="h-4 w-4 mr-2" />
+                  <div className="bg-white/20 backdrop-blur rounded-[var(--radius-base)] p-6">
+                    <h4 className="text-[var(--text-lg)] font-semibold mb-4 flex items-center gap-2">
+                      <BookOpen className="h-5 w-5" />
                       Recommended Practice
                     </h4>
-                    <ul className="text-sm space-y-1">
+                    <ul className="text-[var(--text-sm)] space-y-2 text-white/90">
                       <li>• {Math.max(10, Math.round(30 - data.overview.totalQuestions / 20))} questions daily</li>
                       <li>• {data.overview.totalTests < 10 ? '3-4' : '2-3'} mock tests weekly</li>
                       <li>• Focus on {data.overview.averageScore < 60 ? 'Medium' : 'Hard'} difficulty</li>
                     </ul>
                   </div>
                   
-                  <div className="bg-white/10 backdrop-blur rounded-lg p-4">
-                    <h4 className="font-semibold mb-2 flex items-center">
-                      <Trophy className="h-4 w-4 mr-2" />
+                  <div className="bg-white/20 backdrop-blur rounded-[var(--radius-base)] p-6">
+                    <h4 className="text-[var(--text-lg)] font-semibold mb-4 flex items-center gap-2">
+                      <Trophy className="h-5 w-5" />
                       Weekly Goals
                     </h4>
-                    <ul className="text-sm space-y-1">
+                    <ul className="text-[var(--text-sm)] space-y-2 text-white/90">
                       <li>• Reach {Math.min(95, data.overview.overallAccuracy + 10)}% accuracy</li>
                       <li>• Complete {Math.round(data.overview.totalQuestions * 0.3)} questions</li>
                       <li>• {data.overview.studyStreak > 0 ? `Extend ${data.overview.studyStreak}-day streak` : 'Start a 7-day streak'}</li>
@@ -945,16 +945,17 @@ export default function AnalyticsPage() {
                   </div>
                 </div>
                 
-                <div className="mt-4 flex justify-center">
+                <div className="mt-8 flex justify-center">
                   <Link
                     href="/dashboard"
-                    className="px-6 py-2 bg-white text-indigo-600 rounded-lg hover:bg-gray-100 transition font-medium"
+                    className="btn-airbnb bg-white text-[var(--color-primary)] hover:bg-[var(--background-secondary)] px-8 py-3"
                   >
                     Start Practicing Now →
                   </Link>
                 </div>
               </div>
             )}
+            </div>
           </>
         )}
       </div>

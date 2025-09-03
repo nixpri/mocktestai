@@ -2,24 +2,121 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Brain, Sparkles, Loader2, AlertCircle } from 'lucide-react'
+import { Brain, Sparkles, Loader2, AlertCircle, ChevronRight, BookOpen, Clock, TrendingUp, Zap, Settings, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 
 export default function GenerateTestPage() {
   const router = useRouter()
   const [generating, setGenerating] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [activeTab, setActiveTab] = useState<'quick' | 'custom'>('quick')
   const [formData, setFormData] = useState({
     title: 'JEE Physics Mock Test',
-    topics: ['mechanics', 'thermodynamics', 'electromagnetism'],
-    totalQuestions: 5,
+    topics: ['mechanics'],
+    totalQuestions: 10,
     duration: 60,
     difficulty: {
-      easy: 2,
-      medium: 2,
-      hard: 1
+      easy: 3,
+      medium: 5,
+      hard: 2
     }
   })
+
+  const quickTestPresets = [
+    {
+      id: 'quick-5',
+      title: 'Quick Practice',
+      questions: 5,
+      duration: 15,
+      icon: Zap,
+      color: 'bg-gradient-to-br from-[var(--color-info)] to-[var(--color-primary)]',
+      description: 'Perfect for a quick revision'
+    },
+    {
+      id: 'standard-10',
+      title: 'Standard Test',
+      questions: 10,
+      duration: 30,
+      icon: BookOpen,
+      color: 'bg-gradient-to-br from-[var(--color-success)] to-teal-500',
+      description: 'Balanced practice session'
+    },
+    {
+      id: 'full-20',
+      title: 'Full Mock Test',
+      questions: 20,
+      duration: 60,
+      icon: TrendingUp,
+      color: 'bg-gradient-to-br from-[var(--color-warning)] to-orange-500',
+      description: 'Complete exam simulation'
+    }
+  ]
+
+  const topics = [
+    { id: 'mechanics', name: 'Mechanics', icon: '⚙️' },
+    { id: 'thermodynamics', name: 'Thermodynamics', icon: '🔥' },
+    { id: 'electromagnetism', name: 'Electromagnetism', icon: '⚡' },
+    { id: 'optics', name: 'Optics', icon: '💡' },
+    { id: 'modern-physics', name: 'Modern Physics', icon: '⚛️' },
+    { id: 'waves', name: 'Waves & Oscillations', icon: '〰️' }
+  ]
+
+  const handleQuickTest = async (preset: any) => {
+    setGenerating(true)
+    setError(null)
+    
+    const quickFormData = {
+      title: preset.title,
+      topics: ['mechanics', 'thermodynamics'],
+      totalQuestions: preset.questions,
+      duration: preset.duration,
+      difficulty: {
+        easy: Math.floor(preset.questions * 0.3),
+        medium: Math.floor(preset.questions * 0.5),
+        hard: Math.floor(preset.questions * 0.2)
+      }
+    }
+
+    try {
+      const response = await fetch('/api/questions/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          type: 'mock_test',
+          params: {
+            ...quickFormData,
+            difficultyDistribution: quickFormData.difficulty
+          }
+        })
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        if (data.error?.includes('overloaded')) {
+          throw new Error('AI service is busy. Please try again in a moment.')
+        } else if (data.error?.includes('API key')) {
+          throw new Error('AI service not configured. Please contact support.')
+        } else {
+          throw new Error(data.details || data.error || 'Failed to generate test')
+        }
+      }
+
+      if (data.success && data.test) {
+        localStorage.setItem(`ai_test_${data.test.id}`, JSON.stringify({
+          test: data.test,
+          questions: data.questions || []
+        }))
+        router.push(`/test/${data.test.id}`)
+      }
+    } catch (err: any) {
+      setError(err.message || 'An error occurred while generating the test')
+    } finally {
+      setGenerating(false)
+    }
+  }
 
   const handleGenerateTest = async () => {
     setGenerating(true)
@@ -43,10 +140,8 @@ export default function GenerateTestPage() {
       const data = await response.json()
 
       if (!response.ok) {
-        // API Error details available in data
-        // Provide more specific error messages
         if (data.error?.includes('overloaded')) {
-          throw new Error('The AI service is currently busy. Please wait a moment and try again.')
+          throw new Error('AI service is busy. Please try again in a moment.')
         } else if (data.error?.includes('API key')) {
           throw new Error('AI service not configured. Please contact support.')
         } else {
@@ -55,13 +150,10 @@ export default function GenerateTestPage() {
       }
 
       if (data.success && data.test) {
-        // Store test data in localStorage for the test page to load
         localStorage.setItem(`ai_test_${data.test.id}`, JSON.stringify({
           test: data.test,
           questions: data.questions || []
         }))
-        
-        // Redirect to the generated test
         router.push(`/test/${data.test.id}`)
       }
     } catch (err: any) {
@@ -71,289 +163,286 @@ export default function GenerateTestPage() {
     }
   }
 
-  const handleGenerateSingleQuestion = async () => {
-    setGenerating(true)
-    setError(null)
-
-    try {
-      const response = await fetch('/api/questions/generate', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          type: 'single',
-          params: {
-            topic: 'mechanics',
-            subtopic: 'kinematics',
-            difficulty: 'medium',
-            questionType: 'mcq'
-          }
-        })
-      })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        // Provide more specific error messages for single question generation
-        if (data.error?.includes('overloaded')) {
-          throw new Error('The AI service is currently busy. Please wait a moment and try again.')
-        } else if (data.error?.includes('API key')) {
-          throw new Error('AI service not configured. Please contact support.')
-        } else {
-          throw new Error(data.error || 'Failed to generate question')
-        }
-      }
-
-      if (data.success) {
-        alert('Question generated successfully! Check the console for details.')
-        // Question generated successfully
-      }
-    } catch (err: any) {
-      setError(err.message || 'An error occurred while generating the question')
-    } finally {
-      setGenerating(false)
-    }
-  }
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div className="min-h-screen bg-[var(--background-secondary)]">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16 items-center">
-            <div className="flex items-center space-x-2">
-              <Brain className="h-8 w-8 text-indigo-600" />
-              <span className="text-xl font-bold text-gray-900">MockTest AI</span>
-            </div>
-            <Link
-              href="/dashboard"
-              className="text-indigo-600 hover:text-indigo-700 font-medium"
+      <nav className="bg-[var(--background-elevated)] border-b border-[var(--border-color-light)]">
+        <div className="container-airbnb">
+          <div className="flex justify-between h-[72px] items-center">
+            <Link href="/dashboard" className="flex items-center gap-3">
+              <Brain className="h-8 w-8 text-[var(--color-primary)]" />
+              <span className="text-[var(--text-xl)] font-semibold text-[var(--foreground)]">MockTest AI</span>
+            </Link>
+            <Link 
+              href="/dashboard" 
+              className="text-[var(--foreground-secondary)] hover:text-[var(--foreground)] transition-colors text-[var(--text-sm)]"
             >
-              Back to Dashboard
+              ← Back to Dashboard
             </Link>
           </div>
         </div>
-      </header>
+      </nav>
 
-      {/* Content */}
-      <div className="max-w-4xl mx-auto px-4 py-12">
-        <div className="bg-white rounded-2xl shadow-lg p-8">
-          <div className="text-center mb-8">
-            <Sparkles className="h-12 w-12 text-indigo-600 mx-auto mb-4" />
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              AI Test Generator
-            </h1>
-            <p className="text-gray-600">
-              Generate JEE Physics questions using AI
-            </p>
+      <div className="container-airbnb py-10">
+        {/* Page Header */}
+        <div className="text-center mb-10 animate-fade-in">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-info)] mb-4">
+            <Sparkles className="h-8 w-8 text-white" />
           </div>
+          <h1 className="heading-airbnb-1 mb-3">Generate AI-Powered Test</h1>
+          <p className="text-airbnb-body max-w-2xl mx-auto">
+            Create personalized mock tests with our advanced AI. Choose from quick presets or customize every detail.
+          </p>
+        </div>
 
-          {error && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start">
-              <AlertCircle className="h-5 w-5 text-red-600 mr-2 mt-0.5" />
-              <div className="flex-1">
-                <p className="text-red-800 font-medium">{error}</p>
-                {error.includes('busy') && (
-                  <p className="text-sm text-red-600 mt-1">
-                    The AI service is experiencing high demand. Please wait a few seconds and try again.
-                  </p>
-                )}
-                {error.includes('configured') && (
-                  <p className="text-sm text-red-600 mt-1">
-                    Please ensure ANTHROPIC_API_KEY is set in your .env.local file.
-                  </p>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Test Configuration */}
-          <div className="space-y-6 mb-8">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Test Title
-              </label>
-              <input
-                type="text"
-                value={formData.title}
-                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                placeholder="Enter test title"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Topics (Select multiple)
-              </label>
-              <div className="grid grid-cols-2 gap-3">
-                {['mechanics', 'thermodynamics', 'electromagnetism', 'optics', 'modern_physics', 'waves'].map((topic) => (
-                  <label key={topic} className="flex items-center">
-                    <input
-                      type="checkbox"
-                      checked={formData.topics.includes(topic)}
-                      onChange={(e) => {
-                        if (e.target.checked) {
-                          setFormData({ ...formData, topics: [...formData.topics, topic] })
-                        } else {
-                          setFormData({ ...formData, topics: formData.topics.filter(t => t !== topic) })
-                        }
-                      }}
-                      className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-                    />
-                    <span className="ml-2 text-gray-700 capitalize">
-                      {topic.replace('_', ' ')}
-                    </span>
-                  </label>
-                ))}
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Total Questions
-                </label>
-                <input
-                  type="number"
-                  value={formData.totalQuestions}
-                  onChange={(e) => {
-                    const value = parseInt(e.target.value)
-                    setFormData({ ...formData, totalQuestions: isNaN(value) ? 0 : value })
-                  }}
-                  min="1"
-                  max="50"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Duration (minutes)
-                </label>
-                <input
-                  type="number"
-                  value={formData.duration}
-                  onChange={(e) => {
-                    const value = parseInt(e.target.value)
-                    setFormData({ ...formData, duration: isNaN(value) ? 0 : value })
-                  }}
-                  min="10"
-                  max="180"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Difficulty Distribution
-              </label>
-              <div className="grid grid-cols-3 gap-4">
-                <div>
-                  <label className="text-xs text-gray-600">Easy</label>
-                  <input
-                    type="number"
-                    value={formData.difficulty.easy}
-                    onChange={(e) => {
-                      const value = parseInt(e.target.value)
-                      setFormData({ 
-                        ...formData, 
-                        difficulty: { ...formData.difficulty, easy: isNaN(value) ? 0 : value }
-                      })
-                    }}
-                    min="0"
-                    max="50"
-                    className="w-full px-3 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-indigo-500"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs text-gray-600">Medium</label>
-                  <input
-                    type="number"
-                    value={formData.difficulty.medium}
-                    onChange={(e) => {
-                      const value = parseInt(e.target.value)
-                      setFormData({ 
-                        ...formData, 
-                        difficulty: { ...formData.difficulty, medium: isNaN(value) ? 0 : value }
-                      })
-                    }}
-                    min="0"
-                    max="50"
-                    className="w-full px-3 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-indigo-500"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs text-gray-600">Hard</label>
-                  <input
-                    type="number"
-                    value={formData.difficulty.hard}
-                    onChange={(e) => {
-                      const value = parseInt(e.target.value)
-                      setFormData({ 
-                        ...formData, 
-                        difficulty: { ...formData.difficulty, hard: isNaN(value) ? 0 : value }
-                      })
-                    }}
-                    min="0"
-                    max="50"
-                    className="w-full px-3 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-indigo-500"
-                  />
-                </div>
-              </div>
-              <p className="text-xs text-gray-500 mt-1">
-                Total should equal {formData.totalQuestions} questions
-              </p>
-            </div>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4">
+        {/* Tab Navigation */}
+        <div className="flex justify-center mb-8">
+          <div className="inline-flex p-1 bg-[var(--background-secondary)] rounded-[var(--radius-base)]">
             <button
-              onClick={handleGenerateTest}
-              disabled={generating || formData.topics.length === 0}
-              className="flex-1 flex items-center justify-center px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+              onClick={() => setActiveTab('quick')}
+              className={`px-6 py-3 rounded-[var(--radius-sm)] font-medium transition-all ${
+                activeTab === 'quick' 
+                  ? 'bg-white text-[var(--foreground)] shadow-sm' 
+                  : 'text-[var(--foreground-secondary)] hover:text-[var(--foreground)]'
+              }`}
             >
-              {generating ? (
-                <>
-                  <Loader2 className="h-5 w-5 mr-2 animate-spin" />
-                  Generating Test...
-                </>
-              ) : (
-                <>
-                  <Sparkles className="h-5 w-5 mr-2" />
-                  Generate Full Test
-                </>
-              )}
+              Quick Start
             </button>
-
             <button
-              onClick={handleGenerateSingleQuestion}
-              disabled={generating}
-              className="flex-1 flex items-center justify-center px-6 py-3 bg-white text-indigo-600 border-2 border-indigo-600 rounded-lg hover:bg-indigo-50 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+              onClick={() => setActiveTab('custom')}
+              className={`px-6 py-3 rounded-[var(--radius-sm)] font-medium transition-all ${
+                activeTab === 'custom' 
+                  ? 'bg-white text-[var(--foreground)] shadow-sm' 
+                  : 'text-[var(--foreground-secondary)] hover:text-[var(--foreground)]'
+              }`}
             >
-              {generating ? (
-                <>
-                  <Loader2 className="h-5 w-5 mr-2 animate-spin" />
-                  Generating...
-                </>
-              ) : (
-                <>
-                  <Brain className="h-5 w-5 mr-2" />
-                  Generate Single Question
-                </>
-              )}
+              Custom Test
             </button>
-          </div>
-
-          <div className="mt-8 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-            <p className="text-sm text-yellow-800">
-              <strong>Note:</strong> AI generation requires an ANTHROPIC_API_KEY in your .env.local file.
-              Each question generation uses approximately 500-1000 tokens.
-            </p>
           </div>
         </div>
+
+        {/* Error Alert */}
+        {error && (
+          <div className="mb-6 p-4 bg-[var(--color-error)]/10 border border-[var(--color-error)]/20 rounded-[var(--radius-base)] animate-slide-up">
+            <div className="flex items-center gap-3">
+              <AlertCircle className="h-5 w-5 text-[var(--color-error)]" />
+              <p className="text-[var(--color-error)] text-[var(--text-sm)]">{error}</p>
+            </div>
+          </div>
+        )}
+
+        {/* Quick Start Tab */}
+        {activeTab === 'quick' && (
+          <div className="grid md:grid-cols-3 gap-6 animate-fade-in">
+            {quickTestPresets.map((preset) => {
+              const Icon = preset.icon
+              return (
+                <button
+                  key={preset.id}
+                  onClick={() => handleQuickTest(preset)}
+                  disabled={generating}
+                  className="group text-left disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <div className="card-airbnb p-6 hover-lift transition-all duration-[var(--transition-slow)]">
+                    <div className={`w-full h-32 ${preset.color} rounded-[var(--radius-base)] mb-6 flex items-center justify-center`}>
+                      <Icon className="h-12 w-12 text-white" />
+                    </div>
+                    <h3 className="heading-airbnb-4 mb-2">{preset.title}</h3>
+                    <p className="text-[var(--foreground-secondary)] text-[var(--text-sm)] mb-4">
+                      {preset.description}
+                    </p>
+                    <div className="flex items-center justify-between text-[var(--text-sm)]">
+                      <span className="text-[var(--foreground-muted)]">
+                        {preset.questions} questions • {preset.duration} mins
+                      </span>
+                      <ArrowRight className="h-4 w-4 text-[var(--foreground-muted)] group-hover:text-[var(--foreground)] group-hover:translate-x-1 transition-all" />
+                    </div>
+                  </div>
+                </button>
+              )
+            })}
+          </div>
+        )}
+
+        {/* Custom Test Tab */}
+        {activeTab === 'custom' && (
+          <div className="max-w-4xl mx-auto animate-fade-in">
+            <div className="card-airbnb p-8">
+              {/* Test Title */}
+              <div className="mb-8">
+                <label className="block text-[var(--text-sm)] font-medium text-[var(--foreground)] mb-2">
+                  Test Title
+                </label>
+                <input
+                  type="text"
+                  value={formData.title}
+                  onChange={(e) => setFormData({...formData, title: e.target.value})}
+                  className="input-airbnb"
+                  placeholder="Enter test title"
+                />
+              </div>
+
+              {/* Topics Selection */}
+              <div className="mb-8">
+                <label className="block text-[var(--text-sm)] font-medium text-[var(--foreground)] mb-4">
+                  Select Topics
+                </label>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                  {topics.map((topic) => (
+                    <button
+                      key={topic.id}
+                      onClick={() => {
+                        const newTopics = formData.topics.includes(topic.id)
+                          ? formData.topics.filter(t => t !== topic.id)
+                          : [...formData.topics, topic.id]
+                        setFormData({...formData, topics: newTopics})
+                      }}
+                      className={`p-3 rounded-[var(--radius-sm)] border transition-all ${
+                        formData.topics.includes(topic.id)
+                          ? 'border-[var(--color-primary)] bg-[var(--color-primary-light)] text-[var(--color-primary-dark)]'
+                          : 'border-[var(--border-color)] hover:border-[var(--foreground-secondary)]'
+                      }`}
+                    >
+                      <div className="flex items-center justify-center gap-2">
+                        <span className="text-xl">{topic.icon}</span>
+                        <span className="text-[var(--text-sm)] font-medium">{topic.name}</span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Test Configuration */}
+              <div className="grid md:grid-cols-2 gap-6 mb-8">
+                <div>
+                  <label className="block text-[var(--text-sm)] font-medium text-[var(--foreground)] mb-2">
+                    Number of Questions
+                  </label>
+                  <input
+                    type="number"
+                    value={formData.totalQuestions}
+                    onChange={(e) => {
+                      const total = parseInt(e.target.value) || 0
+                      setFormData({
+                        ...formData,
+                        totalQuestions: total,
+                        difficulty: {
+                          easy: Math.floor(total * 0.3),
+                          medium: Math.floor(total * 0.5),
+                          hard: Math.floor(total * 0.2)
+                        }
+                      })
+                    }}
+                    min="5"
+                    max="50"
+                    className="input-airbnb"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[var(--text-sm)] font-medium text-[var(--foreground)] mb-2">
+                    Duration (minutes)
+                  </label>
+                  <input
+                    type="number"
+                    value={formData.duration}
+                    onChange={(e) => setFormData({...formData, duration: parseInt(e.target.value) || 60})}
+                    min="15"
+                    max="180"
+                    className="input-airbnb"
+                  />
+                </div>
+              </div>
+
+              {/* Difficulty Distribution */}
+              <div className="mb-8">
+                <label className="block text-[var(--text-sm)] font-medium text-[var(--foreground)] mb-4">
+                  Difficulty Distribution
+                </label>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between p-4 bg-[var(--background-secondary)] rounded-[var(--radius-sm)]">
+                    <div className="flex items-center gap-3">
+                      <div className="w-3 h-3 rounded-full bg-[var(--color-success)]"></div>
+                      <span className="text-[var(--text-sm)] font-medium">Easy</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="number"
+                        value={formData.difficulty.easy}
+                        onChange={(e) => setFormData({
+                          ...formData,
+                          difficulty: {...formData.difficulty, easy: parseInt(e.target.value) || 0}
+                        })}
+                        min="0"
+                        max={formData.totalQuestions}
+                        className="w-16 px-2 py-1 text-center border border-[var(--border-color)] rounded-[var(--radius-sm)]"
+                      />
+                      <span className="text-[var(--text-sm)] text-[var(--foreground-secondary)]">questions</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between p-4 bg-[var(--background-secondary)] rounded-[var(--radius-sm)]">
+                    <div className="flex items-center gap-3">
+                      <div className="w-3 h-3 rounded-full bg-[var(--color-warning)]"></div>
+                      <span className="text-[var(--text-sm)] font-medium">Medium</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="number"
+                        value={formData.difficulty.medium}
+                        onChange={(e) => setFormData({
+                          ...formData,
+                          difficulty: {...formData.difficulty, medium: parseInt(e.target.value) || 0}
+                        })}
+                        min="0"
+                        max={formData.totalQuestions}
+                        className="w-16 px-2 py-1 text-center border border-[var(--border-color)] rounded-[var(--radius-sm)]"
+                      />
+                      <span className="text-[var(--text-sm)] text-[var(--foreground-secondary)]">questions</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between p-4 bg-[var(--background-secondary)] rounded-[var(--radius-sm)]">
+                    <div className="flex items-center gap-3">
+                      <div className="w-3 h-3 rounded-full bg-[var(--color-error)]"></div>
+                      <span className="text-[var(--text-sm)] font-medium">Hard</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="number"
+                        value={formData.difficulty.hard}
+                        onChange={(e) => setFormData({
+                          ...formData,
+                          difficulty: {...formData.difficulty, hard: parseInt(e.target.value) || 0}
+                        })}
+                        min="0"
+                        max={formData.totalQuestions}
+                        className="w-16 px-2 py-1 text-center border border-[var(--border-color)] rounded-[var(--radius-sm)]"
+                      />
+                      <span className="text-[var(--text-sm)] text-[var(--foreground-secondary)]">questions</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Generate Button */}
+              <button
+                onClick={handleGenerateTest}
+                disabled={generating || formData.topics.length === 0}
+                className="w-full btn-airbnb btn-airbnb-primary flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {generating ? (
+                  <>
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                    <span>Generating Test...</span>
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="h-5 w-5" />
+                    <span>Generate Custom Test</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
