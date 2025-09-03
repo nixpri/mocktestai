@@ -45,7 +45,7 @@ export default function QuestionDisplay({
       {/* Question Text */}
       <LatexRenderer 
         content={getFullQuestionText()}
-        className="text-lg text-gray-800 leading-relaxed whitespace-pre-wrap"
+        className="text-[var(--text-lg)] text-[var(--foreground)] leading-relaxed whitespace-pre-wrap"
       />
 
       {/* Question Images if any */}
@@ -56,7 +56,7 @@ export default function QuestionDisplay({
               key={index}
               src={imageUrl}
               alt={`Question figure ${index + 1}`}
-              className="max-w-full h-auto rounded-lg border border-gray-200"
+              className="max-w-full h-auto rounded-[var(--radius-base)] border border-[var(--border-color)]"
             />
           ))}
         </div>
@@ -69,10 +69,10 @@ export default function QuestionDisplay({
             {question.content.options.map((option) => (
               <label
                 key={option.id}
-                className={`flex items-start p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                className={`flex items-start p-4 rounded-[var(--radius-base)] border-2 cursor-pointer transition-all duration-[var(--transition-base)] ${
                   selectedAnswer === option.id
-                    ? 'border-indigo-500 bg-indigo-50'
-                    : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                    ? 'border-[var(--color-primary)] bg-[var(--color-primary)]/5'
+                    : 'border-[var(--border-color)] hover:border-[var(--foreground-secondary)] hover:bg-[var(--background-secondary)]'
                 }`}
               >
                 <input
@@ -81,16 +81,16 @@ export default function QuestionDisplay({
                   value={option.id}
                   checked={selectedAnswer === option.id}
                   onChange={() => handleOptionSelect(option.id)}
-                  className="mt-1 h-4 w-4 text-indigo-600 focus:ring-indigo-500"
+                  className="mt-1 h-4 w-4 text-[var(--color-primary)] focus:ring-[var(--color-primary)]"
                 />
                 <div className="ml-3 flex-1">
                   {option.latex ? (
                     <LatexRenderer 
                       content={option.latex}
-                      className="text-gray-700"
+                      className="text-[var(--foreground)]"
                     />
                   ) : (
-                    <span className="text-gray-700">{option.text}</span>
+                    <span className="text-[var(--foreground)]">{option.text}</span>
                   )}
                 </div>
               </label>
@@ -99,8 +99,8 @@ export default function QuestionDisplay({
         )}
 
         {question.questionType === 'numerical' && (
-          <div className="flex items-center space-x-4">
-            <label className="text-gray-700 font-medium">
+          <div className="flex items-center gap-4">
+            <label className="text-[var(--foreground)] font-medium">
               Your Answer:
             </label>
             <input
@@ -108,7 +108,7 @@ export default function QuestionDisplay({
               value={selectedAnswer || ''}
               onChange={(e) => handleNumericalInput(e.target.value)}
               placeholder="Enter numerical value"
-              className="px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-indigo-500 focus:outline-none"
+              className="input-airbnb"
               step="any"
             />
           </div>
@@ -116,8 +116,8 @@ export default function QuestionDisplay({
 
         {question.questionType === 'assertion_reasoning' && (
           <div className="space-y-4">
-            <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-              <p className="text-sm text-yellow-800">
+            <div className="p-4 bg-[var(--color-warning)]/10 border border-[var(--color-warning)]/20 rounded-[var(--radius-base)]">
+              <p className="text-[var(--text-sm)] text-[var(--color-warning)]">
                 <strong>Instructions:</strong> This question contains an Assertion (A) and a Reason (R).
                 Choose the correct option based on whether both are true and if R is the correct explanation of A.
               </p>
@@ -125,10 +125,10 @@ export default function QuestionDisplay({
             {question.content?.options?.map((option) => (
               <label
                 key={option.id}
-                className={`flex items-start p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                className={`flex items-start p-4 rounded-[var(--radius-base)] border-2 cursor-pointer transition-all duration-[var(--transition-base)] ${
                   selectedAnswer === option.id
-                    ? 'border-indigo-500 bg-indigo-50'
-                    : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                    ? 'border-[var(--color-primary)] bg-[var(--color-primary)]/5'
+                    : 'border-[var(--border-color)] hover:border-[var(--foreground-secondary)] hover:bg-[var(--background-secondary)]'
                 }`}
               >
                 <input
@@ -137,9 +137,9 @@ export default function QuestionDisplay({
                   value={option.id}
                   checked={selectedAnswer === option.id}
                   onChange={() => handleOptionSelect(option.id)}
-                  className="mt-1 h-4 w-4 text-indigo-600 focus:ring-indigo-500"
+                  className="mt-1 h-4 w-4 text-[var(--color-primary)] focus:ring-[var(--color-primary)]"
                 />
-                <span className="ml-3 text-gray-700">
+                <span className="ml-3 text-[var(--foreground)]">
                   {option.text}
                 </span>
               </label>

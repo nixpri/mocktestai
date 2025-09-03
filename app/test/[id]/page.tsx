@@ -368,10 +368,12 @@ export default function TestPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading test...</p>
+      <div className="min-h-screen bg-[var(--background-secondary)] flex items-center justify-center">
+        <div className="text-center animate-fade-in">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-[var(--background-elevated)] rounded-full shadow-lg mb-4">
+            <div className="animate-spin rounded-full h-10 w-10 border-3 border-[var(--color-primary)] border-t-transparent"></div>
+          </div>
+          <p className="text-[var(--foreground-secondary)]">Preparing your test...</p>
         </div>
       </div>
     )
@@ -379,12 +381,12 @@ export default function TestPage() {
 
   if (!test || questions.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-red-600">Test not found or no questions available.</p>
+      <div className="min-h-screen bg-[var(--background-secondary)] flex items-center justify-center">
+        <div className="card-airbnb text-center p-8 animate-scale-in">
+          <p className="text-[var(--color-error)] mb-4">Test not found or no questions available.</p>
           <button
             onClick={() => router.push('/dashboard')}
-            className="mt-4 text-indigo-600 hover:underline"
+            className="btn-airbnb btn-airbnb-primary"
           >
             Return to Dashboard
           </button>
@@ -398,7 +400,7 @@ export default function TestPage() {
   const isMarked = markedForReview.has(currentQuestion.id)
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen bg-[var(--background-secondary)] flex flex-col">
       {/* Header */}
       <TestHeader
         testTitle={test.title}
@@ -410,23 +412,31 @@ export default function TestPage() {
         {/* Main Content */}
         <div className="flex-1 flex flex-col">
           {/* Question Area */}
-          <div className="flex-1 p-6 overflow-y-auto">
-            <div className="max-w-4xl mx-auto">
-              <div className="bg-white rounded-lg shadow-sm p-6">
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-lg font-semibold">
-                    Question {currentQuestionIndex + 1} of {questions.length}
-                  </h2>
-                  <div className="flex items-center space-x-2">
-                    <span className="text-sm text-gray-500">
-                      Marks: +{currentQuestion.marks} / -{currentQuestion.negativeMarks}
-                    </span>
-                    <span className={`px-2 py-1 rounded text-xs ${
-                      currentQuestion.difficulty === 'easy' ? 'bg-green-100 text-green-700' :
-                      currentQuestion.difficulty === 'medium' ? 'bg-yellow-100 text-yellow-700' :
-                      'bg-red-100 text-red-700'
+          <div className="flex-1 p-8 overflow-y-auto">
+            <div className="max-w-5xl mx-auto">
+              <div className="card-airbnb animate-slide-up">
+                <div className="flex justify-between items-center mb-6">
+                  <div>
+                    <h2 className="heading-airbnb-3 mb-1">
+                      Question {currentQuestionIndex + 1} of {questions.length}
+                    </h2>
+                    <p className="text-[var(--text-sm)] text-[var(--foreground-secondary)]">
+                      {currentQuestion.topicId ? currentQuestion.topicId.charAt(0).toUpperCase() + currentQuestion.topicId.slice(1) : 'Physics'}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="text-right">
+                      <p className="text-[var(--text-xs)] text-[var(--foreground-muted)] uppercase tracking-wide">Marking Scheme</p>
+                      <p className="text-[var(--text-base)] font-semibold text-[var(--foreground)]">
+                        +{currentQuestion.marks} / -{currentQuestion.negativeMarks}
+                      </p>
+                    </div>
+                    <span className={`badge-airbnb ${
+                      currentQuestion.difficulty === 'easy' ? 'badge-airbnb-success' :
+                      currentQuestion.difficulty === 'medium' ? 'badge-airbnb-warning' :
+                      'badge-airbnb-error'
                     }`}>
-                      {currentQuestion.difficulty}
+                      {currentQuestion.difficulty?.charAt(0).toUpperCase() + currentQuestion.difficulty?.slice(1)}
                     </span>
                   </div>
                 </div>
@@ -438,72 +448,72 @@ export default function TestPage() {
                 />
               </div>
 
-              {/* Navigation Buttons */}
-              <div className="mt-6 flex justify-between items-center">
-                <div className="flex space-x-3">
+              {/* Navigation Buttons - Airbnb Style */}
+              <div className="mt-8 flex justify-between items-center">
+                <div className="flex gap-3">
                   <button
                     onClick={() => handleNavigate(currentQuestionIndex - 1)}
                     disabled={currentQuestionIndex === 0}
-                    className="flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="btn-airbnb btn-airbnb-secondary flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    <ChevronLeft className="h-4 w-4 mr-1" />
+                    <ChevronLeft className="h-4 w-4" />
                     Previous
                   </button>
                   {currentQuestionIndex === questions.length - 1 ? (
                     <button
                       onClick={() => setShowSubmitModal(true)}
-                      className="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                      className="btn-airbnb bg-[var(--color-success)] text-white hover:bg-[var(--color-success)]/90 flex items-center gap-2"
                     >
-                      <CheckCircle className="h-4 w-4 mr-1" />
+                      <CheckCircle className="h-4 w-4" />
                       Finish Test
                     </button>
                   ) : (
                     <button
                       onClick={() => handleNavigate(currentQuestionIndex + 1)}
-                      className="flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
+                      className="btn-airbnb btn-airbnb-secondary flex items-center gap-2"
                     >
                       Next
-                      <ChevronRight className="h-4 w-4 ml-1" />
+                      <ChevronRight className="h-4 w-4" />
                     </button>
                   )}
                 </div>
 
-                <div className="flex space-x-3">
+                <div className="flex gap-3">
                   <button
                     onClick={() => handleAnswerSelect(currentQuestion.id, null)}
                     disabled={!isAnswered}
-                    className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="btn-airbnb btn-airbnb-ghost disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Clear Response
                   </button>
                   <button
                     onClick={() => handleMarkForReview(currentQuestion.id)}
-                    className={`flex items-center px-4 py-2 rounded-lg ${
+                    className={`btn-airbnb flex items-center gap-2 ${
                       isMarked 
-                        ? 'bg-yellow-100 text-yellow-700 border border-yellow-300' 
-                        : 'bg-white border border-gray-300 hover:bg-gray-50'
+                        ? 'bg-[var(--color-warning)]/10 text-[var(--color-warning)] border border-[var(--color-warning)]' 
+                        : 'btn-airbnb-secondary'
                     }`}
                   >
-                    <Flag className="h-4 w-4 mr-1" />
+                    <Flag className="h-4 w-4" />
                     {isMarked ? 'Marked' : 'Mark for Review'}
                   </button>
                   <button
                     onClick={saveProgress}
                     disabled={saving}
-                    className={`flex items-center px-4 py-2 rounded-lg transition-all ${
+                    className={`btn-airbnb flex items-center gap-2 transition-all ${
                       showSuccessMessage 
-                        ? 'bg-green-600 text-white' 
-                        : 'bg-indigo-600 text-white hover:bg-indigo-700'
+                        ? 'bg-[var(--color-success)] text-white' 
+                        : 'btn-airbnb-primary'
                     } disabled:opacity-50`}
                   >
                     {showSuccessMessage ? (
                       <>
-                        <CheckCircle className="h-4 w-4 mr-1" />
+                        <CheckCircle className="h-4 w-4" />
                         Saved!
                       </>
                     ) : (
                       <>
-                        <Save className="h-4 w-4 mr-1" />
+                        <Save className="h-4 w-4" />
                         {saving ? 'Saving...' : 'Save Progress'}
                       </>
                     )}
@@ -514,18 +524,21 @@ export default function TestPage() {
           </div>
         </div>
 
-        {/* Right Sidebar */}
-        <div className="w-80 bg-white border-l border-gray-200 p-4">
+        {/* Right Sidebar - Airbnb Style */}
+        <div className="w-80 bg-[var(--background-elevated)] border-l border-[var(--border-color-light)] p-6">
           {/* Timer */}
-          <TestTimer
-            duration={test.durationMinutes * 60}
-            onTimeUp={handleTimeUp}
-            timeRemaining={timeRemaining}
-            setTimeRemaining={setTimeRemaining}
-          />
+          <div className="card-airbnb p-4 mb-6 border border-[var(--border-color-light)]">
+            <TestTimer
+              duration={test.durationMinutes * 60}
+              onTimeUp={handleTimeUp}
+              timeRemaining={timeRemaining}
+              setTimeRemaining={setTimeRemaining}
+            />
+          </div>
 
           {/* Question Palette */}
-          <div className="mt-6">
+          <div className="card-airbnb p-4 mb-6 border border-[var(--border-color-light)]">
+            <h3 className="text-[var(--text-base)] font-semibold text-[var(--foreground)] mb-4">Question Palette</h3>
             <QuestionPalette
               questions={questions}
               currentIndex={currentQuestionIndex}
@@ -538,9 +551,9 @@ export default function TestPage() {
           {/* Submit Button */}
           <button
             onClick={() => setShowSubmitModal(true)}
-            className="mt-6 w-full flex items-center justify-center px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-semibold"
+            className="btn-airbnb w-full flex items-center justify-center gap-2 bg-[var(--color-success)] text-white hover:bg-[var(--color-success)]/90 mb-3"
           >
-            <Send className="h-5 w-5 mr-2" />
+            <Send className="h-5 w-5" />
             Submit Test
           </button>
           
@@ -548,32 +561,32 @@ export default function TestPage() {
           {currentQuestionIndex === questions.length - 1 && (
             <button
               onClick={() => router.push('/analytics')}
-              className="mt-3 w-full flex items-center justify-center px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold"
+              className="btn-airbnb btn-airbnb-secondary w-full flex items-center justify-center gap-2 mb-6"
             >
-              <BarChart className="h-5 w-5 mr-2" />
+              <BarChart className="h-5 w-5" />
               View Analytics
             </button>
           )}
 
-          {/* Legend */}
-          <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-            <h3 className="text-sm font-semibold mb-2">Legend</h3>
-            <div className="space-y-2 text-xs">
-              <div className="flex items-center">
-                <div className="w-6 h-6 bg-green-500 rounded mr-2"></div>
-                <span>Answered</span>
+          {/* Legend - Airbnb Style */}
+          <div className="card-airbnb p-4 border border-[var(--border-color-light)]">
+            <h3 className="text-[var(--text-sm)] font-semibold text-[var(--foreground)] mb-3 uppercase tracking-wide">Legend</h3>
+            <div className="space-y-3">
+              <div className="flex items-center gap-3">
+                <div className="w-6 h-6 bg-[var(--color-success)] rounded-[var(--radius-sm)]"></div>
+                <span className="text-[var(--text-sm)] text-[var(--foreground-secondary)]">Answered</span>
               </div>
-              <div className="flex items-center">
-                <div className="w-6 h-6 bg-red-500 rounded mr-2"></div>
-                <span>Not Answered</span>
+              <div className="flex items-center gap-3">
+                <div className="w-6 h-6 bg-[var(--color-error)] rounded-[var(--radius-sm)]"></div>
+                <span className="text-[var(--text-sm)] text-[var(--foreground-secondary)]">Not Answered</span>
               </div>
-              <div className="flex items-center">
-                <div className="w-6 h-6 bg-yellow-500 rounded mr-2"></div>
-                <span>Marked for Review</span>
+              <div className="flex items-center gap-3">
+                <div className="w-6 h-6 bg-[var(--color-warning)] rounded-[var(--radius-sm)]"></div>
+                <span className="text-[var(--text-sm)] text-[var(--foreground-secondary)]">Marked for Review</span>
               </div>
-              <div className="flex items-center">
-                <div className="w-6 h-6 bg-gray-300 rounded mr-2"></div>
-                <span>Not Visited</span>
+              <div className="flex items-center gap-3">
+                <div className="w-6 h-6 bg-[var(--color-gray-light)] rounded-[var(--radius-sm)]"></div>
+                <span className="text-[var(--text-sm)] text-[var(--foreground-secondary)]">Not Visited</span>
               </div>
             </div>
           </div>

@@ -48,18 +48,28 @@ export default function LatexRenderer({ content, className = '' }: LatexRenderer
   const processedContent = useMemo(() => {
     if (!content) return []
     
+    // Unescape LaTeX content (convert \\ to \, handle align environments)
+    let processedText = content
+      .replace(/\\\\begin\{align\*?\}/g, '$$\\begin{align*}')
+      .replace(/\\\\end\{align\*?\}/g, '\\end{align*}$$')
+      .replace(/\\\\text\{/g, '\\text{')
+      .replace(/\\\\frac\{/g, '\\frac{')
+      .replace(/\\\\eta/g, '\\eta')
+      .replace(/\\\\%/g, '\\%')
+      .replace(/\\\\\s*(?=[a-zA-Z])/g, '\\') // Replace \\ followed by letters with single \
+    
     // Split content by LaTeX delimiters
     const parts: Array<{ type: 'text' | 'latex' | 'display', content: string }> = []
     let lastIndex = 0
     
     // First find display math $$...$$
-    const displayRegex = /\$\$(.*?)\$\$/g
+    const displayRegex = /\$\$(.*?)\$\$/gs // Added 's' flag for multiline
     let displayMatch
     
-    while ((displayMatch = displayRegex.exec(content)) !== null) {
+    while ((displayMatch = displayRegex.exec(processedText)) !== null) {
       // Add text before match
       if (displayMatch.index > lastIndex) {
-        const textContent = content.substring(lastIndex, displayMatch.index)
+        const textContent = processedText.substring(lastIndex, displayMatch.index)
         // Check for inline math in this text segment
         parts.push(...processInlineMath(textContent))
       }
@@ -74,14 +84,14 @@ export default function LatexRenderer({ content, className = '' }: LatexRenderer
     }
     
     // Process remaining text for inline math
-    if (lastIndex < content.length) {
-      const remainingText = content.substring(lastIndex)
+    if (lastIndex < processedText.length) {
+      const remainingText = processedText.substring(lastIndex)
       parts.push(...processInlineMath(remainingText))
     }
     
     // If no LaTeX found, just return the text
     if (parts.length === 0) {
-      return [{ type: 'text' as const, content }]
+      return [{ type: 'text' as const, content: processedText }]
     }
     
     return parts
