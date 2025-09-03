@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, Save, Plus, Trash2, AlertCircle } from 'lucide-react'
+import { ArrowLeft, Save, Plus, X, AlertCircle } from 'lucide-react'
 import Link from 'next/link'
 import LatexRenderer from '@/components/test/LatexRenderer'
 

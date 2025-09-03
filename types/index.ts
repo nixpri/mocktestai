@@ -68,7 +68,7 @@ export interface TestResponse {
   testId: string
   userId: string
   questionId: string
-  userAnswer: any
+  userAnswer: string | number | null
   isCorrect: boolean
   marksObtained: number
   timeSpentSeconds: number

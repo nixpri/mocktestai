@@ -5,8 +5,8 @@ import LatexRenderer from './LatexRenderer'
 
 interface QuestionDisplayProps {
   question: Question
-  selectedAnswer: any
-  onAnswerSelect: (answer: any) => void
+  selectedAnswer: string | number | null
+  onAnswerSelect: (answer: string | number | null) => void
 }
 
 export default function QuestionDisplay({ 

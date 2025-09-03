@@ -7,7 +7,7 @@ interface TestTimerProps {
   duration: number // in seconds
   onTimeUp: () => void
   timeRemaining: number
-  setTimeRemaining: (time: number) => void
+  setTimeRemaining: (time: number | ((prev: number) => number)) => void
 }
 
 export default function TestTimer({ 

@@ -5,7 +5,7 @@ import { Question } from '@/types'
 interface QuestionPaletteProps {
   questions: Question[]
   currentIndex: number
-  answers: Record<string, any>
+  answers: Record<string, string | number | null>
   markedForReview: Set<string>
   onQuestionSelect: (index: number) => void
 }

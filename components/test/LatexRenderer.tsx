@@ -49,7 +49,7 @@ export default function LatexRenderer({ content, className = '' }: LatexRenderer
     if (!content) return []
     
     // Unescape LaTeX content (convert \\ to \, handle align environments)
-    let processedText = content
+    const processedText = content
       .replace(/\\\\begin\{align\*?\}/g, '$$\\begin{align*}')
       .replace(/\\\\end\{align\*?\}/g, '\\end{align*}$$')
       .replace(/\\\\text\{/g, '\\text{')
@@ -63,7 +63,7 @@ export default function LatexRenderer({ content, className = '' }: LatexRenderer
     let lastIndex = 0
     
     // First find display math $$...$$
-    const displayRegex = /\$\$(.*?)\$\$/gs // Added 's' flag for multiline
+    const displayRegex = /\$\$([\s\S]*?)\$\$/g // Use [\s\S] instead of 's' flag for compatibility
     let displayMatch
     
     while ((displayMatch = displayRegex.exec(processedText)) !== null) {
