@@ -3,12 +3,13 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { Brain, BookOpen, Trophy, Target, LogOut, Plus, Clock, TrendingUp, ArrowRight, Zap, BarChart3, Calendar } from 'lucide-react'
+import { Brain, BookOpen, Trophy, Target, LogOut, Plus, Clock, TrendingUp, ArrowRight, Zap, BarChart3, Calendar, ShieldCheck } from 'lucide-react'
 import Link from 'next/link'
 
 export default function DashboardPage() {
   const [user, setUser] = useState<any>(null)
   const [loading, setLoading] = useState(true)
+  const [isAdmin, setIsAdmin] = useState(false)
   const [stats, setStats] = useState({
     totalTests: 0,
     avgScore: '-',
@@ -62,6 +63,9 @@ export default function DashboardPage() {
         router.push('/auth')
       } else {
         setUser(user)
+        
+        // Check if user is admin
+        setIsAdmin(user?.email === 'nixpri@gmail.com')
         
         // Ensure profile exists (for Google OAuth users)
         const { data: profile } = await supabase
@@ -131,6 +135,15 @@ export default function DashboardPage() {
                 <span className="text-[var(--text-base)] font-medium">Analytics</span>
               </Link>
               <div className="flex items-center gap-4">
+                {isAdmin && (
+                  <Link
+                    href="/admin/questions"
+                    className="text-[var(--foreground-secondary)] hover:text-[var(--color-primary)] transition-colors duration-[var(--transition-base)] p-2 hover:bg-[var(--background-secondary)] rounded-[var(--radius-sm)]"
+                    title="Admin Panel"
+                  >
+                    <ShieldCheck className="h-5 w-5" />
+                  </Link>
+                )}
                 <span className="text-[var(--text-sm)] text-[var(--foreground-secondary)]">
                   {user?.email}
                 </span>
@@ -155,7 +168,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Quick Actions - Epic Card Design */}
-        <div className="grid md:grid-cols-3 gap-6 mb-10">
+        <div className="grid md:grid-cols-2 gap-6 mb-10 max-w-4xl mx-auto">
           <Link href="/test/demo-test-1" className="group block">
             <div className="relative overflow-hidden rounded-[var(--radius-lg)] bg-[var(--background-elevated)] border-2 border-[var(--border-color)] hover:border-[var(--color-primary)] transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl" style={{ minHeight: '280px' }}>
               <div className="p-8 h-full flex flex-col">
@@ -199,30 +212,6 @@ export default function DashboardPage() {
                 </div>
                 <div className="mt-auto pt-4 border-t border-[var(--border-color-light)]">
                   <span className="text-xs uppercase tracking-wider font-semibold text-[var(--color-success)]">Customize Test →</span>
-                </div>
-              </div>
-            </div>
-          </Link>
-
-          <Link href="/admin/questions" className="group block">
-            <div className="relative overflow-hidden rounded-[var(--radius-lg)] bg-[var(--background-elevated)] border-2 border-[var(--border-color)] hover:border-[var(--color-info)] transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl" style={{ minHeight: '280px' }}>
-              <div className="p-8 h-full flex flex-col">
-                <div className="flex items-start justify-between mb-6">
-                  <div className="p-4 bg-gradient-to-br from-[var(--color-info)]/20 to-[var(--color-info)]/10 rounded-2xl">
-                    <BookOpen className="h-8 w-8 text-[var(--color-info)]" />
-                  </div>
-                  <ArrowRight className="h-6 w-6 text-[var(--foreground-muted)] opacity-0 group-hover:opacity-100 group-hover:translate-x-2 transition-all duration-300" />
-                </div>
-                <div className="flex-grow">
-                  <h3 className="text-2xl font-bold mb-3 text-[var(--foreground)]">Question Bank</h3>
-                  <p className="text-base text-[var(--foreground-secondary)] mb-4">Browse and manage all questions</p>
-                  <div className="flex items-center gap-3 text-sm text-[var(--foreground-secondary)]">
-                    <span>📚 Full Access</span>
-                    <span>⚙️ Admin Tools</span>
-                  </div>
-                </div>
-                <div className="mt-auto pt-4 border-t border-[var(--border-color-light)]">
-                  <span className="text-xs uppercase tracking-wider font-semibold text-[var(--color-info)]">Manage Questions →</span>
                 </div>
               </div>
             </div>

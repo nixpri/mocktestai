@@ -124,7 +124,7 @@ export default function QuestionBankPage() {
 
   const handleDeleteQuestion = async (id: string) => {
     try {
-      const response = await fetch(`/api/admin/questions/${id}`, {
+      const response = await fetch(`/api/admin/questions?id=${id}`, {
         method: 'DELETE'
       })
       
@@ -141,6 +141,33 @@ export default function QuestionBankPage() {
     } catch (error) {
       console.error('Error deleting question:', error)
       setErrorMessage('Failed to delete question')
+    }
+  }
+
+  const handleEditQuestion = async (question: Question) => {
+    try {
+      const response = await fetch('/api/admin/questions', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(question)
+      })
+      
+      const data = await response.json()
+      
+      if (data.success) {
+        setQuestions(questions.map(q => q.id === question.id ? data.question : q))
+        setSuccessMessage('Question updated successfully')
+        setShowEditModal(false)
+        setSelectedQuestion(null)
+        await loadQuestions() // Reload to get fresh data
+      } else {
+        setErrorMessage('Failed to update question')
+      }
+    } catch (error) {
+      console.error('Error updating question:', error)
+      setErrorMessage('Failed to update question')
     }
   }
 
@@ -495,28 +522,53 @@ export default function QuestionBankPage() {
 
         {/* Delete Confirmation Modal */}
         {showDeleteModal && selectedQuestion && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-lg p-6 max-w-md w-full">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Confirm Delete</h3>
-              <p className="text-gray-600 mb-6">
-                Are you sure you want to delete this question? This action cannot be undone.
-              </p>
-              <div className="flex justify-end space-x-3">
-                <button
-                  onClick={() => {
-                    setShowDeleteModal(false)
-                    setSelectedQuestion(null)
-                  }}
-                  className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={() => handleDeleteQuestion(selectedQuestion.id)}
-                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
-                >
-                  Delete
-                </button>
+          <div className="fixed inset-0 z-50 overflow-y-auto">
+            {/* Backdrop */}
+            <div 
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm"
+              onClick={() => {
+                setShowDeleteModal(false)
+                setSelectedQuestion(null)
+              }}
+            />
+            
+            <div className="relative min-h-full flex items-center justify-center p-4">
+              {/* Modal */}
+              <div className="modal-airbnb max-w-md w-full relative z-10 animate-scale-in">
+                <div className="flex items-center mb-6">
+                  <div className="w-12 h-12 bg-[var(--color-error)]/10 rounded-full flex items-center justify-center mr-4">
+                    <AlertCircle className="h-6 w-6 text-[var(--color-error)]" />
+                  </div>
+                  <div>
+                    <h3 className="heading-airbnb-4 mb-1">Delete Question?</h3>
+                    <p className="text-[var(--text-sm)] text-[var(--foreground-secondary)]">This action cannot be undone</p>
+                  </div>
+                </div>
+                
+                <div className="bg-[var(--background-secondary)] rounded-[var(--radius-base)] p-4 mb-6">
+                  <p className="text-[var(--text-sm)] text-[var(--foreground)] line-clamp-3">
+                    {selectedQuestion.question}
+                  </p>
+                </div>
+                
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => {
+                      setShowDeleteModal(false)
+                      setSelectedQuestion(null)
+                    }}
+                    className="btn-airbnb btn-airbnb-secondary flex-1"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => handleDeleteQuestion(selectedQuestion.id)}
+                    className="btn-airbnb bg-[var(--color-error)] text-white hover:bg-[var(--color-error)]/90 flex-1 flex items-center justify-center gap-2"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    Delete Question
+                  </button>
+                </div>
               </div>
             </div>
           </div>

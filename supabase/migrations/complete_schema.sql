@@ -26,6 +26,7 @@ CREATE TABLE IF NOT EXISTS public.profiles (
     email TEXT UNIQUE NOT NULL,
     full_name TEXT,
     avatar_url TEXT,
+    is_admin BOOLEAN DEFAULT FALSE,
     subscription_tier TEXT DEFAULT 'free' CHECK (subscription_tier IN ('free', 'pro', 'institute')),
     total_tests_taken INTEGER DEFAULT 0,
     study_streak INTEGER DEFAULT 0,
@@ -469,6 +470,13 @@ WHERE question LIKE '%coil of 100 turns%' AND question_type = 'numerical' AND so
 UPDATE questions 
 SET numerical_answer = 4.47, numerical_tolerance = 0.1
 WHERE question LIKE '%solid sphere of mass 2 kg%' AND question_type = 'numerical' AND source = 'demo';
+
+-- =====================================================
+-- SET DEFAULT ADMIN USER
+-- =====================================================
+UPDATE public.profiles
+SET is_admin = TRUE
+WHERE email = 'nixpri@gmail.com';
 
 -- =====================================================
 -- VERIFY SEED DATA

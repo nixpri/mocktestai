@@ -160,3 +160,131 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
+
+// PUT - Update existing question
+export async function PUT(request: NextRequest) {
+  try {
+    const supabase = await createClient()
+    
+    // Check authentication
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+    
+    const body = await request.json()
+    
+    // Validate required fields
+    if (!body.id) {
+      return NextResponse.json({ 
+        error: 'Question ID is required' 
+      }, { status: 400 })
+    }
+    
+    // Transform data for database
+    const updateData: any = {
+      updated_at: new Date().toISOString()
+    }
+    
+    // Only update fields that are provided
+    if (body.topic) updateData.topic = body.topic
+    if (body.subtopic !== undefined) updateData.subtopic = body.subtopic
+    if (body.type) updateData.question_type = body.type
+    if (body.difficulty) updateData.difficulty = body.difficulty
+    if (body.question) updateData.question = body.question
+    if (body.options !== undefined) updateData.options = body.options
+    if (body.correctAnswer !== undefined) updateData.correct_answer = body.correctAnswer
+    if (body.numericalAnswer !== undefined) updateData.numerical_answer = body.numericalAnswer
+    if (body.numericalTolerance !== undefined) updateData.numerical_tolerance = body.numericalTolerance
+    if (body.assertion !== undefined) updateData.assertion = body.assertion
+    if (body.reason !== undefined) updateData.reason = body.reason
+    if (body.explanation !== undefined) updateData.explanation = body.explanation
+    if (body.marks !== undefined) updateData.marks = body.marks
+    if (body.negativeMarks !== undefined) updateData.negative_marks = body.negativeMarks
+    if (body.tags !== undefined) updateData.tags = body.tags
+    
+    // Update in database
+    const { data: updatedQuestion, error } = await supabase
+      .from('questions')
+      .update(updateData)
+      .eq('id', body.id)
+      .select()
+      .single()
+    
+    if (error) {
+      console.error('Error updating question:', error)
+      return NextResponse.json({ error: error.message }, { status: 500 })
+    }
+    
+    // Transform response
+    const transformedQuestion = {
+      id: updatedQuestion.id,
+      topic: updatedQuestion.topic,
+      subtopic: updatedQuestion.subtopic,
+      difficulty: updatedQuestion.difficulty,
+      type: updatedQuestion.question_type,
+      question: updatedQuestion.question,
+      options: updatedQuestion.options,
+      correctAnswer: updatedQuestion.correct_answer,
+      numericalAnswer: updatedQuestion.numerical_answer,
+      numericalTolerance: updatedQuestion.numerical_tolerance,
+      assertion: updatedQuestion.assertion,
+      reason: updatedQuestion.reason,
+      explanation: updatedQuestion.explanation,
+      marks: updatedQuestion.marks,
+      negativeMarks: updatedQuestion.negative_marks,
+      tags: updatedQuestion.tags,
+      createdAt: updatedQuestion.created_at,
+      updatedAt: updatedQuestion.updated_at
+    }
+    
+    return NextResponse.json({ 
+      success: true, 
+      question: transformedQuestion 
+    })
+  } catch (error) {
+    console.error('Error updating question:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  }
+}
+
+// DELETE - Delete a question
+export async function DELETE(request: NextRequest) {
+  try {
+    const supabase = await createClient()
+    
+    // Check authentication
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+    
+    const { searchParams } = new URL(request.url)
+    const questionId = searchParams.get('id')
+    
+    if (!questionId) {
+      return NextResponse.json({ 
+        error: 'Question ID is required' 
+      }, { status: 400 })
+    }
+    
+    // Delete from database
+    const { error } = await supabase
+      .from('questions')
+      .delete()
+      .eq('id', questionId)
+    
+    if (error) {
+      console.error('Error deleting question:', error)
+      return NextResponse.json({ error: error.message }, { status: 500 })
+    }
+    
+    return NextResponse.json({ 
+      success: true, 
+      message: 'Question deleted successfully' 
+    })
+  } catch (error) {
+    console.error('Error deleting question:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  }
+}
