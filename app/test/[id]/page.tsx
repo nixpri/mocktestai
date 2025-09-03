@@ -83,124 +83,78 @@ export default function TestPage() {
           }
         })
       } else if (testId === 'demo-test-1') {
-        // Quick test with predefined questions
+        // Quick test - fetch demo questions from database
+        const response = await fetch('/api/questions/fetch', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            source: 'demo',
+            count: 5,
+            randomize: true
+          })
+        })
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch questions')
+        }
+        
+        const data = await response.json()
+        
+        if (!data.questions || data.questions.length === 0) {
+          // No demo questions found - show error
+          console.error('No demo questions found in database')
+          router.push('/dashboard')
+          return
+        }
+        
         test = {
           id: testId,
           userId: user.id,
           testType: 'quick',
           title: 'Quick Practice Test',
-          questions: ['q1', 'q2', 'q3', 'q4', 'q5'],
-          totalMarks: 20,
+          questions: data.questions.map((q: any) => q.id),
+          totalMarks: data.questions.reduce((sum: number, q: any) => sum + q.marks, 0),
           durationMinutes: 60,
           status: 'in_progress',
           createdAt: new Date().toISOString()
         }
         
-        questions = [
-        {
-          id: 'q1',
-          topicId: 'mechanics',
-          content: {
-            text: 'A particle moves along a straight line with constant acceleration. If its velocity changes from 20 m/s to 40 m/s in 4 seconds, what is the acceleration?',
-            options: [
-              { id: 'a', text: '2.5 m/s²' },
-              { id: 'b', text: '5 m/s²' },
-              { id: 'c', text: '7.5 m/s²' },
-              { id: 'd', text: '10 m/s²' }
-            ],
-            correctAnswer: 'b'
-          },
-          questionType: 'mcq',
-          difficulty: 'easy',
-          marks: 4,
-          negativeMarks: 1,
-          source: 'generated',
-          tags: ['kinematics', 'acceleration']
-        },
-        {
-          id: 'q2',
-          topicId: 'mechanics',
-          content: {
-            text: 'A projectile is thrown with initial velocity $v_0$ at an angle $\\theta$ with the horizontal. The maximum height reached is:',
-            latex: '$$H_{max} = \\frac{v_0^2 \\sin^2\\theta}{2g}$$',
-            options: [
-              { id: 'a', text: '$\\frac{v_0^2 \\sin^2\\theta}{2g}$', latex: '$$\\frac{v_0^2 \\sin^2\\theta}{2g}$$' },
-              { id: 'b', text: '$\\frac{v_0^2 \\sin^2\\theta}{g}$', latex: '$$\\frac{v_0^2 \\sin^2\\theta}{g}$$' },
-              { id: 'c', text: '$\\frac{v_0^2 \\cos^2\\theta}{2g}$', latex: '$$\\frac{v_0^2 \\cos^2\\theta}{2g}$$' },
-              { id: 'd', text: '$\\frac{v_0^2}{2g}$', latex: '$$\\frac{v_0^2}{2g}$$' }
-            ],
-            correctAnswer: 'a'
-          },
-          questionType: 'mcq',
-          difficulty: 'medium',
-          marks: 4,
-          negativeMarks: 1,
-          source: 'generated',
-          tags: ['projectile', 'kinematics']
-        },
-        {
-          id: 'q3',
-          topicId: 'thermodynamics',
-          content: {
-            text: 'An ideal gas undergoes an isothermal expansion at temperature T. If the volume doubles, the pressure:',
-            options: [
-              { id: 'a', text: 'Doubles' },
-              { id: 'b', text: 'Halves' },
-              { id: 'c', text: 'Remains constant' },
-              { id: 'd', text: 'Becomes four times' }
-            ],
-            correctAnswer: 'b'
-          },
-          questionType: 'mcq',
-          difficulty: 'easy',
-          marks: 4,
-          negativeMarks: 1,
-          source: 'generated',
-          tags: ['thermodynamics', 'ideal gas']
-        },
-        {
-          id: 'q4',
-          topicId: 'electromagnetism',
-          content: {
-            text: 'A charge Q is placed at the center of a cube. The electric flux through one face of the cube is:',
-            latex: 'According to Gauss\'s law, total flux = $\\frac{Q}{\\epsilon_0}$',
-            options: [
-              { id: 'a', text: '$\\frac{Q}{\\epsilon_0}$', latex: '$$\\frac{Q}{\\epsilon_0}$$' },
-              { id: 'b', text: '$\\frac{Q}{6\\epsilon_0}$', latex: '$$\\frac{Q}{6\\epsilon_0}$$' },
-              { id: 'c', text: '$\\frac{Q}{4\\epsilon_0}$', latex: '$$\\frac{Q}{4\\epsilon_0}$$' },
-              { id: 'd', text: '$\\frac{Q}{8\\epsilon_0}$', latex: '$$\\frac{Q}{8\\epsilon_0}$$' }
-            ],
-            correctAnswer: 'b'
-          },
-          questionType: 'mcq',
-          difficulty: 'medium',
-          marks: 4,
-          negativeMarks: 1,
-          source: 'generated',
-          tags: ['electrostatics', 'gauss law']
-        },
-        {
-          id: 'q5',
-          topicId: 'mechanics',
-          content: {
-            text: 'Calculate the moment of inertia of a uniform rod of mass M and length L about an axis perpendicular to it and passing through its center.',
-            latex: 'For a uniform rod: $I = \\int_{-L/2}^{L/2} x^2 dm$',
-            options: [
-              { id: 'a', text: '$\\frac{ML^2}{12}$', latex: '$$\\frac{ML^2}{12}$$' },
-              { id: 'b', text: '$\\frac{ML^2}{3}$', latex: '$$\\frac{ML^2}{3}$$' },
-              { id: 'c', text: '$\\frac{ML^2}{6}$', latex: '$$\\frac{ML^2}{6}$$' },
-              { id: 'd', text: '$\\frac{ML^2}{4}$', latex: '$$\\frac{ML^2}{4}$$' }
-            ],
-            correctAnswer: 'a'
-          },
-          questionType: 'mcq',
-          difficulty: 'hard',
-          marks: 4,
-          negativeMarks: 1,
-          source: 'generated',
-          tags: ['rotational motion', 'moment of inertia']
-        }
-        ]
+        // Transform questions to match expected format
+        questions = data.questions.map((q: any) => {
+          // Handle options - they might be JSONB array or already parsed
+          let formattedOptions: any[] = []
+          if (q.type === 'mcq' && q.options) {
+            // Check if options is already an array
+            const optionsArray = Array.isArray(q.options) ? q.options : 
+                                (typeof q.options === 'string' ? JSON.parse(q.options) : [])
+            
+            formattedOptions = optionsArray.map((opt: any, idx: number) => ({
+              id: String.fromCharCode(97 + idx), // a, b, c, d
+              text: typeof opt === 'string' ? opt : (opt.text || opt)
+            }))
+          }
+          
+          return {
+            id: q.id,
+            topicId: q.topic,
+            content: {
+              text: q.question,
+              options: formattedOptions,
+              correctAnswer: q.correctAnswer?.toLowerCase() || '',
+              numericalAnswer: q.numericalAnswer,
+              numericalTolerance: q.numericalTolerance,
+              assertion: q.assertion,
+              reason: q.reason
+            },
+            questionType: q.type,
+            difficulty: q.difficulty,
+            marks: q.marks,
+            negativeMarks: q.negativeMarks,
+            solution: { text: q.explanation || 'Solution not available' },
+            source: q.source || 'demo',
+            tags: q.tags || []
+          }
+        })
       } else {
         // Try to load from database (fallback)
         const { data: testData, error } = await supabase

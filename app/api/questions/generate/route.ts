@@ -27,43 +27,39 @@ export async function POST(request: NextRequest) {
       )
     }
     
-    // Note: Profile creation is handled by database triggers on auth.users insert
-    // We don't need to manually create profiles here
-
     const body = await request.json()
     const { type, params } = body
     
-    // Question generation request received
-
     if (type === 'single') {
       // Generate a single question
       const question = await generateQuestion(params)
       
-      // For MVP, skip database save if it fails
+      // Save to questions bank with proper format
       try {
+        const questionData = {
+          topic: params.topic || 'mechanics',
+          subtopic: params.subtopic || null,
+          question_type: params.questionType || 'mcq',
+          difficulty: params.difficulty || 'medium',
+          question: question.question,
+          options: question.options ? JSON.stringify(question.options) : null,
+          correct_answer: question.correctAnswer || null,
+          explanation: question.solution || null,
+          marks: 4,
+          negative_marks: 1,
+          tags: question.concepts || [],
+          source: 'generated',
+          created_by: user.id
+        }
+        
         const { data, error } = await supabase
           .from('questions')
-          .insert({
-            topic_id: params.topic,
-            content: {
-              text: question.question,
-              options: question.options,
-              correctAnswer: question.correctAnswer
-            },
-            question_type: params.questionType || 'mcq',
-            difficulty: params.difficulty,
-            solution: {
-              text: question.solution
-            },
-            source: 'generated',
-            tags: question.concepts
-          })
+          .insert(questionData)
           .select()
           .single()
 
         if (error) {
           console.error('Error saving question to database:', error)
-          // Continue without saving to database
         }
 
         return NextResponse.json({
@@ -73,7 +69,6 @@ export async function POST(request: NextRequest) {
         })
       } catch (dbError) {
         console.error('Database error:', dbError)
-        // Return the generated question even if database save fails
         return NextResponse.json({
           success: true,
           question: question,
@@ -84,23 +79,72 @@ export async function POST(request: NextRequest) {
       // Generate a full mock test
       const generatedQuestions = await generateMockTest(params)
       
+      // Save each question to the questions bank
+      const savedQuestionIds = []
+      
+      for (let i = 0; i < generatedQuestions.length; i++) {
+        const q = generatedQuestions[i]
+        try {
+          // Properly format options for database storage
+          let formattedOptions = null
+          if (q.options && Array.isArray(q.options)) {
+            formattedOptions = q.options.map((opt: any) => {
+              if (typeof opt === 'string') {
+                return opt
+              } else if (opt.text) {
+                return opt.text
+              } else if (opt.latex) {
+                return opt.latex.replace(/\$/g, '').replace(/\\/g, '')
+              }
+              return opt
+            })
+          }
+          
+          const questionData = {
+            topic: params.topics?.[i % params.topics.length] || params.topic || 'mechanics',
+            subtopic: null,
+            question_type: 'mcq',
+            difficulty: q.estimatedTime <= 2 ? 'easy' : q.estimatedTime <= 3 ? 'medium' : 'hard',
+            question: q.question,
+            options: formattedOptions,
+            correct_answer: q.correctAnswer?.toUpperCase() || 'A',
+            explanation: q.solution || q.explanation || null,
+            marks: 4,
+            negative_marks: 1,
+            tags: q.concepts || [],
+            source: 'generated',
+            created_by: user.id
+          }
+          
+          const { data, error } = await supabase
+            .from('questions')
+            .insert(questionData)
+            .select()
+            .single()
+          
+          if (data) {
+            savedQuestionIds.push(data.id)
+          }
+        } catch (error) {
+          console.error('Error saving question:', error)
+        }
+      }
+      
       // Transform AI-generated questions to match the expected Question interface
       const formattedQuestions = generatedQuestions.map((q, index) => {
-        // Ensure options have both text and latex fields properly set
         const formattedOptions = q.options?.map((opt: any) => {
-          // If text is missing but latex exists, create a readable text version
           if (!opt.text && opt.latex) {
             opt.text = opt.latex.replace(/\$/g, '').replace(/\\/g, '')
           }
           return {
-            id: opt.id,
-            text: opt.text || `Option ${opt.id.toUpperCase()}`,
+            id: opt.id || String.fromCharCode(97 + index),
+            text: opt.text || opt || `Option ${String.fromCharCode(65 + index)}`,
             latex: opt.latex || opt.text || ''
           }
         }) || []
         
         return {
-          id: `q${index + 1}`,
+          id: savedQuestionIds[index] || `q${index + 1}`,
           topicId: params.topics?.[index % params.topics.length] || 'physics',
           content: {
             text: q.question,
@@ -113,21 +157,21 @@ export async function POST(request: NextRequest) {
           negativeMarks: 1,
           solution: {
             text: q.solution,
-            steps: q.solution.split('\n').filter(s => s.trim())
+            steps: q.solution ? q.solution.split('\n').filter((s: string) => s.trim()) : []
           },
           source: 'generated' as const,
           tags: q.concepts || []
         }
       })
       
-      // Create test in database
+      // Create test in database with reference to saved questions
       const { data: test, error: testError } = await supabase
         .from('tests')
         .insert({
           user_id: user.id,
-          test_type: 'mock',
+          test_type: 'ai_generated',
           title: params.title || 'AI Generated Mock Test',
-          questions: formattedQuestions,
+          questions: savedQuestionIds.length > 0 ? savedQuestionIds : formattedQuestions,
           total_marks: formattedQuestions.length * 4,
           duration_minutes: params.duration || 180,
           status: 'created'
@@ -137,14 +181,13 @@ export async function POST(request: NextRequest) {
 
       if (testError) {
         console.error('Error creating test:', testError)
-        // If database save fails, still return the test data for localStorage storage
         const testId = `ai-test-${Date.now()}`
         return NextResponse.json({
           success: true,
           test: {
             id: testId,
             user_id: user.id,
-            test_type: 'mock',
+            test_type: 'ai_generated',
             title: params.title || 'AI Generated Mock Test',
             questions: formattedQuestions,
             total_marks: formattedQuestions.length * 4,
@@ -154,7 +197,8 @@ export async function POST(request: NextRequest) {
           },
           questions: formattedQuestions,
           questionCount: formattedQuestions.length,
-          savedToDb: false
+          savedToDb: false,
+          savedQuestions: savedQuestionIds.length
         })
       }
 
@@ -163,7 +207,8 @@ export async function POST(request: NextRequest) {
         test,
         questions: formattedQuestions,
         questionCount: formattedQuestions.length,
-        savedToDb: true
+        savedToDb: true,
+        savedQuestions: savedQuestionIds.length
       })
     } else {
       return NextResponse.json(
@@ -193,26 +238,14 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    const { searchParams } = new URL(request.url)
-    const topic = searchParams.get('topic')
-    const difficulty = searchParams.get('difficulty')
-    const limit = parseInt(searchParams.get('limit') || '10')
-
-    let query = supabase
+    // Fetch AI-generated questions from the questions bank
+    const { data: questions, error } = await supabase
       .from('questions')
       .select('*')
       .eq('source', 'generated')
-      .limit(limit)
-
-    if (topic) {
-      query = query.eq('topic_id', topic)
-    }
-
-    if (difficulty) {
-      query = query.eq('difficulty', difficulty)
-    }
-
-    const { data, error } = await query
+      .eq('created_by', user.id)
+      .order('created_at', { ascending: false })
+      .limit(50)
 
     if (error) {
       console.error('Error fetching questions:', error)
@@ -222,12 +255,35 @@ export async function GET(request: NextRequest) {
       )
     }
 
+    // Transform to match frontend format
+    const transformedQuestions = questions?.map(q => ({
+      id: q.id,
+      topic: q.topic,
+      subtopic: q.subtopic,
+      difficulty: q.difficulty,
+      type: q.question_type,
+      question: q.question,
+      options: q.options,
+      correctAnswer: q.correct_answer,
+      numericalAnswer: q.numerical_answer,
+      numericalTolerance: q.numerical_tolerance,
+      assertion: q.assertion,
+      reason: q.reason,
+      explanation: q.explanation,
+      marks: q.marks,
+      negativeMarks: q.negative_marks,
+      tags: q.tags || [],
+      createdAt: q.created_at,
+      updatedAt: q.updated_at
+    })) || []
+
     return NextResponse.json({
       success: true,
-      questions: data
+      questions: transformedQuestions,
+      count: transformedQuestions.length
     })
   } catch (error) {
-    console.error('Error fetching questions:', error)
+    console.error('Error in GET /api/questions/generate:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
