@@ -183,9 +183,9 @@ export default function GenerateTestPage() {
         </div>
       </nav>
 
-      <div className="container-airbnb py-10">
+      <div className="container-airbnb py-12">
         {/* Page Header */}
-        <div className="text-center mb-10 animate-fade-in">
+        <div className="text-center mb-10 animate-fade-in pt-4">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-info)] mb-4">
             <Sparkles className="h-8 w-8 text-white" />
           </div>

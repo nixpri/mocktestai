@@ -228,7 +228,7 @@ export default function TestResultPage() {
         </div>
       </div>
 
-      <div className="container-airbnb py-10">
+      <div className="container-airbnb py-12">
         {/* Quick Stats */}
         <div className="grid md:grid-cols-4 gap-4 mb-8 -mt-8">
           <div className="card-airbnb p-6 border border-[var(--border-color-light)] bg-white animate-slide-up" style={{animationDelay: '0.1s'}}>

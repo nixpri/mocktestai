@@ -147,7 +147,7 @@ export default function DashboardPage() {
       </nav>
 
       {/* Dashboard Content */}
-      <div className="container-airbnb py-10">
+      <div className="container-airbnb py-12">
         {/* Welcome Section - Airbnb Style */}
         <div className="mb-10 animate-slide-up pt-6">
           <h1 className="heading-airbnb-1 mb-3">Welcome back!</h1>

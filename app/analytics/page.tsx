@@ -535,7 +535,7 @@ export default function AnalyticsPage() {
         </div>
       </nav>
 
-      <div className="container-airbnb py-10">
+      <div className="container-airbnb py-12">
         {/* Empty State */}
         {!hasData ? (
           <div className="card-airbnb text-center py-16 animate-fade-in">
