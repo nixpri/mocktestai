@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { Clock, Pause, Play } from 'lucide-react'
+import { formatTime } from '@/lib/utils/timeUtils'
 
 interface TestTimerProps {
   duration: number // in seconds
@@ -35,20 +36,6 @@ export default function TestTimer({
     return () => clearInterval(timer)
   }, [isPaused, onTimeUp, setTimeRemaining])
 
-  const formatTime = (seconds: number): string => {
-    const hours = Math.floor(seconds / 3600)
-    const minutes = Math.floor((seconds % 3600) / 60)
-    const secs = seconds % 60
-
-    if (hours > 0) {
-      return `${hours.toString().padStart(2, '0')}:${minutes
-        .toString()
-        .padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
-    }
-    return `${minutes.toString().padStart(2, '0')}:${secs
-      .toString()
-      .padStart(2, '0')}`
-  }
 
   const getTimeColor = () => {
     const percentageRemaining = (timeRemaining / duration) * 100

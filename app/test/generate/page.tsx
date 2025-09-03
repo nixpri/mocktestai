@@ -277,7 +277,7 @@ export default function GenerateTestPage() {
                   type="text"
                   value={formData.title}
                   onChange={(e) => setFormData({...formData, title: e.target.value})}
-                  className="input-airbnb"
+                  className="w-full px-4 py-3 border border-[var(--border-color)] rounded-[var(--radius-base)] bg-[var(--background)] text-[var(--foreground)] placeholder-[var(--foreground-muted)] transition-all duration-[var(--transition-base)] hover:border-[var(--border-color-hover)] focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:outline-none"
                   placeholder="Enter test title"
                 />
               </div>
@@ -335,7 +335,7 @@ export default function GenerateTestPage() {
                     }}
                     min="5"
                     max="50"
-                    className="input-airbnb"
+                    className="w-full px-4 py-3 border border-[var(--border-color)] rounded-[var(--radius-base)] bg-[var(--background)] text-[var(--foreground)] placeholder-[var(--foreground-muted)] transition-all duration-[var(--transition-base)] hover:border-[var(--border-color-hover)] focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:outline-none"
                   />
                 </div>
                 <div>
@@ -348,7 +348,7 @@ export default function GenerateTestPage() {
                     onChange={(e) => setFormData({...formData, duration: parseInt(e.target.value) || 60})}
                     min="15"
                     max="180"
-                    className="input-airbnb"
+                    className="w-full px-4 py-3 border border-[var(--border-color)] rounded-[var(--radius-base)] bg-[var(--background)] text-[var(--foreground)] placeholder-[var(--foreground-muted)] transition-all duration-[var(--transition-base)] hover:border-[var(--border-color-hover)] focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:outline-none"
                   />
                 </div>
               </div>

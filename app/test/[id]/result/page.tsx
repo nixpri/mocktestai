@@ -6,6 +6,7 @@ import { Trophy, Target, Clock, BarChart3, CheckCircle, XCircle, AlertCircle, Br
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import LatexRenderer from '@/components/test/LatexRenderer'
+import { formatDuration } from '@/lib/utils/timeUtils'
 
 interface TestResult {
   testId: string
@@ -276,7 +277,7 @@ export default function TestResultPage() {
           <div className="card-airbnb p-6 border border-[var(--border-color-light)] bg-white animate-slide-up" style={{animationDelay: '0.4s'}}>
             <div className="flex items-center justify-between mb-3">
               <Clock className="h-5 w-5 text-[var(--color-info)]" />
-              <span className="text-2xl font-bold text-[var(--foreground)]">{Math.floor(result.timeTaken / 60)}</span>
+              <span className="text-2xl font-bold text-[var(--foreground)]">{formatDuration(Math.floor(result.timeTaken / 60))}</span>
             </div>
             <p className="text-[var(--text-sm)] text-[var(--foreground-secondary)]">Minutes</p>
             <div className="mt-2 text-[var(--text-xs)] text-[var(--foreground-muted)]">

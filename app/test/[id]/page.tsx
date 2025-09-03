@@ -10,6 +10,7 @@ import QuestionPalette from '@/components/test/QuestionPalette'
 import TestHeader from '@/components/test/TestHeader'
 import SubmitModal from '@/components/test/SubmitModal'
 import { ChevronLeft, ChevronRight, Flag, Save, Send, CheckCircle, BarChart } from 'lucide-react'
+import { getDurationInSeconds } from '@/lib/utils/timeUtils'
 
 export default function TestPage() {
   const params = useParams()
@@ -176,7 +177,8 @@ export default function TestPage() {
       setTest(test)
       setQuestions(questions)
       setTestStartTime(new Date())
-      setTimeRemaining(test.durationMinutes * 60) // Convert to seconds
+      // Use utility function to ensure valid duration
+      setTimeRemaining(getDurationInSeconds(test.durationMinutes, 60))
       
       // Load saved answers if any (from localStorage for now)
       const savedAnswers = localStorage.getItem(`test_${params.id}_answers`)

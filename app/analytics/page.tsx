@@ -16,6 +16,7 @@ import {
   RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar,
   Area, AreaChart
 } from 'recharts'
+import { formatDuration, secondsToHours } from '@/lib/utils/timeUtils'
 
 interface TestResult {
   id: string
@@ -615,7 +616,7 @@ export default function AnalyticsPage() {
                 <div className="card-airbnb p-6 border border-[var(--border-color-light)] hover-scale">
                   <div className="flex items-center justify-between mb-3">
                     <Clock className="h-5 w-5 text-[var(--color-error)]" />
-                    <span className="heading-airbnb-3">{Math.floor(data.overview.totalTimeSpent / 3600)}h</span>
+                    <span className="heading-airbnb-3">{secondsToHours(data.overview.totalTimeSpent)}h</span>
                   </div>
                   <p className="text-airbnb-small text-[var(--foreground-secondary)]">Time Spent</p>
                 </div>
@@ -817,7 +818,7 @@ export default function AnalyticsPage() {
                             {test.title}
                           </p>
                           <p className="text-[var(--text-sm)] text-[var(--foreground-secondary)]">
-                            {test.date} • {test.timeTaken} min
+                            {test.date} • {formatDuration(test.timeTaken)}
                           </p>
                         </div>
                         <div className="flex items-center gap-3">

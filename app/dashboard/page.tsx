@@ -157,25 +157,24 @@ export default function DashboardPage() {
         {/* Quick Actions - Epic Card Design */}
         <div className="grid md:grid-cols-3 gap-6 mb-10">
           <Link href="/test/demo-test-1" className="group block">
-            <div className="relative overflow-hidden rounded-[var(--radius-lg)] transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl" style={{ minHeight: '280px', background: 'linear-gradient(135deg, #0891B2 0%, #0E7490 100%)' }}>
-              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ background: 'linear-gradient(135deg, #06B6D4 0%, #0891B2 100%)' }}></div>
-              <div className="relative p-8 h-full flex flex-col">
+            <div className="relative overflow-hidden rounded-[var(--radius-lg)] bg-[var(--background-elevated)] border-2 border-[var(--border-color)] hover:border-[var(--color-primary)] transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl" style={{ minHeight: '280px' }}>
+              <div className="p-8 h-full flex flex-col">
                 <div className="flex items-start justify-between mb-6">
-                  <div className="p-4 rounded-2xl animate-pulse" style={{ backgroundColor: 'rgba(255, 255, 255, 0.2)', backdropFilter: 'blur(8px)' }}>
-                    <Zap className="h-8 w-8" style={{ color: '#FFFFFF' }} />
+                  <div className="p-4 bg-gradient-to-br from-[var(--color-primary)]/20 to-[var(--color-primary)]/10 rounded-2xl">
+                    <Zap className="h-8 w-8 text-[var(--color-primary)]" />
                   </div>
-                  <ArrowRight className="h-6 w-6 opacity-0 group-hover:opacity-100 group-hover:translate-x-2 transition-all duration-300" style={{ color: '#FFFFFF' }} />
+                  <ArrowRight className="h-6 w-6 text-[var(--foreground-muted)] opacity-0 group-hover:opacity-100 group-hover:translate-x-2 transition-all duration-300" />
                 </div>
                 <div className="flex-grow">
-                  <h3 className="text-2xl font-bold mb-3" style={{ color: '#FFFFFF' }}>Quick Practice</h3>
-                  <p className="text-base mb-4" style={{ color: 'rgba(255, 255, 255, 0.95)' }}>Jump right in with 5 curated questions</p>
-                  <div className="flex items-center gap-3 text-sm" style={{ color: 'rgba(255, 255, 255, 0.9)' }}>
+                  <h3 className="text-2xl font-bold mb-3 text-[var(--foreground)]">Quick Practice</h3>
+                  <p className="text-base text-[var(--foreground-secondary)] mb-4">Jump right in with 5 curated questions</p>
+                  <div className="flex items-center gap-3 text-sm text-[var(--foreground-secondary)]">
                     <span>📝 5 questions</span>
                     <span>⏱️ 60 minutes</span>
                   </div>
                 </div>
-                <div className="mt-auto pt-4" style={{ borderTop: '1px solid rgba(255, 255, 255, 0.2)' }}>
-                  <span className="text-xs uppercase tracking-wider font-semibold" style={{ color: 'rgba(255, 255, 255, 0.9)' }}>Start Instantly →</span>
+                <div className="mt-auto pt-4 border-t border-[var(--border-color-light)]">
+                  <span className="text-xs uppercase tracking-wider font-semibold text-[var(--color-primary)]">Start Instantly →</span>
                 </div>
               </div>
             </div>
@@ -267,7 +266,7 @@ export default function DashboardPage() {
 
           {/* Prominent Analytics CTA Button */}
           <Link href="/analytics" className="block group">
-            <div className="relative overflow-hidden rounded-[var(--radius-lg)] bg-gradient-to-r from-[var(--color-info)] to-[var(--color-primary)] p-6 transition-all duration-300 hover:scale-[1.01] hover:shadow-xl">
+            <div className="relative overflow-hidden rounded-[var(--radius-lg)] bg-gradient-to-r from-[var(--color-primary)] to-cyan-500 p-6 transition-all duration-300 hover:scale-[1.01] hover:shadow-xl">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
                   <div className="p-3 bg-white/20 rounded-xl backdrop-blur-sm">

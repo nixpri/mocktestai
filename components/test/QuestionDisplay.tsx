@@ -108,7 +108,7 @@ export default function QuestionDisplay({
               value={selectedAnswer || ''}
               onChange={(e) => handleNumericalInput(e.target.value)}
               placeholder="Enter numerical value"
-              className="input-airbnb"
+              className="w-full px-4 py-3 border border-[var(--border-color)] rounded-[var(--radius-base)] bg-[var(--background)] text-[var(--foreground)] placeholder-[var(--foreground-muted)] transition-all duration-[var(--transition-base)] hover:border-[var(--border-color-hover)] focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:outline-none"
               step="any"
             />
           </div>

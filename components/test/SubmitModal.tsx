@@ -25,15 +25,15 @@ export default function SubmitModal({
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
-      <div className="flex min-h-full items-center justify-center p-4">
-        {/* Backdrop */}
-        <div 
-          className="overlay-airbnb"
-          onClick={onClose}
-        />
-        
+      {/* Backdrop */}
+      <div 
+        className="fixed inset-0 bg-black/60 backdrop-blur-sm"
+        onClick={onClose}
+      />
+      
+      <div className="relative min-h-full flex items-center justify-center p-4">
         {/* Modal */}
-        <div className="modal-airbnb max-w-md w-full relative animate-scale-in">
+        <div className="modal-airbnb max-w-md w-full relative z-10 animate-scale-in">
           {/* Close button */}
           <button
             onClick={onClose}
