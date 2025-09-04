@@ -83,7 +83,7 @@ CREATE TABLE IF NOT EXISTS public.questions (
 CREATE TABLE IF NOT EXISTS public.tests (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
-    test_type TEXT NOT NULL CHECK (test_type IN ('mock', 'topic_wise', 'custom', 'daily_practice', 'quick', 'ai_generated')),
+    test_type TEXT NOT NULL CHECK (test_type IN ('mock', 'topic_wise', 'custom', 'daily_practice', 'ai_generated')),
     title TEXT NOT NULL,
     questions JSONB,
     total_marks INTEGER NOT NULL,
@@ -113,7 +113,7 @@ CREATE TABLE IF NOT EXISTS public.test_results (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     test_id VARCHAR(255), -- Can be UUID or string like 'demo-test-1'
     test_title VARCHAR(255), -- Store title directly for Quick Tests
-    test_type VARCHAR(50) DEFAULT 'standard', -- quick, ai_generated, topic, standard
+    test_type VARCHAR(50) DEFAULT 'standard', -- ai_generated, topic, standard
     user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
     total_questions INTEGER NOT NULL,
     attempted_questions INTEGER NOT NULL,

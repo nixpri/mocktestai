@@ -130,13 +130,6 @@ export default function DashboardPage() {
             {/* Desktop Menu */}
             <div className="hidden sm:flex items-center gap-4 lg:gap-6">
               <Link
-                href="/previous-years"
-                className="flex items-center gap-2 text-[var(--foreground-secondary)] hover:text-[var(--foreground)] transition-colors duration-[var(--transition-base)]"
-              >
-                <Calendar className="h-5 w-5" />
-                <span className="text-[var(--text-base)] font-medium">Previous Years</span>
-              </Link>
-              <Link
                 href="/analytics"
                 className="flex items-center gap-2 text-[var(--foreground-secondary)] hover:text-[var(--foreground)] transition-colors duration-[var(--transition-base)]"
               >
@@ -171,14 +164,6 @@ export default function DashboardPage() {
       {mobileMenuOpen && (
         <div className="sm:hidden bg-[var(--background-elevated)] border-b border-[var(--border-color-light)] px-4 py-3">
           <Link
-            href="/previous-years"
-            onClick={() => setMobileMenuOpen(false)}
-            className="flex items-center gap-2 p-3 text-[var(--foreground-secondary)] hover:text-[var(--foreground)] hover:bg-[var(--background-secondary)] rounded-lg transition-colors"
-          >
-            <Calendar className="h-5 w-5" />
-            <span>Previous Years</span>
-          </Link>
-          <Link
             href="/analytics"
             onClick={() => setMobileMenuOpen(false)}
             className="flex items-center gap-2 p-3 text-[var(--foreground-secondary)] hover:text-[var(--foreground)] hover:bg-[var(--background-secondary)] rounded-lg transition-colors"
@@ -208,31 +193,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Quick Actions - Epic Card Design */}
-        <div className="grid md:grid-cols-3 gap-6 mb-10">
-          <Link href="/test/demo-test-1" className="group block">
-            <div className="relative overflow-hidden rounded-[var(--radius-lg)] bg-[var(--background-elevated)] border-2 border-[var(--border-color)] hover:border-[var(--color-primary)] transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl" style={{ minHeight: '280px' }}>
-              <div className="p-8 h-full flex flex-col">
-                <div className="flex items-start justify-between mb-6">
-                  <div className="p-4 bg-gradient-to-br from-[var(--color-primary)]/20 to-[var(--color-primary)]/10 rounded-2xl">
-                    <Zap className="h-8 w-8 text-[var(--color-primary)]" />
-                  </div>
-                  <ArrowRight className="h-6 w-6 text-[var(--foreground-muted)] opacity-0 group-hover:opacity-100 group-hover:translate-x-2 transition-all duration-300" />
-                </div>
-                <div className="flex-grow">
-                  <h3 className="text-lg sm:text-xl lg:text-2xl font-bold mb-2 sm:mb-3 text-[var(--foreground)]">Quick Practice</h3>
-                  <p className="text-sm sm:text-base text-[var(--foreground-secondary)] mb-3 sm:mb-4">Jump right in with 5 curated questions</p>
-                  <div className="flex items-center gap-3 text-sm text-[var(--foreground-secondary)]">
-                    <span>📝 5 questions</span>
-                    <span>⏱️ 60 minutes</span>
-                  </div>
-                </div>
-                <div className="mt-auto pt-4 border-t border-[var(--border-color-light)]">
-                  <span className="text-xs uppercase tracking-wider font-semibold text-[var(--color-primary)]">Start Instantly →</span>
-                </div>
-              </div>
-            </div>
-          </Link>
-
+        <div className="grid md:grid-cols-2 gap-6 mb-10">
           <Link href="/test/generate" className="group block">
             <div className="relative overflow-hidden rounded-[var(--radius-lg)] bg-[var(--background-elevated)] border-2 border-[var(--border-color)] hover:border-[var(--color-success)] transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl" style={{ minHeight: '280px' }}>
               <div className="p-8 h-full flex flex-col">
@@ -243,8 +204,8 @@ export default function DashboardPage() {
                   <ArrowRight className="h-6 w-6 text-[var(--foreground-muted)] opacity-0 group-hover:opacity-100 group-hover:translate-x-2 transition-all duration-300" />
                 </div>
                 <div className="flex-grow">
-                  <h3 className="text-2xl font-bold mb-3 text-[var(--foreground)]">AI Generated</h3>
-                  <p className="text-base text-[var(--foreground-secondary)] mb-4">Personalized test tailored to your level</p>
+                  <h3 className="text-lg sm:text-xl lg:text-2xl font-bold mb-2 sm:mb-3 text-[var(--foreground)]">AI Generated</h3>
+                  <p className="text-sm sm:text-base text-[var(--foreground-secondary)] mb-3 sm:mb-4">Personalized test tailored to your level</p>
                   <div className="flex items-center gap-3 text-sm text-[var(--foreground-secondary)]">
                     <span>🤖 Smart AI</span>
                     <span>🎯 Adaptive</span>
@@ -268,8 +229,8 @@ export default function DashboardPage() {
                   <ArrowRight className="h-6 w-6 text-[var(--foreground-muted)] opacity-0 group-hover:opacity-100 group-hover:translate-x-2 transition-all duration-300" />
                 </div>
                 <div className="flex-grow">
-                  <h3 className="text-2xl font-bold mb-3 text-[var(--foreground)]">Practice Mode</h3>
-                  <p className="text-base text-[var(--foreground-secondary)] mb-4">Learn at your own pace with hints and explanations</p>
+                  <h3 className="text-lg sm:text-xl lg:text-2xl font-bold mb-2 sm:mb-3 text-[var(--foreground)]">Practice Mode</h3>
+                  <p className="text-sm sm:text-base text-[var(--foreground-secondary)] mb-3 sm:mb-4">Learn at your own pace with hints and explanations</p>
                   <div className="flex items-center gap-3 text-sm text-[var(--foreground-secondary)]">
                     <span>💡 Hints</span>
                     <span>⏸️ No Timer</span>
@@ -426,9 +387,9 @@ export default function DashboardPage() {
               </div>
               <p className="text-2xl font-bold text-[var(--foreground)] mb-3">No tests yet</p>
               <p className="text-[var(--text-base)] text-[var(--foreground-secondary)] mb-8">Start practicing to see your progress here</p>
-              <Link href="/test/demo-test-1" className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-primary-hover)] text-white rounded-xl font-semibold text-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-300 group">
-                <Zap className="h-5 w-5" />
-                Take your first test
+              <Link href="/practice" className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-primary-hover)] text-white rounded-xl font-semibold text-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-300 group">
+                <GraduationCap className="h-5 w-5" />
+                Start Practice Mode
                 <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
               </Link>
             </div>
