@@ -58,8 +58,6 @@ MVP Foundation → Data Layer → AI Integration → Advanced Testing → Analyt
 - [x] Practice mode with instant feedback
 - [x] Hint system for guided learning
 - [x] Topic-wise practice sections
-- [x] Formula sheets with LaTeX rendering
-- [x] Search within formula sheets
 - [x] No-timer practice option
 
 ### ✅ UI/UX & Design System
@@ -335,7 +333,6 @@ Every feature should contribute to:
 
 ### Jan 3, 2025
 - Mobile responsiveness implementation
-- Formula sheets feature
 - Loading states and error handling
 - Practice mode with hints
 

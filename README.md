@@ -33,7 +33,6 @@ MockTest AI is building the future of competitive exam preparation in India by c
 
 ### Learning Features
 - **Practice Mode**: Instant feedback, hints system, topic-wise practice
-- **Formula Sheets**: LaTeX-rendered physics formulas with search functionality
 - **Mobile Responsive**: Optimized for 60% mobile users with touch-friendly UI
 - **Error Handling**: Graceful error boundaries, loading states, confirmation dialogs
 
@@ -69,7 +68,7 @@ MockTest AI is building the future of competitive exam preparation in India by c
 - **AI/ML**: 
   - Anthropic Claude API (Phase 2)
   - Custom ML models with PyTorch (Phase 5)
-- **Math Rendering**: KaTeX for LaTeX formulas
+- **Math Rendering**: KaTeX for LaTeX in questions and solutions
 - **Charts**: Recharts for analytics
 - **Deployment**: Vercel with Edge Network CDN
 - **Caching**: Redis/Upstash (Phase 2)
@@ -170,8 +169,7 @@ mocktestai/
 │   ├── results/           # Results display
 │   ├── practice/          # Practice mode
 │   ├── admin/             # Admin panel
-│   ├── analytics/         # Performance analytics
-│   └── formulas/          # Formula sheets
+│   └── analytics/         # Performance analytics
 ├── components/            
 │   ├── ui/               # Reusable UI components
 │   ├── test/             # Test-specific components

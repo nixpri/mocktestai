@@ -172,8 +172,7 @@ mocktestai/
 │   ├── test/             # Test-taking interface
 │   ├── results/          # Results display
 │   ├── practice/         # Practice mode
-│   ├── admin/            # Admin panel
-│   └── formulas/         # Formula sheets
+│   └── admin/            # Admin panel
 ├── components/
 │   ├── ui/               # Reusable UI components
 │   ├── test/             # Test-specific components
