@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { Brain, BookOpen, Trophy, Target, LogOut, Plus, Clock, TrendingUp, ArrowRight, Zap, BarChart3, Calendar, ShieldCheck, GraduationCap, Menu, X, FileText } from 'lucide-react'
+import { Brain, BookOpen, Trophy, Target, LogOut, Clock, TrendingUp, ArrowRight, Zap, BarChart3, Calendar, GraduationCap, Menu, X, FileText } from 'lucide-react'
 import Link from 'next/link'
 
 export default function DashboardPage() {
@@ -130,6 +130,13 @@ export default function DashboardPage() {
             {/* Desktop Menu */}
             <div className="hidden sm:flex items-center gap-4 lg:gap-6">
               <Link
+                href="/previous-years"
+                className="flex items-center gap-2 text-[var(--foreground-secondary)] hover:text-[var(--foreground)] transition-colors duration-[var(--transition-base)]"
+              >
+                <Calendar className="h-5 w-5" />
+                <span className="text-[var(--text-base)] font-medium">Previous Years</span>
+              </Link>
+              <Link
                 href="/analytics"
                 className="flex items-center gap-2 text-[var(--foreground-secondary)] hover:text-[var(--foreground)] transition-colors duration-[var(--transition-base)]"
               >
@@ -137,15 +144,6 @@ export default function DashboardPage() {
                 <span className="text-[var(--text-base)] font-medium">Analytics</span>
               </Link>
               <div className="flex items-center gap-2 lg:gap-4">
-                {isAdmin && (
-                  <Link
-                    href="/admin/questions"
-                    className="text-[var(--foreground-secondary)] hover:text-[var(--color-primary)] transition-colors duration-[var(--transition-base)] p-2 hover:bg-[var(--background-secondary)] rounded-[var(--radius-sm)]"
-                    title="Admin Panel"
-                  >
-                    <ShieldCheck className="h-5 w-5" />
-                  </Link>
-                )}
                 <span className="hidden lg:inline text-[var(--text-sm)] text-[var(--foreground-secondary)] max-w-[200px] truncate">
                   {user?.email}
                 </span>
@@ -173,6 +171,14 @@ export default function DashboardPage() {
       {mobileMenuOpen && (
         <div className="sm:hidden bg-[var(--background-elevated)] border-b border-[var(--border-color-light)] px-4 py-3">
           <Link
+            href="/previous-years"
+            onClick={() => setMobileMenuOpen(false)}
+            className="flex items-center gap-2 p-3 text-[var(--foreground-secondary)] hover:text-[var(--foreground)] hover:bg-[var(--background-secondary)] rounded-lg transition-colors"
+          >
+            <Calendar className="h-5 w-5" />
+            <span>Previous Years</span>
+          </Link>
+          <Link
             href="/analytics"
             onClick={() => setMobileMenuOpen(false)}
             className="flex items-center gap-2 p-3 text-[var(--foreground-secondary)] hover:text-[var(--foreground)] hover:bg-[var(--background-secondary)] rounded-lg transition-colors"
@@ -180,16 +186,6 @@ export default function DashboardPage() {
             <BarChart3 className="h-5 w-5" />
             <span>Analytics</span>
           </Link>
-          {isAdmin && (
-            <Link
-              href="/admin/questions"
-              onClick={() => setMobileMenuOpen(false)}
-              className="flex items-center gap-2 p-3 text-[var(--foreground-secondary)] hover:text-[var(--foreground)] hover:bg-[var(--background-secondary)] rounded-lg transition-colors"
-            >
-              <ShieldCheck className="h-5 w-5" />
-              <span>Admin Panel</span>
-            </Link>
-          )}
           <div className="p-3 text-sm text-[var(--foreground-secondary)]">
             {user?.email}
           </div>
@@ -212,7 +208,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Quick Actions - Epic Card Design */}
-        <div className="grid md:grid-cols-3 gap-6 mb-10">
+        <div className="grid md:grid-cols-4 gap-6 mb-10">
           <Link href="/test/demo-test-1" className="group block">
             <div className="relative overflow-hidden rounded-[var(--radius-lg)] bg-[var(--background-elevated)] border-2 border-[var(--border-color)] hover:border-[var(--color-primary)] transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl" style={{ minHeight: '280px' }}>
               <div className="p-8 h-full flex flex-col">
@@ -285,6 +281,31 @@ export default function DashboardPage() {
               </div>
             </div>
           </Link>
+
+          {/* Previous Year Papers Card */}
+          <Link href="/previous-years" className="group block">
+            <div className="relative overflow-hidden rounded-[var(--radius-lg)] bg-[var(--background-elevated)] border-2 border-[var(--border-color)] hover:border-[var(--color-warning)] transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl" style={{ minHeight: '280px' }}>
+              <div className="p-8 h-full flex flex-col">
+                <div className="flex items-start justify-between mb-6">
+                  <div className="p-4 bg-gradient-to-br from-[var(--color-warning)]/20 to-[var(--color-warning)]/10 rounded-2xl">
+                    <Calendar className="h-8 w-8 text-[var(--color-warning)]" />
+                  </div>
+                  <ArrowRight className="h-6 w-6 text-[var(--foreground-muted)] opacity-0 group-hover:opacity-100 group-hover:translate-x-2 transition-all duration-300" />
+                </div>
+                <div className="flex-grow">
+                  <h3 className="text-2xl font-bold mb-3 text-[var(--foreground)]">Previous Years</h3>
+                  <p className="text-base text-[var(--foreground-secondary)] mb-4">Practice with actual JEE papers from 2002-2024</p>
+                  <div className="flex items-center gap-3 text-sm text-[var(--foreground-secondary)]">
+                    <span>📚 20+ Years</span>
+                    <span>🎯 Real Papers</span>
+                  </div>
+                </div>
+                <div className="mt-auto pt-4 border-t border-[var(--border-color-light)]">
+                  <span className="text-xs uppercase tracking-wider font-semibold text-[var(--color-warning)]">Browse Papers →</span>
+                </div>
+              </div>
+            </div>
+          </Link>
         </div>
 
         {/* Stats Grid - Non-clickable stats with prominent Analytics CTA */}
@@ -353,6 +374,7 @@ export default function DashboardPage() {
             </div>
           </Link>
         </div>
+
 
         {/* Recent Tests - Epic List Design */}
         <div className="bg-[var(--background-elevated)] rounded-[var(--radius-lg)] p-8 border border-[var(--border-color-light)]">

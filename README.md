@@ -3,7 +3,7 @@
 An advanced AI-driven mock test platform designed for Indian competitive exam aspirants (JEE, NEET, etc.), starting with JEE Physics. Our platform leverages machine learning models trained on decades of exam papers, official syllabi, and question patterns to generate intelligent, exam-relevant mock tests that adapt to each student's learning level.
 
 ![MockTest AI](https://img.shields.io/badge/MockTest-AI-blue)
-![Next.js](https://img.shields.io/badge/Next.js-14-black)
+![Next.js](https://img.shields.io/badge/Next.js-15.5.2-black)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)
 ![Supabase](https://img.shields.io/badge/Supabase-Database-green)
 
@@ -21,31 +21,58 @@ MockTest AI is building the future of competitive exam preparation in India by c
 3. **Concept Mapping**: Questions tagged with detailed concept hierarchies for targeted practice
 4. **Predictive Analytics**: ML models predict likely exam scores and weak areas
 
-## 🚀 Features
+## 🚀 Current Features (Phase 0 - MVP Complete ✅)
 
-### Current (Phase 1 - JEE Physics)
-- **AI Question Engine**: Generates unique questions matching JEE patterns
-- **Smart Mock Tests**: Auto-generated tests based on JEE Main format
-- **Performance Analytics**: Detailed analysis of strengths and weaknesses
-- **Adaptive Difficulty**: Questions adjust to student's current level
-- **Google Authentication**: Secure, seamless sign-in
-- **Real-time Dashboard**: Track preparation progress
+### Core Platform
+- **Authentication**: Google OAuth and email/password authentication via Supabase
+- **User Dashboard**: Comprehensive stats, recent tests, quick links, performance metrics
+- **Test System**: Full test-taking interface with timer, pause/resume, auto-save
+- **Question Bank**: Admin panel for CRUD operations, bulk import (CSV/JSON)
+- **Results & Review**: Detailed score analysis, question-by-question review with solutions
+- **Analytics**: Performance charts, topic-wise breakdown, difficulty analysis
 
-### Planned (Phase 2-3)
-- **Multi-Subject Support**: Chemistry, Mathematics for JEE
-- **NEET Expansion**: Physics, Chemistry, Biology for medical entrance
-- **AI Doubt Resolution**: Instant explanations and concept clarification
-- **Rank Prediction**: ML-based exam rank prediction
-- **Study Plan Generation**: Personalized preparation schedules
-- **Video Solutions**: AI-generated step-by-step video explanations
+### Learning Features
+- **Practice Mode**: Instant feedback, hints system, topic-wise practice
+- **Formula Sheets**: LaTeX-rendered physics formulas with search functionality
+- **Mobile Responsive**: Optimized for 60% mobile users with touch-friendly UI
+- **Error Handling**: Graceful error boundaries, loading states, confirmation dialogs
+
+## 🚧 In Development (Phase 1 - Data Foundation)
+
+### Current Sprint (5% Complete)
+- **OCR Pipeline**: Setting up Tesseract/Google Vision for paper digitization
+- **Previous Year Papers**: Collecting 20+ years of JEE papers
+- **Hierarchical Taxonomy**: Building comprehensive topic structure
+- **Digitization Interface**: Admin tools for paper processing
+
+## 🔮 Upcoming Features (Phase 2-7)
+
+### Phase 2: AI Integration (Jan-Feb 2025)
+- **Claude API Integration**: Haiku model for question generation
+- **Prompt Engineering**: JEE-pattern specific prompts
+- **Quality Validation**: AI output verification system
+- **Response Caching**: Redis-based caching layer
+
+### Phase 3-7: Advanced Platform (Feb-Jul 2025)
+- **Pattern-Based Testing**: Generate tests from historical patterns
+- **Adaptive Engine**: ML-based difficulty adjustment
+- **Custom ML Models**: Fine-tuned LLaMA/Mistral for question generation
+- **Rank Prediction**: AI-powered rank and score forecasting
+- **Multi-Subject**: Chemistry, Mathematics, NEET subjects
+- **Mobile App**: React Native application
 
 ## 🛠️ Tech Stack
 
-- **Frontend**: Next.js 14, TypeScript, Tailwind CSS
+- **Frontend**: Next.js 15.5.2, React 19.1.0, TypeScript, Tailwind CSS v4
 - **Backend**: Supabase (PostgreSQL, Auth, Real-time)
-- **Authentication**: Google OAuth via Supabase
-- **AI Integration**: Ready for Hugging Face/OpenAI integration
-- **Deployment**: Vercel-ready
+- **Authentication**: Google OAuth via Supabase Auth
+- **AI/ML**: 
+  - Anthropic Claude API (Phase 2)
+  - Custom ML models with PyTorch (Phase 5)
+- **Math Rendering**: KaTeX for LaTeX formulas
+- **Charts**: Recharts for analytics
+- **Deployment**: Vercel with Edge Network CDN
+- **Caching**: Redis/Upstash (Phase 2)
 
 ## 📋 Prerequisites
 
@@ -76,6 +103,8 @@ MockTest AI is building the future of competitive exam preparation in India by c
    NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
    NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
    SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+   # Phase 2 onwards:
+   # ANTHROPIC_API_KEY=your_anthropic_key
    ```
 
 ## 🗄️ Database Setup
@@ -84,13 +113,11 @@ MockTest AI is building the future of competitive exam preparation in India by c
 
 2. **Run the database schema**
    - Go to SQL Editor in Supabase Dashboard
-   - Copy contents from `scripts/database-schema.sql`
-   - Execute the SQL
+   - Execute `/supabase/migrations/complete_schema.sql`
 
 3. **The schema includes:**
    - User profiles with subscription tiers
-   - Physics topics and subtopics hierarchy
-   - Questions bank with AI embeddings support
+   - Questions bank with LaTeX support
    - Test sessions and responses tracking
    - Performance analytics tables
    - Row Level Security policies
@@ -136,45 +163,68 @@ MockTest AI is building the future of competitive exam preparation in India by c
 ```
 mocktestai/
 ├── app/                    # Next.js app directory
+│   ├── api/               # API routes
 │   ├── auth/              # Authentication pages
-│   │   ├── page.tsx       # Google OAuth sign-in
-│   │   └── callback/      # OAuth callback handler
 │   ├── dashboard/         # User dashboard
-│   └── page.tsx           # Landing page
-├── components/            # React components
-│   ├── ui/               # UI components
-│   ├── test/             # Test-taking components
+│   ├── test/              # Test-taking interface
+│   ├── results/           # Results display
+│   ├── practice/          # Practice mode
+│   ├── admin/             # Admin panel
+│   ├── analytics/         # Performance analytics
+│   └── formulas/          # Formula sheets
+├── components/            
+│   ├── ui/               # Reusable UI components
+│   ├── test/             # Test-specific components
 │   └── questions/        # Question components
-├── lib/                   # Utilities
-│   └── supabase/         # Supabase client config
-├── scripts/              # Database scripts
-│   └── database-schema.sql
-├── types/                # TypeScript types
-└── public/               # Static assets
+├── lib/                   
+│   ├── supabase/         # Database client
+│   └── utils/            # Utility functions
+├── types/                # TypeScript definitions
+├── styles/               # Global styles
+└── supabase/
+    └── migrations/       # Database schema
+
 ```
 
-## 🎯 Roadmap
+## 🎯 Development Roadmap
 
-- [x] Basic project setup
-- [x] Google OAuth authentication
-- [x] Database schema
-- [x] User dashboard
-- [ ] Test-taking interface
-- [ ] Question display with LaTeX
+### ✅ Phase 0: MVP Foundation (COMPLETED)
+- [x] Authentication system
+- [x] Test-taking interface
+- [x] Results and analytics
+- [x] Practice mode
+- [x] Admin panel
+- [x] Mobile responsiveness
+
+### 🚧 Phase 1: Data Foundation (5% Complete)
+- [ ] OCR pipeline setup
+- [ ] Previous year paper collection
+- [ ] Hierarchical taxonomy
+- [ ] Digitization interface
+
+### ⏳ Phase 2-7: AI Platform (Upcoming)
 - [ ] AI question generation
-- [ ] Performance analytics
-- [ ] Payment integration
-- [ ] Mobile app
+- [ ] Pattern recognition
+- [ ] Adaptive learning
+- [ ] ML models
+- [ ] Predictive features
+- [ ] Multi-subject expansion
 
 ## 🤝 Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
 1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
+2. Create your feature branch (`git checkout -b feature/phase-1-amazing`)
+3. Commit your changes (`git commit -m 'feat: add amazing feature'`)
+4. Push to the branch (`git push origin feature/phase-1-amazing`)
 5. Open a Pull Request
+
+## 📝 Documentation
+
+- **[PROGRESS_TRACKER.md](./PROGRESS_TRACKER.md)** - Detailed development roadmap and current status
+- **[STRATEGIC_ANALYSIS.md](./STRATEGIC_ANALYSIS.md)** - Market analysis and business strategy
+- **[CLAUDE.md](./CLAUDE.md)** - AI assistant context and guidelines
 
 ## 📝 License
 
@@ -189,9 +239,13 @@ This project is licensed under the MIT License.
 
 - Next.js team for the amazing framework
 - Supabase for the backend infrastructure
-- Google for OAuth services
+- Anthropic for Claude API
 - JEE aspirants for the inspiration
 
 ---
+
+**Current Status**: Phase 1 - Data Foundation (5% Complete)  
+**Vision**: Building India's most advanced AI-driven exam preparation platform  
+**Target**: ₹1 Crore ARR with 100K+ users by December 2025
 
 Built with ❤️ for JEE aspirants
