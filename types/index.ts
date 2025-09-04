@@ -43,7 +43,7 @@ export interface Question {
     steps?: string[]
     images?: string[]
   }
-  source: 'generated' | 'manual' | 'previous_year'
+  source: 'generated' | 'manual'
   year?: number
   tags: string[]
   validationScore?: number

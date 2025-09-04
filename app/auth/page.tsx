@@ -132,7 +132,7 @@ export default function AuthPage() {
           <div className="mt-8">
             <div className="space-y-3">
               {[
-                '100+ Physics questions from previous years',
+                '100+ Physics practice questions',
                 'Adaptive difficulty based on performance',
                 'Detailed performance analytics',
               ].map((feature, index) => (
