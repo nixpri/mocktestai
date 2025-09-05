@@ -149,13 +149,25 @@ export async function POST(request: NextRequest) {
           }
         }));
         
-        // Create the prompt for Claude
-        const prompt = `TASK: Scan ALL questions on these pages but extract ONLY PHYSICS questions from JEE ${year} exam.
+        // Create the prompt for extraction
+        const prompt = `CRITICAL TASK: Extract ALL PHYSICS questions from JEE ${year} exam pages.
 
-PAGES INFO: You are viewing pages ${batch[0].pageNum} through ${batch[batch.length - 1].pageNum}.
-${batch.map((p, i) => `Page ${p.pageNum} is image ${i+1} of ${batch.length}`).join('\n')}
+⚠️ IMPORTANT CLARIFICATION:
+- Extract ALL Physics questions regardless of question number
+- Include questions WITH diagrams AND questions WITHOUT diagrams
+- The has_diagram field is for marking which questions have diagrams, NOT for filtering
+- DO NOT only return questions with diagrams - return ALL Physics questions!
+- DO NOT make assumptions based on question numbers - use CONTENT to identify Physics
 
-🎯 CONTENT-BASED SUBJECT IDENTIFICATION GUIDE:
+You are viewing pages ${batch[0].pageNum}-${batch[batch.length - 1].pageNum} of a JEE paper.
+Physics questions are typically grouped together but can appear at ANY question numbers.
+IDENTIFY PHYSICS BY CONTENT, NOT BY QUESTION NUMBER!
+
+⚠️ STRICT SUBJECT FILTERING - READ CAREFULLY:
+
+FUNDAMENTAL RULE: Identify subjects by CONTENT, not by question numbers!
+Physics questions can appear at ANY position (Q1, Q12, Q21, Q35, Q45, etc.)
+Extract EVERY Physics question regardless of its number!
 
 ═══ PHYSICS INDICATORS (EXTRACT THESE) ═══
 Look for these keywords/concepts to identify Physics questions:
@@ -194,8 +206,15 @@ V (Volt), A (Ampere), Ω (ohm), C (Coulomb), F (Farad), H (Henry), Wb (Weber), e
 ═══ CHEMISTRY INDICATORS (SKIP THESE) ═══
 IMMEDIATELY SKIP if you see:
 
+**GAS LAWS & CHEMICAL PROPERTIES (Common Chemistry indicators - SKIP THESE):**
+- Ideal gas, real gas, van der Waals equation
+- Boyle's law, Charles's law (in chemistry context)
+- Gas properties, compressibility, diffusion rates
+- Critical temperature, critical pressure
+- Gas mixtures, partial pressures (chemistry context)
+
 **Chemical Formulas & Reactions:**
-- Chemical formulas: H₂O, CO₂, NaCl, H₂SO₄, CH₄, C₆H₆, etc.
+- ANY chemical formula: H₂O, CO₂, NaCl, H₂SO₄, CH₄, C₆H₆, NH₃, O₂, N₂, Cl₂
 - Reaction arrows: →, ⇌, ↔
 - Chemical equations with reactants and products
 - Oxidation states, oxidation numbers (like Fe²⁺, Cr₂O₇²⁻)
@@ -228,13 +247,20 @@ pure geometry, trigonometric identities, mathematical induction
 
 ═══ EDGE CASES & DISAMBIGUATION ═══
 
+**Semiconductors & Materials:**
+- PHYSICS if: band gap, energy bands, p-n junction, diodes, transistors, conductivity, Hall effect
+- CHEMISTRY if: crystal structure, lattice parameters, metallurgy, alloys, coordination compounds
+- If it mentions germanium/silicon WITH band gap or electronic properties → PHYSICS
+- If it mentions germanium/silicon WITH chemical properties or reactions → CHEMISTRY
+
 **Thermodynamics:**
 - PHYSICS if: heat engines, Carnot cycle, efficiency, ideal gas, PV diagrams, isothermal, adiabatic
 - CHEMISTRY if: enthalpy of formation, Gibbs energy, chemical equilibrium, Hess's law
 
 **Nuclear Topics:**
-- PHYSICS if: radioactive decay, half-life, binding energy per nucleon, mass-energy equivalence
-- CHEMISTRY if: nuclear reactions with chemical equations, isotope chemistry
+- PHYSICS if: radioactive decay (alpha, beta, gamma), half-life calculations, binding energy per nucleon, mass-energy equivalence, nuclear fission/fusion for energy
+- CHEMISTRY if: nuclear reactions with chemical equations, isotope chemistry, radioisotopes in medicine, tracer techniques, radioactive dating
+- Be VERY CAREFUL: If the question focuses on nuclear equations and isotope transformations WITHOUT physics concepts like energy/mass defect, it's likely Chemistry
 
 **Math in Physics:**
 - EXTRACT if: calculus/matrices used to solve physics problems
@@ -246,14 +272,26 @@ pure geometry, trigonometric identities, mathematical induction
 3. **Matrix Matching**: "Column I" matched with "Column II" (NOT a diagram - it's an answer format!)
 4. **Linked Comprehension**: Multiple questions based on a common passage/scenario
 
-═══ DIAGRAM DETECTION ═══
-Mark has_diagram=true ONLY for:
-- Actual figures, circuits, graphs, ray diagrams, free body diagrams
-- NOT for: tables, matrices, answer grids, chemical structures
+═══ DIAGRAM DETECTION (VERY IMPORTANT) ═══
+Mark has_diagram=true for ANY of these:
+- Circuit diagrams (resistors, capacitors, batteries, switches)
+- Free body diagrams (forces, masses, pulleys, inclines)
+- Ray diagrams (lenses, mirrors, light paths)
+- Graphs (x-y plots, waveforms, field lines)
+- Mechanical setups (springs, pendulums, rotating objects)
+- Wave diagrams (interference patterns, standing waves)
+- Particle trajectories (projectile motion, charged particle paths)
+- Any geometric figure showing physical setup
+
+SPECIFICALLY CHECK:
+- Any question mentioning "figure", "shown", "diagram", "circuit"
+- Questions with mechanical systems often have diagrams
+- Circuit problems frequently include circuit diagrams
+- Optics questions may have ray diagrams
 
 DO NOT mark has_diagram=true for:
 - Matrix matching answer grids
-- Tables of data
+- Tables of numerical data only
 - Chemical structure diagrams
 
 ${parsedAnswerKey.length > 0 ? `Answer Key: Q${batchIndex * 10 + 1}-Q${Math.min((batchIndex + 1) * 10, parsedAnswerKey.length)}: ${parsedAnswerKey.slice(batchIndex * 10, (batchIndex + 1) * 10).join(', ')}\n` : ''}
@@ -295,23 +333,47 @@ Return this JSON structure:
 }
 
 ═══ EXTRACTION PROCESS ═══
-1. SCAN all questions visible on these pages
-2. For EACH question, apply this decision flow:
-   a) Check for Chemistry indicators → If found, SKIP
-   b) Check for Mathematics indicators → If found, SKIP  
-   c) Check for Physics indicators → If found, EXTRACT
-   d) If ambiguous, look for physical units and context
-3. Extract question numbers AS THEY APPEAR (could be Q1, Q15, Q42, etc.)
-4. DO NOT assume any specific numbering pattern
-5. DO NOT stop at a specific question number
-6. Continue scanning until all questions on the pages are checked
+1. SCAN ALL questions on these pages - regardless of question number
+2. For EACH question, perform CONTENT-BASED subject identification:
+   a) Look for Chemistry keywords/formulas → If found, SKIP
+   b) Look for pure Mathematics concepts → If found, SKIP  
+   c) Look for Physics concepts/units/keywords → If found, EXTRACT THE QUESTION
+   d) If ambiguous, look for physical units (N, J, W, m/s, etc.) to confirm Physics
+3. Extract ALL PHYSICS QUESTIONS - both those WITH diagrams and those WITHOUT diagrams
+4. For EACH extracted Physics question, set has_diagram to true or false accordingly
+5. Extract question numbers EXACTLY AS THEY APPEAR (Q1, Q12, Q21, Q45, etc.)
+6. DO NOT make assumptions about which numbers "should" be Physics
+7. DO NOT skip questions based on their number - only based on CONTENT
+8. Continue scanning EVERY question until all questions on the pages are checked
+
+⚠️ CRITICAL: Ignore question numbers! Physics questions can be Q12-20, Q21-30, or ANY other range!
+Extract based on CONTENT ONLY! The has_diagram field is just an attribute, NOT a filter!
 
 ═══ CRITICAL REMINDERS ═══
-- Papers have VARYING formats - Physics questions can appear ANYWHERE
-- NEVER assume Physics is Q1-30 or any fixed range
-- A question numbered Q29, Q42, or Q65 could still be Physics - CHECK THE CONTENT
-- Some papers interleave subjects, others have them in blocks
-- Trust CONTENT over NUMBER always
+- IGNORE question numbers - Physics can be at ANY position
+- Physics questions are usually grouped together in a continuous block
+- Use CONTENT analysis to identify subject, NOT question numbers
+- If a question mentions chemical formulas, molecules, reactions - it's Chemistry, SKIP IT
+- If a question mentions pure mathematical concepts without physics - it's Math, SKIP IT
+- Gas laws in chemistry context (van der Waals, ideal gas properties) are Chemistry - SKIP
+
+FINAL EXTRACTION REMINDER: 
+⚠️ Extract ALL Physics questions from these pages!
+- Include questions WITHOUT diagrams (has_diagram: false)
+- Include questions WITH diagrams (has_diagram: true)
+- You should typically find 5-10 Physics questions per batch
+- If you're only finding 1-2 questions, you're filtering too aggressively!
+- Extract based on PHYSICS CONTENT, not question numbers
+- Physics questions can be numbered ANYWHERE (Q1, Q15, Q21, Q45, etc.)
+- Check EVERY question on the page for Physics content
+
+IMPORTANT SCANNING NOTE:
+Physics questions USUALLY appear in continuous blocks (e.g., Q1-22 OR Q1-30)
+HOWEVER, be VERY SUSPICIOUS of isolated questions outside the main Physics block!
+- If you find Physics Q1-22, and then Q29, Q35 appear isolated → Double-check if they're really Physics
+- Isolated questions in the 30s, 40s, 50s are MORE LIKELY to be Chemistry/Math
+- Use STRICTER content verification for questions outside the main Physics block
+- Nuclear/semiconductor questions at high numbers (30+) need EXTRA scrutiny
 
 RESPONSE FORMAT: Start directly with the JSON object. No explanatory text before the JSON.`;
 

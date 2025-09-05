@@ -1,0 +1,915 @@
+{
+  "metadata": {
+    "year": "2008",
+    "exam": "JEE Main",
+    "subject": "Physics",
+    "session": "1",
+    "fileName": "2008_1.pdf",
+    "totalQuestions": 24,
+    "questionsWithDiagrams": 8,
+    "extractedDate": "2025-09-05T11:48:59.491Z"
+  },
+  "questions": [
+    {
+      "number": "24",
+      "text": "Students I, II and III perform an experiment for measuring the acceleration due to gravity (g) using a simple pendulum. They use different lengths of the pendulum and/or record time for different number of oscillations. The observations are shown in the table. Least count for length = 0.1 cm Least count for time = 0.1 s\n\nStudent | Length of the pendulum (cm) | Number of oscillations (n) | Total time for (n) oscillations (s) | Time period (s)\n---|---|---|---|---\nI | 64.0 | 8 | 128.0 | 16.0\nII | 64.0 | 4 | 64.0 | 16.0\nIII | 20.0 | 4 | 36.0 | 9.0\n\nIf E_I, E_II and E_III are the percentage errors in g, i.e., (Δg/g × 100) for students I, II and III, respectively,",
+      "question_type": "regular_mcq",
+      "options": [
+        {
+          "label": "A",
+          "text": "E_I = 0"
+        },
+        {
+          "label": "B",
+          "text": "E_I is minimum"
+        },
+        {
+          "label": "C",
+          "text": "E_I = E_II"
+        },
+        {
+          "label": "D",
+          "text": "E_II is maximum"
+        }
+      ],
+      "column_ii_options": [],
+      "correct_answer": "placeholder",
+      "explanation": null,
+      "has_diagram": false,
+      "diagram_description": null,
+      "subject": "Physics",
+      "topic": "Experimental Physics / Simple Harmonic Motion / Error Analysis",
+      "page_number": 8,
+      "difficulty": "medium",
+      "marks": 4,
+      "negative_marks": 1,
+      "year": "2008",
+      "exam": "JEE Main",
+      "session": "1"
+    },
+    {
+      "number": "25",
+      "text": "Figure shows three resistor configurations R1, R2 and R3 connected to 3 V battery. If the power dissipated by the configuration R1, R2 and R3 is P1, P2 and P3, respectively, then\nFigure :\n(A) P1 > P2 > P3\n(C) P2 > P1 > P3\n(B) P1 > P3 > P2\n(D) P3 > P2 > P1",
+      "question_type": "regular_mcq",
+      "options": [
+        {
+          "label": "A",
+          "text": "P1 > P2 > P3"
+        },
+        {
+          "label": "B",
+          "text": "P1 > P3 > P2"
+        },
+        {
+          "label": "C",
+          "text": "P2 > P1 > P3"
+        },
+        {
+          "label": "D",
+          "text": "P3 > P2 > P1"
+        }
+      ],
+      "column_ii_options": [],
+      "correct_answer": "D",
+      "explanation": null,
+      "has_diagram": true,
+      "diagram_description": "Three circuit diagrams (R1, R2, R3) showing different resistor configurations connected to a 3V battery.",
+      "subject": "Physics",
+      "topic": "Current Electricity",
+      "page_number": 9,
+      "difficulty": "medium",
+      "marks": 4,
+      "negative_marks": 1,
+      "year": "2008",
+      "exam": "JEE Main",
+      "session": "1",
+      "diagram_extracted": true,
+      "diagram_path": "/data/previous-year/jee/extracted_diagrams/2008_JEE_Main_1_Physics_q25_p9.png",
+      "diagram_size_kb": "302.2"
+    },
+    {
+      "number": "26",
+      "text": "Which one of the following statements is WRONG in the context of X-rays generated from a X-ray tube?\n(A) Wavelength of characteristic X-rays decreases when the atomic number of the target increases\n(B) Cut-off wavelength of the continuous X-rays depends on the atomic number of the target\n(C) Intensity of the characteristic X-rays depends on the electrical power given to the X-ray tube\n(D) Cut-off wavelength of the continuous X-rays depends on the energy of the electrons in the X-ray tube",
+      "question_type": "regular_mcq",
+      "options": [
+        {
+          "label": "A",
+          "text": "Wavelength of characteristic X-rays decreases when the atomic number of the target increases"
+        },
+        {
+          "label": "B",
+          "text": "Cut-off wavelength of the continuous X-rays depends on the atomic number of the target"
+        },
+        {
+          "label": "C",
+          "text": "Intensity of the characteristic X-rays depends on the electrical power given to the X-ray tube"
+        },
+        {
+          "label": "D",
+          "text": "Cut-off wavelength of the continuous X-rays depends on the energy of the electrons in the X-ray tube"
+        }
+      ],
+      "column_ii_options": [],
+      "correct_answer": "B",
+      "explanation": null,
+      "has_diagram": false,
+      "diagram_description": null,
+      "subject": "Physics",
+      "topic": "Modern Physics",
+      "page_number": 9,
+      "difficulty": "medium",
+      "marks": 4,
+      "negative_marks": 1,
+      "year": "2008",
+      "exam": "JEE Main",
+      "session": "1"
+    },
+    {
+      "number": "27",
+      "text": "Two beams of red and violet colours are made to pass separately through a prism (angle of the prism is 60°). In the position of minimum deviation, the angle of refraction will be\n(A) 30° for both the colours\n(B) greater for the violet colour\n(C) greater for the red colour\n(D) equal but not 30° for both the colours",
+      "question_type": "regular_mcq",
+      "options": [
+        {
+          "label": "A",
+          "text": "30° for both the colours"
+        },
+        {
+          "label": "B",
+          "text": "greater for the violet colour"
+        },
+        {
+          "label": "C",
+          "text": "greater for the red colour"
+        },
+        {
+          "label": "D",
+          "text": "equal but not 30° for both the colours"
+        }
+      ],
+      "column_ii_options": [],
+      "correct_answer": "A",
+      "explanation": null,
+      "has_diagram": false,
+      "diagram_description": null,
+      "subject": "Physics",
+      "topic": "Optics",
+      "page_number": 9,
+      "difficulty": "medium",
+      "marks": 4,
+      "negative_marks": 1,
+      "year": "2008",
+      "exam": "JEE Main",
+      "session": "1"
+    },
+    {
+      "number": "28",
+      "text": "An ideal gas is expanding such that PT² = constant. The coefficient of volume expansion of the gas is\n(A) 1/T\n(B) 2/T\n(C) 3/T\n(D) 4/T",
+      "question_type": "regular_mcq",
+      "options": [
+        {
+          "label": "A",
+          "text": "1/T"
+        },
+        {
+          "label": "B",
+          "text": "2/T"
+        },
+        {
+          "label": "C",
+          "text": "3/T"
+        },
+        {
+          "label": "D",
+          "text": "4/T"
+        }
+      ],
+      "column_ii_options": [],
+      "correct_answer": "C",
+      "explanation": null,
+      "has_diagram": false,
+      "diagram_description": null,
+      "subject": "Physics",
+      "topic": "Thermodynamics",
+      "page_number": 10,
+      "difficulty": "medium",
+      "marks": 4,
+      "negative_marks": 1,
+      "year": "2008",
+      "exam": "JEE Main",
+      "session": "1"
+    },
+    {
+      "number": "29",
+      "text": "A spherically symmetric gravitational system has a mass density ρ = { ρ₀ for r ≤ R, 0 for r > R } where ρ₀ is a constant. A test mass can undergo circular motion under the influence of the gravitational field of particles. Its speed V as a function of distance r (0 < r < ∞) from the centre of the system is represented by",
+      "question_type": "regular_mcq",
+      "options": [
+        {
+          "label": "A",
+          "text": ""
+        },
+        {
+          "label": "B",
+          "text": ""
+        },
+        {
+          "label": "C",
+          "text": ""
+        },
+        {
+          "label": "D",
+          "text": ""
+        }
+      ],
+      "column_ii_options": [],
+      "correct_answer": "A",
+      "explanation": null,
+      "has_diagram": true,
+      "diagram_description": "Four graphs showing speed V versus distance r.",
+      "subject": "Physics",
+      "topic": "Gravitation",
+      "page_number": 10,
+      "difficulty": "medium",
+      "marks": 4,
+      "negative_marks": 1,
+      "year": "2008",
+      "exam": "JEE Main",
+      "session": "1",
+      "diagram_extracted": true,
+      "diagram_path": "/data/previous-year/jee/extracted_diagrams/2008_JEE_Main_1_Physics_q29_p10.png",
+      "diagram_size_kb": "286.7"
+    },
+    {
+      "number": "30",
+      "text": "Two balls, having linear momenta p⃗₁ = pî and p⃗₂ = -pî, undergo a collision in free space. There is no external force acting on the balls. Let p⃗'₁ and p⃗'₂ be their final momenta. The following option(s) is(are) NOT ALLOWED for any non-zero value of p, c₁, c₂, b₁, b₂, c₁ and c₂.\n(A) p⃗'₁ = a₁î + b₁ĵ + c₁k̂, p⃗'₂ = a₂î + b₂ĵ\n(B) p⃗'₁ = c₁k̂, p⃗'₂ = c₂k̂\n(C) p⃗'₁ = a₁î + b₁ĵ + c₁k̂, p⃗'₂ = a₂î + b₂ĵ - c₁k̂\n(D) p⃗'₁ = a₁î + b₁ĵ, p⃗'₂ = a₂î + b₂ĵ",
+      "question_type": "regular_mcq",
+      "options": [
+        {
+          "label": "A",
+          "text": "p⃗'₁ = a₁î + b₁ĵ + c₁k̂, p⃗'₂ = a₂î + b₂ĵ"
+        },
+        {
+          "label": "B",
+          "text": "p⃗'₁ = c₁k̂, p⃗'₂ = c₂k̂"
+        },
+        {
+          "label": "C",
+          "text": "p⃗'₁ = a₁î + b₁ĵ + c₁k̂, p⃗'₂ = a₂î + b₂ĵ - c₁k̂"
+        },
+        {
+          "label": "D",
+          "text": "p⃗'₁ = a₁î + b₁ĵ, p⃗'₂ = a₂î + b₂ĵ"
+        }
+      ],
+      "column_ii_options": [],
+      "correct_answer": "A",
+      "explanation": null,
+      "has_diagram": false,
+      "diagram_description": null,
+      "subject": "Physics",
+      "topic": "Collisions and Momentum",
+      "page_number": 10,
+      "difficulty": "medium",
+      "marks": 4,
+      "negative_marks": 1,
+      "year": "2008",
+      "exam": "JEE Main",
+      "session": "1"
+    },
+    {
+      "number": "31",
+      "text": "Assume that the nuclear binding energy per nucleon (B/A) versus mass number (A) is as shown in the figure. Use this plot to choose the correct choice(s) given below.\nFigure :\n(A) Fusion of two nuclei with mass numbers lying in the range of 1 < A < 50 will release energy\n(B) Fusion of two nuclei with mass numbers lying in the range of 51 < A < 100 will release energy\n(C) Fission of a nucleus lying in the mass range of 100 < A < 200 will release energy when broken into two equal fragments\n(D) Fission of a nucleus lying in the mass range of 200 < A < 260 will release energy when broken into two equal fragments",
+      "question_type": "regular_mcq",
+      "options": [
+        {
+          "label": "A",
+          "text": "Fusion of two nuclei with mass numbers lying in the range of 1 < A < 50 will release energy"
+        },
+        {
+          "label": "B",
+          "text": "Fusion of two nuclei with mass numbers lying in the range of 51 < A < 100 will release energy"
+        },
+        {
+          "label": "C",
+          "text": "Fission of a nucleus lying in the mass range of 100 < A < 200 will release energy when broken into two equal fragments"
+        },
+        {
+          "label": "D",
+          "text": "Fission of a nucleus lying in the mass range of 200 < A < 260 will release energy when broken into two equal fragments"
+        }
+      ],
+      "column_ii_options": [],
+      "correct_answer": "D",
+      "explanation": null,
+      "has_diagram": true,
+      "diagram_description": "A graph showing nuclear binding energy per nucleon (B/A) versus mass number (A).",
+      "subject": "Physics",
+      "topic": "Nuclear Physics",
+      "page_number": 11,
+      "difficulty": "medium",
+      "marks": 4,
+      "negative_marks": 1,
+      "year": "2008",
+      "exam": "JEE Main",
+      "session": "1",
+      "diagram_extracted": true,
+      "diagram_path": "/data/previous-year/jee/extracted_diagrams/2008_JEE_Main_1_Physics_q31_p11.png",
+      "diagram_size_kb": "110.5"
+    },
+    {
+      "number": "32",
+      "text": "A particle of mass m and charge q, moving with velocity V enters Region II normal to the boundary as shown in the figure. Region II has a uniform magnetic field B perpendicular to the plane of the paper. The length of the Region II is ℓ. Choose the correct choice(s).\nFigure :\n(A) The particle enters Region III only if its velocity V > qℓB/m\n(B) The particle enters Region III only if its velocity V < qℓB/m\n(C) Path length of the particle in Region II is maximum when velocity V = qℓB/m\n(D) Time spent in Region II is same for any velocity V as long as the particle returns to Region I",
+      "question_type": "regular_mcq",
+      "options": [
+        {
+          "label": "A",
+          "text": "The particle enters Region III only if its velocity V > qℓB/m"
+        },
+        {
+          "label": "B",
+          "text": "The particle enters Region III only if its velocity V < qℓB/m"
+        },
+        {
+          "label": "C",
+          "text": "Path length of the particle in Region II is maximum when velocity V = qℓB/m"
+        },
+        {
+          "label": "D",
+          "text": "Time spent in Region II is same for any velocity V as long as the particle returns to Region I"
+        }
+      ],
+      "column_ii_options": [],
+      "correct_answer": "A",
+      "explanation": null,
+      "has_diagram": true,
+      "diagram_description": "A diagram showing a charged particle entering a region with a uniform magnetic field.",
+      "subject": "Physics",
+      "topic": "Magnetic Effects of Current and Magnetism",
+      "page_number": 11,
+      "difficulty": "medium",
+      "marks": 4,
+      "negative_marks": 1,
+      "year": "2008",
+      "exam": "JEE Main",
+      "session": "1",
+      "diagram_extracted": true,
+      "diagram_path": "/data/previous-year/jee/extracted_diagrams/2008_JEE_Main_1_Physics_q32_p11.png",
+      "diagram_size_kb": "115.9"
+    },
+    {
+      "number": "33",
+      "text": "In a Young's double slit experiment, the separation between the two slits is d and the wavelength of the light is λ. The intensity of light falling on slit 1 is four times the intensity of light falling on slit 2. Choose the correct choice(s).\n(A) If d = λ, the screen will contain only one maximum\n(B) If λ < d < 2λ, at least one more maximum (besides the central maximum) will be observed on the screen\n(C) If the intensity of light falling on slit 1 is reduced so that it becomes equal to that of slit 2, the intensities of the observed dark and bright fringes will increase\n(D) If the intensity of light falling on slit 2 is increased so that it becomes equal to that of slit 1, the intensities of the observed dark and bright fringes will increase",
+      "question_type": "regular_mcq",
+      "options": [
+        {
+          "label": "A",
+          "text": "If d = λ, the screen will contain only one maximum"
+        },
+        {
+          "label": "B",
+          "text": "If λ < d < 2λ, at least one more maximum (besides the central maximum) will be observed on the screen"
+        },
+        {
+          "label": "C",
+          "text": "If the intensity of light falling on slit 1 is reduced so that it becomes equal to that of slit 2, the intensities of the observed dark and bright fringes will increase"
+        },
+        {
+          "label": "D",
+          "text": "If the intensity of light falling on slit 2 is increased so that it becomes equal to that of slit 1, the intensities of the observed dark and bright fringes will increase"
+        }
+      ],
+      "column_ii_options": [],
+      "correct_answer": "B",
+      "explanation": null,
+      "has_diagram": false,
+      "diagram_description": null,
+      "subject": "Physics",
+      "topic": "Wave Optics",
+      "page_number": 12,
+      "difficulty": "medium",
+      "marks": 4,
+      "negative_marks": 1,
+      "year": "2008",
+      "exam": "JEE Main",
+      "session": "1"
+    },
+    {
+      "number": "34",
+      "text": "STATEMENT-1: In a Meter Bridge experiment, null point for an unknown resistance is measured. Now, the unknown resistance is put inside an enclosure maintained at a higher temperature. The null point can be obtained at the same point as before by decreasing the value of the standard resistance. AND STATEMENT-2: Resistance of a metal increases with increase in temperature.",
+      "question_type": "statement",
+      "options": [
+        {
+          "label": "A",
+          "text": "STATEMENT-1 is True, STATEMENT-2 is True; STATEMENT-2 is a correct explanation for STATEMENT-1"
+        },
+        {
+          "label": "B",
+          "text": "STATEMENT-1 is True, STATEMENT-2 is True; STATEMENT-2 is NOT a correct explanation for STATEMENT-1"
+        },
+        {
+          "label": "C",
+          "text": "STATEMENT-1 is True, STATEMENT-2 is False"
+        },
+        {
+          "label": "D",
+          "text": "STATEMENT-1 is False, STATEMENT-2 is True"
+        }
+      ],
+      "column_ii_options": [],
+      "correct_answer": "A",
+      "explanation": null,
+      "has_diagram": false,
+      "diagram_description": null,
+      "subject": "Physics",
+      "topic": "Current Electricity",
+      "page_number": 12,
+      "difficulty": "medium",
+      "marks": 4,
+      "negative_marks": 1,
+      "year": "2008",
+      "exam": "JEE Main",
+      "session": "1"
+    },
+    {
+      "number": "35",
+      "text": "STATEMENT-1: An astronaut in an orbiting space station above the Earth experiences weightlessness. AND STATEMENT-2: An object moving around the Earth under the influence of Earth's gravitational force is in a state of 'free-fall'.",
+      "question_type": "statement",
+      "options": [
+        {
+          "label": "A",
+          "text": "STATEMENT-1 is True, STATEMENT-2 is True; STATEMENT-2 is a correct explanation for STATEMENT-1"
+        },
+        {
+          "label": "B",
+          "text": "STATEMENT-1 is True, STATEMENT-2 is True; STATEMENT-2 is NOT a correct explanation for STATEMENT-1"
+        },
+        {
+          "label": "C",
+          "text": "STATEMENT-1 is True, STATEMENT-2 is False"
+        },
+        {
+          "label": "D",
+          "text": "STATEMENT-1 is False, STATEMENT-2 is True"
+        }
+      ],
+      "column_ii_options": [],
+      "correct_answer": "A",
+      "explanation": null,
+      "has_diagram": false,
+      "diagram_description": null,
+      "subject": "Physics",
+      "topic": "Gravitation",
+      "page_number": 12,
+      "difficulty": "medium",
+      "marks": 4,
+      "negative_marks": 1,
+      "year": "2008",
+      "exam": "JEE Main",
+      "session": "1"
+    },
+    {
+      "number": "36",
+      "text": "STATEMENT-1\nTwo cylinders, one hollow (metal) and the other solid (wood) with the same mass and identical dimensions are simultaneously allowed to roll without slipping down an inclined plane from the same height. The hollow cylinder will reach the bottom of the inclined plane first.\nand\nSTATEMENT-2\nBy the principle of conservation of energy, the total kinetic energies of both the cylinders are identical when they reach the bottom of the incline.",
+      "question_type": "statement",
+      "options": [
+        {
+          "label": "A",
+          "text": "STATEMENT-1 is True, STATEMENT-2 is True; STATEMENT-2 is a correct explanation for STATEMENT-1"
+        },
+        {
+          "label": "B",
+          "text": "STATEMENT-1 is True, STATEMENT-2 is True; STATEMENT-2 is NOT a correct explanation for STATEMENT-1"
+        },
+        {
+          "label": "C",
+          "text": "STATEMENT-1 is True, STATEMENT-2 is False"
+        },
+        {
+          "label": "D",
+          "text": "STATEMENT-1 is False, STATEMENT-2 is True"
+        }
+      ],
+      "correct_answer": "C",
+      "explanation": null,
+      "has_diagram": false,
+      "diagram_description": null,
+      "subject": "Physics",
+      "topic": "Rotational Dynamics",
+      "page_number": 13,
+      "difficulty": "medium",
+      "marks": 4,
+      "negative_marks": 1,
+      "year": "2008",
+      "exam": "JEE Main",
+      "session": "1"
+    },
+    {
+      "number": "37",
+      "text": "STATEMENT-1\nThe stream of water flowing at high speed from a garden hose pipe tends to spread like a fountain when held vertically up, but tends to narrow down when held vertically down.\nand\nSTATEMENT-2\nIn any steady flow of an incompressible fluid, the volume flow rate of the fluid remains constant.",
+      "question_type": "statement",
+      "options": [
+        {
+          "label": "A",
+          "text": "STATEMENT-1 is True, STATEMENT-2 is True; STATEMENT-2 is a correct explanation for STATEMENT-1"
+        },
+        {
+          "label": "B",
+          "text": "STATEMENT-1 is True, STATEMENT-2 is True; STATEMENT-2 is NOT a correct explanation for STATEMENT-1"
+        },
+        {
+          "label": "C",
+          "text": "STATEMENT-1 is True, STATEMENT-2 is False"
+        },
+        {
+          "label": "D",
+          "text": "STATEMENT-1 is False, STATEMENT-2 is True"
+        }
+      ],
+      "correct_answer": "D",
+      "explanation": null,
+      "has_diagram": false,
+      "diagram_description": null,
+      "subject": "Physics",
+      "topic": "Fluid Dynamics",
+      "page_number": 13,
+      "difficulty": "medium",
+      "marks": 4,
+      "negative_marks": 1,
+      "year": "2008",
+      "exam": "JEE Main",
+      "session": "1"
+    },
+    {
+      "number": "38",
+      "text": "Paragraph for Question Nos. 38 to 40\nA small spherical monoatomic ideal gas bubble (γ = 5/3) is trapped inside a liquid of density ρ_l (see figure). Assume that the bubble does not exchange any heat with the liquid. The bubble contains n moles of gas. The temperature of the gas when the bubble is at the bottom is T₀, the height of the liquid is H and the atmospheric pressure is P₀ (Neglect surface tension).\nFigure :\nAs the bubble moves upwards, besides the buoyancy force the following forces are acting on it",
+      "question_type": "linked_comprehension",
+      "options": [
+        {
+          "label": "A",
+          "text": "Only the force of gravity"
+        },
+        {
+          "label": "B",
+          "text": "The force due to gravity and the force due to the pressure of the liquid"
+        },
+        {
+          "label": "C",
+          "text": "The force due to gravity, the force due to the pressure of the liquid and the force due to viscosity of the liquid"
+        },
+        {
+          "label": "D",
+          "text": "The force due to gravity and the force due to viscosity of the liquid"
+        }
+      ],
+      "correct_answer": "D",
+      "explanation": null,
+      "has_diagram": true,
+      "diagram_description": "A container with liquid of height H, showing a spherical gas bubble at depth y from the surface. Atmospheric pressure P₀ is indicated above the liquid surface.",
+      "subject": "Physics",
+      "topic": "Fluid Mechanics",
+      "page_number": 14,
+      "difficulty": "medium",
+      "marks": 4,
+      "negative_marks": 1,
+      "year": "2008",
+      "exam": "JEE Main",
+      "session": "1",
+      "diagram_extracted": true,
+      "diagram_path": "/data/previous-year/jee/extracted_diagrams/2008_JEE_Main_1_Physics_q38_p14.png",
+      "diagram_size_kb": "155.8"
+    },
+    {
+      "number": "39",
+      "text": "Paragraph for Question Nos. 38 to 40\nA small spherical monoatomic ideal gas bubble (γ = 5/3) is trapped inside a liquid of density ρ_l (see figure). Assume that the bubble does not exchange any heat with the liquid. The bubble contains n moles of gas. The temperature of the gas when the bubble is at the bottom is T₀, the height of the liquid is H and the atmospheric pressure is P₀ (Neglect surface tension).\nFigure :\nWhen the gas bubble is at a height y from the bottom, its temperature is",
+      "question_type": "linked_comprehension",
+      "options": [
+        {
+          "label": "A",
+          "text": "T₀ ( (P₀ + ρ_l g H) / (P₀ + ρ_l g y) )^(2/5)"
+        },
+        {
+          "label": "B",
+          "text": "T₀ ( (P₀ + ρ_l g (H – y)) / (P₀ + ρ_l g H) )^(3/5)"
+        },
+        {
+          "label": "C",
+          "text": "T₀ ( (P₀ + ρ_l g H) / (P₀ + ρ_l g y) )^(3/5)"
+        },
+        {
+          "label": "D",
+          "text": "T₀ ( (P₀ + ρ_l g (H – y)) / (P₀ + ρ_l g H) )^(2/5)"
+        }
+      ],
+      "correct_answer": "D",
+      "explanation": null,
+      "has_diagram": true,
+      "diagram_description": "A container with liquid of height H, showing a spherical gas bubble at depth y from the surface. Atmospheric pressure P₀ is indicated above the liquid surface.",
+      "subject": "Physics",
+      "topic": "Thermodynamics",
+      "page_number": 14,
+      "difficulty": "medium",
+      "marks": 4,
+      "negative_marks": 1,
+      "year": "2008",
+      "exam": "JEE Main",
+      "session": "1",
+      "diagram_extracted": true,
+      "diagram_path": "/data/previous-year/jee/extracted_diagrams/2008_JEE_Main_1_Physics_q39_p14.png",
+      "diagram_size_kb": "154.7"
+    },
+    {
+      "number": "40",
+      "text": "Paragraph for Question Nos. 38 to 40\nA small spherical monoatomic ideal gas bubble (γ = 5/3) is trapped inside a liquid of density ρ_l (see figure). Assume that the bubble does not exchange any heat with the liquid. The bubble contains n moles of gas. The temperature of the gas when the bubble is at the bottom is T₀, the height of the liquid is H and the atmospheric pressure is P₀ (Neglect surface tension).\nFigure :\nThe buoyancy force acting on the gas bubble is (Assume R is the universal gas constant)",
+      "question_type": "linked_comprehension",
+      "options": [
+        {
+          "label": "A",
+          "text": "ρ_l n R T₀ ( (P₀ + ρ_l g H) / (P₀ + ρ_l g y) )^(2/5)"
+        },
+        {
+          "label": "B",
+          "text": "ρ_l n R T₀ ( (P₀ + ρ_l g (H – y)) / (P₀ + ρ_l g H) )^(3/5)"
+        },
+        {
+          "label": "C",
+          "text": "ρ_l n R T₀ ( (P₀ + ρ_l g H) / (P₀ + ρ_l g y) )^(3/5)"
+        },
+        {
+          "label": "D",
+          "text": "ρ_l n R T₀ ( (P₀ + ρ_l g (H – y)) / (P₀ + ρ_l g H) )^(2/5)"
+        }
+      ],
+      "correct_answer": "B",
+      "explanation": null,
+      "has_diagram": true,
+      "diagram_description": "A container with liquid of height H, showing a spherical gas bubble at depth y from the surface. Atmospheric pressure P₀ is indicated above the liquid surface.",
+      "subject": "Physics",
+      "topic": "Fluid Mechanics",
+      "page_number": 15,
+      "difficulty": "medium",
+      "marks": 4,
+      "negative_marks": 1,
+      "year": "2008",
+      "exam": "JEE Main",
+      "session": "1",
+      "diagram_extracted": true,
+      "diagram_path": "/data/previous-year/jee/extracted_diagrams/2008_JEE_Main_1_Physics_q40_p15.png",
+      "diagram_size_kb": "263.8"
+    },
+    {
+      "number": "41",
+      "text": "Paragraph for Question Nos. 41 to 43\nIn a mixture of H – He⁺ gas (He⁺ is simply ionized He atom), H atoms and He⁺ ions are excited to their respective first excited states. Subsequently, H atoms transfer their total excitation energy to He⁺ ions by collisions. Assume that the Bohr model of atom is exactly valid.\nThe quantum number n of the state finally populated in He⁺ ions is",
+      "question_type": "linked_comprehension",
+      "options": [
+        {
+          "label": "A",
+          "text": "2"
+        },
+        {
+          "label": "B",
+          "text": "3"
+        },
+        {
+          "label": "C",
+          "text": "4"
+        },
+        {
+          "label": "D",
+          "text": "5"
+        }
+      ],
+      "correct_answer": "C",
+      "explanation": null,
+      "has_diagram": false,
+      "diagram_description": null,
+      "subject": "Physics",
+      "topic": "Atomic Structure",
+      "page_number": 15,
+      "difficulty": "medium",
+      "marks": 4,
+      "negative_marks": 1,
+      "year": "2008",
+      "exam": "JEE Main",
+      "session": "1"
+    },
+    {
+      "number": "42",
+      "text": "Paragraph for Question Nos. 41 to 43\nIn a mixture of H – He⁺ gas (He⁺ is simply ionized He atom), H atoms and He⁺ ions are excited to their respective first excited states. Subsequently, H atoms transfer their total excitation energy to He⁺ ions by collisions. Assume that the Bohr model of atom is exactly valid.\nThe wavelength of light emitted in the visible region by He⁺ ions after collisions with H atoms is",
+      "question_type": "linked_comprehension",
+      "options": [
+        {
+          "label": "A",
+          "text": "6.5 × 10⁻⁷ m"
+        },
+        {
+          "label": "B",
+          "text": "5.6 × 10⁻⁷ m"
+        },
+        {
+          "label": "C",
+          "text": "4.8 × 10⁻⁷ m"
+        },
+        {
+          "label": "D",
+          "text": "4.0 × 10⁻⁷ m"
+        }
+      ],
+      "correct_answer": "C",
+      "explanation": null,
+      "has_diagram": false,
+      "diagram_description": null,
+      "subject": "Physics",
+      "topic": "Atomic Spectra",
+      "page_number": 15,
+      "difficulty": "medium",
+      "marks": 4,
+      "negative_marks": 1,
+      "year": "2008",
+      "exam": "JEE Main",
+      "session": "1"
+    },
+    {
+      "number": "43",
+      "text": "Paragraph for Question Nos. 41 to 43\nIn a mixture of H – He⁺ gas (He⁺ is simply ionized He atom), H atoms and He⁺ ions are excited to their respective first excited states. Subsequently, H atoms transfer their total excitation energy to He⁺ ions by collisions. Assume that the Bohr model of atom is exactly valid.\nThe ratio of the kinetic energy of the n = 2 electron for the H atom to that of He⁺ ion is",
+      "question_type": "linked_comprehension",
+      "options": [
+        {
+          "label": "A",
+          "text": "1/4"
+        },
+        {
+          "label": "B",
+          "text": "1/2"
+        },
+        {
+          "label": "C",
+          "text": "1"
+        },
+        {
+          "label": "D",
+          "text": "2"
+        }
+      ],
+      "correct_answer": "A",
+      "explanation": null,
+      "has_diagram": false,
+      "diagram_description": null,
+      "subject": "Physics",
+      "topic": "Atomic Structure",
+      "page_number": 15,
+      "difficulty": "medium",
+      "marks": 4,
+      "negative_marks": 1,
+      "year": "2008",
+      "exam": "JEE Main",
+      "session": "1"
+    },
+    {
+      "number": "44",
+      "text": "Paragraph for Question Nos. 44 to 46\nA small block of mass M moves on a frictionless surface of an inclined plane, as shown in figure. The angle of the incline suddenly changes from 60° to 30° at point B. The block is initially at rest at A. Assume that collisions between the block and the incline are totally inelastic (g = 10 m/s²).\nFigure :\nThe speed of the block at point B immediately after it strikes the second incline is",
+      "question_type": "linked_comprehension",
+      "options": [
+        {
+          "label": "A",
+          "text": "√60 m/s"
+        },
+        {
+          "label": "B",
+          "text": "√45 m/s"
+        },
+        {
+          "label": "C",
+          "text": "√30 m/s"
+        },
+        {
+          "label": "D",
+          "text": "√15 m/s"
+        }
+      ],
+      "correct_answer": "C",
+      "explanation": null,
+      "has_diagram": true,
+      "diagram_description": "An inclined plane with two sections. The first section from A to B has an angle of 60° with the horizontal, and the second section from B to C has an angle of 30° with the horizontal. A block of mass M is shown at point A. Horizontal distances are given as √3 m and 3√3 m for the sections.",
+      "subject": "Physics",
+      "topic": "Mechanics",
+      "page_number": 16,
+      "difficulty": "medium",
+      "marks": 4,
+      "negative_marks": 1,
+      "year": "2008",
+      "exam": "JEE Main",
+      "session": "1",
+      "diagram_extracted": true,
+      "diagram_path": "/data/previous-year/jee/extracted_diagrams/2008_JEE_Main_1_Physics_q44_p16.png",
+      "diagram_size_kb": "147.8"
+    },
+    {
+      "number": "45",
+      "text": "Paragraph for Question Nos. 44 to 46\nA small block of mass M moves on a frictionless surface of an inclined plane, as shown in figure. The angle of the incline suddenly changes from 60° to 30° at point B. The block is initially at rest at A. Assume that collisions between the block and the incline are totally inelastic (g = 10 m/s²).\nFigure :\nThe speed of the block at point C, immediately before it leaves the second incline is",
+      "question_type": "linked_comprehension",
+      "options": [
+        {
+          "label": "A",
+          "text": "√120 m/s"
+        },
+        {
+          "label": "B",
+          "text": "√105 m/s"
+        },
+        {
+          "label": "C",
+          "text": "√90 m/s"
+        },
+        {
+          "label": "D",
+          "text": "√75 m/s"
+        }
+      ],
+      "correct_answer": "D",
+      "explanation": null,
+      "has_diagram": true,
+      "diagram_description": "An inclined plane with two sections. The first section from A to B has an angle of 60° with the horizontal, and the second section from B to C has an angle of 30° with the horizontal. A block of mass M is shown at point A. Horizontal distances are given as √3 m and 3√3 m for the sections.",
+      "subject": "Physics",
+      "topic": "Mechanics",
+      "page_number": 16,
+      "difficulty": "medium",
+      "marks": 4,
+      "negative_marks": 1,
+      "year": "2008",
+      "exam": "JEE Main",
+      "session": "1"
+    },
+    {
+      "number": "46",
+      "text": "Paragraph for Question Nos. 44 to 46\nA small block of mass M moves on a frictionless surface of an inclined plane, as shown in figure. The angle of the incline suddenly changes from 60° to 30° at point B. The block is initially at rest at A. Assume that collisions between the block and the incline are totally inelastic (g = 10 m/s²).\nFigure :\nIf collision between the block and the incline is completely elastic, then the vertical (upward) component of the velocity of the block at point B, immediately after it strikes the second incline is",
+      "question_type": "linked_comprehension",
+      "options": [
+        {
+          "label": "A",
+          "text": "√30 m/s"
+        },
+        {
+          "label": "B",
+          "text": "√15 m/s"
+        },
+        {
+          "label": "C",
+          "text": "0"
+        },
+        {
+          "label": "D",
+          "text": "–√15 m/s"
+        }
+      ],
+      "correct_answer": "C",
+      "explanation": null,
+      "has_diagram": true,
+      "diagram_description": "An inclined plane with two sections. The first section from A to B has an angle of 60° with the horizontal, and the second section from B to C has an angle of 30° with the horizontal. A block of mass M is shown at point A. Horizontal distances are given as √3 m and 3√3 m for the sections.",
+      "subject": "Physics",
+      "topic": "Mechanics",
+      "page_number": 16,
+      "difficulty": "medium",
+      "marks": 4,
+      "negative_marks": 1,
+      "year": "2008",
+      "exam": "JEE Main",
+      "session": "1"
+    },
+    {
+      "number": "59",
+      "text": "STATEMENT-1: The plot of atomic number (y-axis) versus number of neutrons (x-axis) for stable nuclei shows a curvature towards x-axis from the line of 45° slope as the atomic number is increased. and STATEMENT-2: Proton-proton electrostatic repulsions begin to overcome attractive forces involving protons and neutrons in heavier nuclides.",
+      "question_type": "statement",
+      "options": [
+        {
+          "label": "A",
+          "text": "STATEMENT-1 is True, STATEMENT-2 is True; STATEMENT-2 is a correct explanation for STATEMENT-1"
+        },
+        {
+          "label": "B",
+          "text": "STATEMENT-1 is True, STATEMENT-2 is True; STATEMENT-2 is NOT a correct explanation for STATEMENT-1"
+        },
+        {
+          "label": "C",
+          "text": "STATEMENT-1 is True, STATEMENT-2 is False"
+        },
+        {
+          "label": "D",
+          "text": "STATEMENT-1 is False, STATEMENT-2 is True"
+        }
+      ],
+      "column_ii_options": [],
+      "correct_answer": null,
+      "explanation": null,
+      "has_diagram": false,
+      "diagram_description": null,
+      "subject": "Physics",
+      "topic": "Modern Physics (Nuclear Stability)",
+      "page_number": 20,
+      "difficulty": "medium",
+      "marks": 4,
+      "negative_marks": 1,
+      "year": "2008",
+      "exam": "JEE Main",
+      "session": "1"
+    }
+  ]
+}

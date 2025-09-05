@@ -43,11 +43,18 @@ export async function POST(request: NextRequest) {
     // Save the updated questions to the complete JSON file
     const cleanExam = exam?.replace(' ', '_') || 'JEE_Main';
     const cleanSession = session?.replace(/[^A-Z0-9]/g, '') || '1';
-    const outputPath = path.join(
+    // Ensure extracted_questions directory exists
+    const outputDir = path.join(
       process.cwd(),
       'data',
       'previous-year',
       'jee',
+      'extracted_questions'
+    );
+    await fs.mkdir(outputDir, { recursive: true });
+    
+    const outputPath = path.join(
+      outputDir,
       `${year}_${cleanExam}_${cleanSession}_${subject}_complete.json`
     );
     

@@ -1,0 +1,968 @@
+{
+  "metadata": {
+    "year": "2007",
+    "exam": "JEE Main",
+    "subject": "Physics",
+    "session": "2",
+    "fileName": "2007_2.pdf",
+    "totalQuestions": 24,
+    "questionsWithDiagrams": 5,
+    "extractedDate": "2025-09-05T11:43:05.781Z"
+  },
+  "questions": [
+    {
+      "number": "1",
+      "text": "In the experiment to determine the speed of sound using a resonance column,\n(A) prongs of the tuning fork are kept in a vertical plane\n(B) prongs of the tuning fork are kept in a horizontal plane\n(C) in one of the two resonances observed, the length of the resonating air column is\nclose to the wavelength of sound in air\n(D) in one of the two resonances observed, the length of the resonating air column is\nclose to half of the wavelength of sound in air",
+      "question_type": "regular_mcq",
+      "options": [
+        {
+          "label": "A",
+          "text": "prongs of the tuning fork are kept in a vertical plane"
+        },
+        {
+          "label": "B",
+          "text": "prongs of the tuning fork are kept in a horizontal plane"
+        },
+        {
+          "label": "C",
+          "text": "in one of the two resonances observed, the length of the resonating air column is\nclose to the wavelength of sound in air"
+        },
+        {
+          "label": "D",
+          "text": "in one of the two resonances observed, the length of the resonating air column is\nclose to half of the wavelength of sound in air"
+        }
+      ],
+      "column_ii_options": [],
+      "correct_answer": "D",
+      "explanation": null,
+      "has_diagram": false,
+      "diagram_description": null,
+      "subject": "Physics",
+      "topic": "Waves & Sound",
+      "page_number": 1,
+      "difficulty": "medium",
+      "marks": 4,
+      "negative_marks": 1,
+      "year": "2007",
+      "exam": "JEE Main",
+      "session": "2"
+    },
+    {
+      "number": "2",
+      "text": "A student performs an experiment to determine the Young's modulus of a wire,\nexactly 2 m long, by Searle's method. In a particular reading, the student measures\nthe extension in the length of the wire to be 0.8 mm with an uncertainty of\n±0.05 mm at a load of exactly 1.0 kg. The student also measures the diameter of the\nwire to be 0.4 mm with an uncertainty of ±0.01 mm. Take g = 9.8 m/s² (exact). The\nYoung's modulus obtained from the reading is\n(A) (2.0 ± 0.3) × 10¹¹ N/m²\n(B) (2.0 ± 0.2) × 10¹¹ N/m²\n(C) (2.0 ± 0.1) × 10¹¹ N/m²\n(D) (2.0 ± 0.05) × 10¹¹ N/m²",
+      "question_type": "regular_mcq",
+      "options": [
+        {
+          "label": "A",
+          "text": "(2.0 ± 0.3) × 10¹¹ N/m²"
+        },
+        {
+          "label": "B",
+          "text": "(2.0 ± 0.2) × 10¹¹ N/m²"
+        },
+        {
+          "label": "C",
+          "text": "(2.0 ± 0.1) × 10¹¹ N/m²"
+        },
+        {
+          "label": "D",
+          "text": "(2.0 ± 0.05) × 10¹¹ N/m²"
+        }
+      ],
+      "column_ii_options": [],
+      "correct_answer": "C",
+      "explanation": null,
+      "has_diagram": false,
+      "diagram_description": null,
+      "subject": "Physics",
+      "topic": "Mechanics (Elasticity, Error Analysis)",
+      "page_number": 1,
+      "difficulty": "medium",
+      "marks": 4,
+      "negative_marks": 1,
+      "year": "2007",
+      "exam": "JEE Main",
+      "session": "2"
+    },
+    {
+      "number": "3",
+      "text": "A particle moves in the X-Y plane under the influence of a force such that its linear\nmomentum is p(t) = A[î cos(kt) - ĵ sin(kt)], where A and k are constants. The\nangle between the force and the momentum is\n(A) 0°\n(B) 30°\n(C) 45°\n(D) 90°",
+      "question_type": "regular_mcq",
+      "options": [
+        {
+          "label": "A",
+          "text": "0°"
+        },
+        {
+          "label": "B",
+          "text": "30°"
+        },
+        {
+          "label": "C",
+          "text": "45°"
+        },
+        {
+          "label": "D",
+          "text": "90°"
+        }
+      ],
+      "column_ii_options": [],
+      "correct_answer": "D",
+      "explanation": null,
+      "has_diagram": false,
+      "diagram_description": null,
+      "subject": "Physics",
+      "topic": "Mechanics (Dynamics, Kinematics)",
+      "page_number": 1,
+      "difficulty": "medium",
+      "marks": 4,
+      "negative_marks": 1,
+      "year": "2007",
+      "exam": "JEE Main",
+      "session": "2"
+    },
+    {
+      "number": "4",
+      "text": "A small object of uniform density rolls up a curved surface with an initial\nvelocity v. It reaches up to a maximum height of 3v²/4g with respect to the initial\nposition. The object is\n(A) ring\n(B) solid sphere\n(C) hollow sphere\n(D) disc",
+      "question_type": "regular_mcq",
+      "options": [
+        {
+          "label": "A",
+          "text": "ring"
+        },
+        {
+          "label": "B",
+          "text": "solid sphere"
+        },
+        {
+          "label": "C",
+          "text": "hollow sphere"
+        },
+        {
+          "label": "D",
+          "text": "disc"
+        }
+      ],
+      "column_ii_options": [],
+      "correct_answer": "D",
+      "explanation": null,
+      "has_diagram": true,
+      "diagram_description": "A curved surface with an object rolling upwards, showing initial velocity 'v' and the path.",
+      "subject": "Physics",
+      "topic": "Mechanics (Rotational Motion, Conservation of Energy)",
+      "page_number": 2,
+      "difficulty": "medium",
+      "marks": 4,
+      "negative_marks": 1,
+      "year": "2007",
+      "exam": "JEE Main",
+      "session": "2",
+      "diagram_extracted": true,
+      "diagram_path": "/data/previous-year/jee/extracted_diagrams/2007_JEE_Main_2_Physics_q4_p2.png",
+      "diagram_size_kb": "53.3"
+    },
+    {
+      "number": "5",
+      "text": "Water is filled up to a height h in a beaker of radius R as\nshown in the figure. The density of water is ρ, the surface\ntension of water is T and the atmospheric pressure is P₀.\nConsider a vertical section ABCD of the water column\nthrough a diameter of the beaker. The force on water on one\nside of this section by water on the other side of this section\nhas magnitude\n(A) |2P₀Rh + πR² ρgh - 2RT|\n(B) |2P₀Rh + R ρgh² - 2RT|\n(C) |P₀ πR² + R ρgh² - 2RT|\n(D) |P₀ πR² + R ρgh² + 2RT|",
+      "question_type": "regular_mcq",
+      "options": [
+        {
+          "label": "A",
+          "text": "|2P₀Rh + πR² ρgh - 2RT|"
+        },
+        {
+          "label": "B",
+          "text": "|2P₀Rh + R ρgh² - 2RT|"
+        },
+        {
+          "label": "C",
+          "text": "|P₀ πR² + R ρgh² - 2RT|"
+        },
+        {
+          "label": "D",
+          "text": "|P₀ πR² + R ρgh² + 2RT|"
+        }
+      ],
+      "column_ii_options": [],
+      "correct_answer": "C",
+      "explanation": null,
+      "has_diagram": true,
+      "diagram_description": "A cylindrical beaker filled with water to height 'h' and radius 'R', with a vertical cross-section ABCD indicated.",
+      "subject": "Physics",
+      "topic": "Fluid Mechanics, Surface Tension",
+      "page_number": 2,
+      "difficulty": "medium",
+      "marks": 4,
+      "negative_marks": 1,
+      "year": "2007",
+      "exam": "JEE Main",
+      "session": "2",
+      "diagram_extracted": true,
+      "diagram_path": "/data/previous-year/jee/extracted_diagrams/2007_JEE_Main_2_Physics_q5_p2.png",
+      "diagram_size_kb": "209.6"
+    },
+    {
+      "number": "6",
+      "text": "A spherical portion has been removed from a solid sphere having a charge distributed\nuniformly in its volume as shown in the figure. The electric field inside the emptied\nspace is\n(A) zero everywhere\n(B) non-zero and uniform\n(C) non-uniform\n(D) zero only at its center",
+      "question_type": "regular_mcq",
+      "options": [
+        {
+          "label": "A",
+          "text": "zero everywhere"
+        },
+        {
+          "label": "B",
+          "text": "non-zero and uniform"
+        },
+        {
+          "label": "C",
+          "text": "non-uniform"
+        },
+        {
+          "label": "D",
+          "text": "zero only at its center"
+        }
+      ],
+      "column_ii_options": [],
+      "correct_answer": "B",
+      "explanation": null,
+      "has_diagram": true,
+      "diagram_description": "A large sphere with a smaller spherical cavity removed from its interior, representing a charged solid sphere with a removed portion.",
+      "subject": "Physics",
+      "topic": "Electricity & Magnetism (Electrostatics)",
+      "page_number": 3,
+      "difficulty": "medium",
+      "marks": 4,
+      "negative_marks": 1,
+      "year": "2007",
+      "exam": "JEE Main",
+      "session": "2",
+      "diagram_extracted": true,
+      "diagram_path": "/data/previous-year/jee/extracted_diagrams/2007_JEE_Main_2_Physics_q6_p3.png",
+      "diagram_size_kb": "64.8"
+    },
+    {
+      "number": "7",
+      "text": "Positive and negative point charges of equal magnitude are kept at (0, 0, a/2) and\n(0, 0, -a/2), respectively. The work done by the electric field when another positive\npoint charge is moved from (-a, 0, 0) to (0, a, 0) is\n(A) positive\n(B) negative\n(C) zero\n(D) depends on the path connecting the initial and final positions",
+      "question_type": "regular_mcq",
+      "options": [
+        {
+          "label": "A",
+          "text": "positive"
+        },
+        {
+          "label": "B",
+          "text": "negative"
+        },
+        {
+          "label": "C",
+          "text": "zero"
+        },
+        {
+          "label": "D",
+          "text": "depends on the path connecting the initial and final positions"
+        }
+      ],
+      "column_ii_options": [],
+      "correct_answer": "C",
+      "explanation": null,
+      "has_diagram": false,
+      "diagram_description": null,
+      "subject": "Physics",
+      "topic": "Electricity & Magnetism (Electrostatics, Electric Potential)",
+      "page_number": 3,
+      "difficulty": "medium",
+      "marks": 4,
+      "negative_marks": 1,
+      "year": "2007",
+      "exam": "JEE Main",
+      "session": "2"
+    },
+    {
+      "number": "8",
+      "text": "A magnetic field B = B₀ĵ exists in the region\n0 < x < 2a and B = -B₀ĵ, in the region\n2a < x < 3a, where B₀ is a positive constant.\nA positive point charge moving with a velocity\nv = v₀î, where v₀ is a positive constant,\nenters the magnetic field at x = a. The\ntrajectory of the charge in this region can be\nlike,\n(A) [diagram]\n(B) [diagram]\n(C) [diagram]\n(D) [diagram]",
+      "question_type": "regular_mcq",
+      "options": [
+        {
+          "label": "A",
+          "text": "[diagram]"
+        },
+        {
+          "label": "B",
+          "text": "[diagram]"
+        },
+        {
+          "label": "C",
+          "text": "[diagram]"
+        },
+        {
+          "label": "D",
+          "text": "[diagram]"
+        }
+      ],
+      "column_ii_options": [],
+      "correct_answer": "A",
+      "explanation": null,
+      "has_diagram": true,
+      "diagram_description": "A graph showing the magnetic field regions along the x-axis and four different possible trajectories of a charged particle entering the field.",
+      "subject": "Physics",
+      "topic": "Electricity & Magnetism (Magnetism, Lorentz Force)",
+      "page_number": 4,
+      "difficulty": "medium",
+      "marks": 4,
+      "negative_marks": 1,
+      "year": "2007",
+      "exam": "JEE Main",
+      "session": "2",
+      "diagram_extracted": true,
+      "diagram_path": "/data/previous-year/jee/extracted_diagrams/2007_JEE_Main_2_Physics_q8_p4.png",
+      "diagram_size_kb": "75.0"
+    },
+    {
+      "number": "9",
+      "text": "Electrons with de-Broglie wavelength λ fall on the target in an X-ray tube. The\ncut-off wavelength of the emitted X-rays is\n(A) λ₀ = 2mc²/h\n(B) λ₀ = 2h/mc\n(C) λ₀ = 2m²c²λ²/h²\n(D) λ₀ = λ",
+      "question_type": "regular_mcq",
+      "options": [
+        {
+          "label": "A",
+          "text": "λ₀ = 2mc²/h"
+        },
+        {
+          "label": "B",
+          "text": "λ₀ = 2h/mc"
+        },
+        {
+          "label": "C",
+          "text": "λ₀ = 2m²c²λ²/h²"
+        },
+        {
+          "label": "D",
+          "text": "λ₀ = λ"
+        }
+      ],
+      "column_ii_options": [],
+      "correct_answer": "A",
+      "explanation": null,
+      "has_diagram": false,
+      "diagram_description": null,
+      "subject": "Physics",
+      "topic": "Modern Physics (Dual Nature of Matter, X-rays)",
+      "page_number": 4,
+      "difficulty": "medium",
+      "marks": 4,
+      "negative_marks": 1,
+      "year": "2007",
+      "exam": "JEE Main",
+      "session": "2"
+    },
+    {
+      "number": "10",
+      "text": "STATEMENT-1\nIf there is no external torque on a body about its center of mass, then the velocity of the center of mass remains constant.\nbecause\nSTATEMENT-2\nThe linear momentum of an isolated system remains constant.",
+      "question_type": "statement",
+      "options": [
+        {
+          "label": "A",
+          "text": "Statement-1 is True, Statement-2 is True; Statement-2 is a correct explanation for Statement-1"
+        },
+        {
+          "label": "B",
+          "text": "Statement-1 is True, Statement-2 is True; Statement-2 is NOT a correct explanation for Statement-1"
+        },
+        {
+          "label": "C",
+          "text": "Statement-1 is True, Statement-2 is False"
+        },
+        {
+          "label": "D",
+          "text": "Statement-1 is False, Statement-2 is True"
+        }
+      ],
+      "column_ii_options": [],
+      "correct_answer": "D",
+      "explanation": null,
+      "has_diagram": false,
+      "diagram_description": null,
+      "subject": "Physics",
+      "topic": "Rotational Dynamics, Conservation of Momentum",
+      "page_number": 5,
+      "difficulty": "medium",
+      "marks": 4,
+      "negative_marks": 1,
+      "year": "2007",
+      "exam": "JEE Main",
+      "session": "2"
+    },
+    {
+      "number": "11",
+      "text": "STATEMENT-1\nA cloth covers a table. Some dishes are kept on it. The cloth can be pulled out without dislodging the dishes from the table.\nbecause\nSTATEMENT-2\nFor every action there is an equal and opposite reaction.",
+      "question_type": "statement",
+      "options": [
+        {
+          "label": "A",
+          "text": "Statement-1 is True, Statement-2 is True; Statement-2 is a correct explanation for Statement-1"
+        },
+        {
+          "label": "B",
+          "text": "Statement-1 is True, Statement-2 is True; Statement-2 is NOT a correct explanation for Statement-1"
+        },
+        {
+          "label": "C",
+          "text": "Statement-1 is True, Statement-2 is False"
+        },
+        {
+          "label": "D",
+          "text": "Statement-1 is False, Statement-2 is True"
+        }
+      ],
+      "column_ii_options": [],
+      "correct_answer": "B",
+      "explanation": null,
+      "has_diagram": false,
+      "diagram_description": null,
+      "subject": "Physics",
+      "topic": "Newton's Laws of Motion, Inertia",
+      "page_number": 5,
+      "difficulty": "medium",
+      "marks": 4,
+      "negative_marks": 1,
+      "year": "2007",
+      "exam": "JEE Main",
+      "session": "2"
+    },
+    {
+      "number": "12",
+      "text": "STATEMENT-1\nA vertical iron rod has a coil of wire wound over it at the bottom end. An alternating current flows in the coil. The rod goes through a conducting ring as shown in the figure. The ring can float at a certain height above the coil.\nbecause\nSTATEMENT-2\nIn the above situation, a current is induced in the ring which interacts with the horizontal component of the magnetic field to produce an upward direction.",
+      "question_type": "statement",
+      "options": [
+        {
+          "label": "A",
+          "text": "Statement-1 is True, Statement-2 is True; Statement-2 is a correct explanation for Statement-1"
+        },
+        {
+          "label": "B",
+          "text": "Statement-1 is True, Statement-2 is True; Statement-2 is NOT a correct explanation for Statement-1"
+        },
+        {
+          "label": "C",
+          "text": "Statement-1 is True, Statement-2 is False"
+        },
+        {
+          "label": "D",
+          "text": "Statement-1 is False, Statement-2 is True"
+        }
+      ],
+      "column_ii_options": [],
+      "correct_answer": "A",
+      "explanation": null,
+      "has_diagram": true,
+      "diagram_description": "A vertical iron rod with a coil at the bottom, and a conducting ring floating above it.",
+      "subject": "Physics",
+      "topic": "Electromagnetic Induction, Magnetic Forces",
+      "page_number": 6,
+      "difficulty": "medium",
+      "marks": 4,
+      "negative_marks": 1,
+      "year": "2007",
+      "exam": "JEE Main",
+      "session": "2",
+      "diagram_extracted": true,
+      "diagram_path": "/data/previous-year/jee/extracted_diagrams/2007_JEE_Main_2_Physics_q12_p6.png",
+      "diagram_size_kb": "55.2"
+    },
+    {
+      "number": "13",
+      "text": "STATEMENT-1\nThe total translational kinetic energy of all the molecules of a given mass of an ideal gas is 1.5 times the product of its pressure and its volume.\nbecause\nSTATEMENT-2\nThe molecules of a gas collide with each other and the velocities of the molecules change due to the collision.",
+      "question_type": "statement",
+      "options": [
+        {
+          "label": "A",
+          "text": "Statement-1 is True, Statement-2 is True; Statement-2 is a correct explanation for Statement-1"
+        },
+        {
+          "label": "B",
+          "text": "Statement-1 is True, Statement-2 is True; Statement-2 is NOT a correct explanation for Statement-1"
+        },
+        {
+          "label": "C",
+          "text": "Statement-1 is True, Statement-2 is False"
+        },
+        {
+          "label": "D",
+          "text": "Statement-1 is False, Statement-2 is True"
+        }
+      ],
+      "column_ii_options": [],
+      "correct_answer": "B",
+      "explanation": null,
+      "has_diagram": false,
+      "diagram_description": null,
+      "subject": "Physics",
+      "topic": "Kinetic Theory of Gases, Thermodynamics",
+      "page_number": 6,
+      "difficulty": "medium",
+      "marks": 4,
+      "negative_marks": 1,
+      "year": "2007",
+      "exam": "JEE Main",
+      "session": "2"
+    },
+    {
+      "number": "14",
+      "text": "The speed of sound of the whistle is\n(A) 340 m/s for passengers in A and 310 m/s for passengers in B\n(B) 360 m/s for passengers in A and 310 m/s for passengers in B\n(C) 310 m/s for passengers in A and 360 m/s for passengers in B\n(D) 340 m/s for passengers in both the trains",
+      "question_type": "regular_mcq",
+      "options": [
+        {
+          "label": "A",
+          "text": "340 m/s for passengers in A and 310 m/s for passengers in B"
+        },
+        {
+          "label": "B",
+          "text": "360 m/s for passengers in A and 310 m/s for passengers in B"
+        },
+        {
+          "label": "C",
+          "text": "310 m/s for passengers in A and 360 m/s for passengers in B"
+        },
+        {
+          "label": "D",
+          "text": "340 m/s for passengers in both the trains"
+        }
+      ],
+      "column_ii_options": [],
+      "correct_answer": "B",
+      "explanation": null,
+      "has_diagram": false,
+      "diagram_description": null,
+      "subject": "Physics",
+      "topic": "Sound, Doppler Effect",
+      "page_number": 7,
+      "difficulty": "medium",
+      "marks": 4,
+      "negative_marks": 1,
+      "year": "2007",
+      "exam": "JEE Main",
+      "session": "2"
+    },
+    {
+      "number": "15",
+      "text": "The distribution of the sound intensity of the whistle as observed by the passengers in train A is best represented by",
+      "question_type": "regular_mcq",
+      "options": [
+        {
+          "label": "A",
+          "text": "Graph A (Intensity vs. Frequency)"
+        },
+        {
+          "label": "B",
+          "text": "Graph B (Intensity vs. Frequency)"
+        },
+        {
+          "label": "C",
+          "text": "Graph C (Intensity vs. Frequency)"
+        },
+        {
+          "label": "D",
+          "text": "Graph D (Intensity vs. Frequency)"
+        }
+      ],
+      "column_ii_options": [],
+      "correct_answer": "B",
+      "explanation": null,
+      "has_diagram": true,
+      "diagram_description": "Four graphs showing Intensity vs. Frequency distributions.",
+      "subject": "Physics",
+      "topic": "Sound, Doppler Effect, Wave Characteristics",
+      "page_number": 7,
+      "difficulty": "medium",
+      "marks": 4,
+      "negative_marks": 1,
+      "year": "2007",
+      "exam": "JEE Main",
+      "session": "2"
+    },
+    {
+      "number": "16",
+      "text": "The spread of frequency as observed by the passengers in train B is\n(A) 310 Hz\n(B) 330 Hz\n(C) 350 Hz\n(D) 290 Hz",
+      "question_type": "regular_mcq",
+      "options": [
+        {
+          "label": "A",
+          "text": "310 Hz"
+        },
+        {
+          "label": "B",
+          "text": "330 Hz"
+        },
+        {
+          "label": "C",
+          "text": "350 Hz"
+        },
+        {
+          "label": "D",
+          "text": "290 Hz"
+        }
+      ],
+      "column_ii_options": [],
+      "correct_answer": "A",
+      "explanation": null,
+      "has_diagram": false,
+      "diagram_description": null,
+      "subject": "Physics",
+      "topic": "Sound, Doppler Effect",
+      "page_number": 7,
+      "difficulty": "medium",
+      "marks": 4,
+      "negative_marks": 1,
+      "year": "2007",
+      "exam": "JEE Main",
+      "session": "2"
+    },
+    {
+      "number": "17",
+      "text": "Light travels as a\n(A) parallel beam in each medium\n(B) convergent beam in each medium\n(C) divergent beam in each medium\n(D) divergent beam in one medium and convergent beam in the other medium",
+      "question_type": "regular_mcq",
+      "options": [
+        {
+          "label": "A",
+          "text": "parallel beam in each medium"
+        },
+        {
+          "label": "B",
+          "text": "convergent beam in each medium"
+        },
+        {
+          "label": "C",
+          "text": "divergent beam in each medium"
+        },
+        {
+          "label": "D",
+          "text": "divergent beam in one medium and convergent beam in the other medium"
+        }
+      ],
+      "column_ii_options": [],
+      "correct_answer": "D",
+      "explanation": null,
+      "has_diagram": false,
+      "diagram_description": null,
+      "subject": "Physics",
+      "topic": "Optics, Nature of Light",
+      "page_number": 7,
+      "difficulty": "medium",
+      "marks": 4,
+      "negative_marks": 1,
+      "year": "2007",
+      "exam": "JEE Main",
+      "session": "2"
+    },
+    {
+      "number": "18",
+      "text": "The phases of the light wave at c, d, e and f are φc, φd, φe and φf respectively. It is given that φc ≠ φf.\nIt is given that φe ≠ φf.\n(A) φc cannot be equal to φd\n(B) φd can be equal to φe\n(C) (φd – φf) is equal to (φe – φc)\n(D) (φd – φe) is not equal to (φf – φc)",
+      "question_type": "regular_mcq",
+      "options": [
+        {
+          "label": "A",
+          "text": "φc cannot be equal to φd"
+        },
+        {
+          "label": "B",
+          "text": "φd can be equal to φe"
+        },
+        {
+          "label": "C",
+          "text": "(φd – φf) is equal to (φe – φc)"
+        },
+        {
+          "label": "D",
+          "text": "(φd – φe) is not equal to (φf – φc)"
+        }
+      ],
+      "column_ii_options": [],
+      "correct_answer": "C",
+      "explanation": null,
+      "has_diagram": false,
+      "diagram_description": null,
+      "subject": "Physics",
+      "topic": "Wave Optics, Phase",
+      "page_number": 8,
+      "difficulty": "medium",
+      "marks": 4,
+      "negative_marks": 1,
+      "year": "2007",
+      "exam": "JEE Main",
+      "session": "2"
+    },
+    {
+      "number": "19",
+      "text": "Speed of light is\n(A) the same in medium-1 and medium-2\n(B) larger in medium-1 than in medium-2\n(C) larger in medium-2 than in medium-1\n(D) different at b and d",
+      "question_type": "regular_mcq",
+      "options": [
+        {
+          "label": "A",
+          "text": "the same in medium-1 and medium-2"
+        },
+        {
+          "label": "B",
+          "text": "larger in medium-1 than in medium-2"
+        },
+        {
+          "label": "C",
+          "text": "larger in medium-2 than in medium-1"
+        },
+        {
+          "label": "D",
+          "text": "different at b and d"
+        }
+      ],
+      "column_ii_options": [],
+      "correct_answer": "B",
+      "explanation": null,
+      "has_diagram": false,
+      "diagram_description": null,
+      "subject": "Physics",
+      "topic": "Optics, Refraction",
+      "page_number": 8,
+      "difficulty": "medium",
+      "marks": 4,
+      "negative_marks": 1,
+      "year": "2007",
+      "exam": "JEE Main",
+      "session": "2"
+    },
+    {
+      "number": 20,
+      "text": "Column I describes some situations in which a small object moves. Column II describes some characteristics of these motions. Match the situations in Column I with the characteristics in Column II and indicate your answer by darkening appropriate bubbles in the 4 × 4 matrix given in the ORS.",
+      "question_type": "matrix_matching",
+      "options": [
+        {
+          "label": "A",
+          "text": "The object moves on the x-axis under a conservative force in such a way that its \"speed\" and \"position\" satisfy v = c₁√(c₂ - x²), where c₁ and c₂ are positive constants."
+        },
+        {
+          "label": "B",
+          "text": "The object moves on the x-axis in such a way that its velocity and its displacement from the origin satisfy v = -kx, where k is a positive constant."
+        },
+        {
+          "label": "C",
+          "text": "The object is attached to one end of a mass-less spring of a given spring constant. The other end of the spring is attached to the ceiling of an elevator. Initially everything is at rest. The elevator starts going upwards with a constant acceleration a. The motion of the object is observed from the elevator during the period it maintains this acceleration."
+        },
+        {
+          "label": "D",
+          "text": "The object is projected from the earth's surface vertically upwards with a speed 2GMₑ/Rₑ where Mₑ is the mass of the earth and Rₑ is the radius of the earth. Neglect forces from objects other than the earth."
+        }
+      ],
+      "column_ii_options": [
+        {
+          "label": "p",
+          "text": "The object executes a simple harmonic motion."
+        },
+        {
+          "label": "q",
+          "text": "The object does not change its direction."
+        },
+        {
+          "label": "r",
+          "text": "The kinetic energy of the object keeps on decreasing."
+        },
+        {
+          "label": "s",
+          "text": "The object can change its direction only once."
+        }
+      ],
+      "correct_answer": "Match the columns",
+      "explanation": null,
+      "has_diagram": false,
+      "diagram_description": null,
+      "subject": "Physics",
+      "topic": "Mechanics (Kinematics, SHM, Gravitation)",
+      "page_number": 9,
+      "difficulty": "medium",
+      "marks": 4,
+      "negative_marks": 1,
+      "year": "2007",
+      "exam": "JEE Main",
+      "session": "2"
+    },
+    {
+      "number": 21,
+      "text": "Two wires each carrying a steady current I are shown in four configurations in Column I. Some of the resulting effects are described in Column II. Match the statements in Column I with the statements in Column II and indicate your answer by darkening appropriate bubbles in the 4 × 4 matrix given in the ORS.",
+      "question_type": "matrix_matching",
+      "options": [
+        {
+          "label": "A",
+          "text": "Point P is situated midway between the wires."
+        },
+        {
+          "label": "B",
+          "text": "Point P is situated at the mid-point of the line joining the centers of the circular wires, which have same radii."
+        },
+        {
+          "label": "C",
+          "text": "Point P is situated at the mid-point of the line joining the centers of the circular wires, which have same radii."
+        },
+        {
+          "label": "D",
+          "text": "Point P is situated at the common center of the wires."
+        }
+      ],
+      "column_ii_options": [
+        {
+          "label": "p",
+          "text": "The magnetic fields (B) at P due to the currents in the wires are in the same direction."
+        },
+        {
+          "label": "q",
+          "text": "The magnetic fields (B) at P due to the currents in the wires are in opposite directions."
+        },
+        {
+          "label": "r",
+          "text": "There is no magnetic field at P."
+        },
+        {
+          "label": "s",
+          "text": "The wires repel each other."
+        }
+      ],
+      "correct_answer": "Match the columns",
+      "explanation": null,
+      "has_diagram": true,
+      "diagram_description": "Four configurations of current-carrying wires with a point P indicated.",
+      "subject": "Physics",
+      "topic": "Electricity & Magnetism (Magnetic Fields)",
+      "page_number": 10,
+      "difficulty": "medium",
+      "marks": 4,
+      "negative_marks": 1,
+      "year": "2007",
+      "exam": "JEE Main",
+      "session": "2"
+    },
+    {
+      "number": 22,
+      "text": "Column I gives some devices and Column II gives some processes on which the functioning of these devices depend. Match the devices in Column I with the processes in Column II and indicate your answer by darkening appropriate bubbles in the 4 × 4 matrix given in the ORS.",
+      "question_type": "matrix_matching",
+      "options": [
+        {
+          "label": "A",
+          "text": "Bimetallic strip"
+        },
+        {
+          "label": "B",
+          "text": "Steam engine"
+        },
+        {
+          "label": "C",
+          "text": "Incandescent lamp"
+        },
+        {
+          "label": "D",
+          "text": "Electric fuse"
+        }
+      ],
+      "column_ii_options": [
+        {
+          "label": "p",
+          "text": "Radiation from a hot body"
+        },
+        {
+          "label": "q",
+          "text": "Energy conversion"
+        },
+        {
+          "label": "r",
+          "text": "Melting"
+        },
+        {
+          "label": "s",
+          "text": "Thermal expansion of solids"
+        }
+      ],
+      "correct_answer": "Match the columns",
+      "explanation": null,
+      "has_diagram": false,
+      "diagram_description": null,
+      "subject": "Physics",
+      "topic": "Thermodynamics, General Physics",
+      "page_number": 10,
+      "difficulty": "medium",
+      "marks": 4,
+      "negative_marks": 1,
+      "year": "2007",
+      "exam": "JEE Main",
+      "session": "2"
+    },
+    {
+      "number": "29",
+      "text": "A positron is emitted from ²³₁₁Na. The ratio of the atomic mass and atomic number of the resulting nuclide is\n(A) 22/10\n(B) 22/11\n(C) 23/10\n(D) 23/12",
+      "question_type": "regular_mcq",
+      "options": [
+        {
+          "label": "A",
+          "text": "22/10"
+        },
+        {
+          "label": "B",
+          "text": "22/11"
+        },
+        {
+          "label": "C",
+          "text": "23/10"
+        },
+        {
+          "label": "D",
+          "text": "23/12"
+        }
+      ],
+      "column_ii_options": [],
+      "correct_answer": "C",
+      "explanation": null,
+      "has_diagram": false,
+      "diagram_description": null,
+      "subject": "Physics",
+      "topic": "Nuclear Physics",
+      "page_number": 13,
+      "difficulty": "medium",
+      "marks": 4,
+      "negative_marks": 1,
+      "year": "2007",
+      "exam": "JEE Main",
+      "session": "2"
+    },
+    {
+      "number": "35",
+      "text": "STATEMENT-1: Band gap in germanium is small. because STATEMENT-2: The energy spread of each germanium atomic energy level is infinitesimally small.",
+      "question_type": "statement",
+      "options": [
+        {
+          "label": "A",
+          "text": "Statement-1 is True, Statement-2 is True; Statement-2 is a correct explanation for Statement-1"
+        },
+        {
+          "label": "B",
+          "text": "Statement-1 is True, Statement-2 is True; Statement-2 is NOT a correct explanation for Statement-1"
+        },
+        {
+          "label": "C",
+          "text": "Statement-1 is True, Statement-2 is False"
+        },
+        {
+          "label": "D",
+          "text": "Statement-1 is False, Statement-2 is True"
+        }
+      ],
+      "column_ii_options": [],
+      "correct_answer": null,
+      "explanation": null,
+      "has_diagram": false,
+      "diagram_description": null,
+      "subject": "Physics",
+      "topic": "Modern Physics",
+      "page_number": 15,
+      "difficulty": "medium",
+      "marks": 4,
+      "negative_marks": 1,
+      "year": "2007",
+      "exam": "JEE Main",
+      "session": "2"
+    }
+  ]
+}
