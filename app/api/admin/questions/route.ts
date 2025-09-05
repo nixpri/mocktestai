@@ -26,21 +26,18 @@ export async function GET(request: NextRequest) {
     // Transform data to match frontend expectations
     const transformedQuestions = questions?.map(q => ({
       id: q.id,
-      topic: q.topic,
-      subtopic: q.subtopic,
+      topicId: q.topic_id,
+      subject: q.subject,
       difficulty: q.difficulty,
       type: q.question_type,
-      question: q.question,
+      question: q.question_text,
       options: q.options,
       correctAnswer: q.correct_answer,
-      numericalAnswer: q.numerical_answer,
-      numericalTolerance: q.numerical_tolerance,
-      assertion: q.assertion,
-      reason: q.reason,
       explanation: q.explanation,
       marks: q.marks,
       negativeMarks: q.negative_marks,
       tags: q.tags || [],
+      sourceType: q.source_type,
       createdAt: q.created_at,
       updatedAt: q.updated_at
     })) || []
@@ -98,22 +95,18 @@ export async function POST(request: NextRequest) {
     
     // Transform data for database
     const questionData = {
-      topic: body.topic,
-      subtopic: body.subtopic,
+      question_text: body.question,
       question_type: body.type,
       difficulty: body.difficulty,
-      question: body.question,
+      subject: body.subject || 'Physics',
+      topic_id: body.topicId || null,
       options: body.options || null,
       correct_answer: body.correctAnswer || null,
-      numerical_answer: body.numericalAnswer || null,
-      numerical_tolerance: body.numericalTolerance || 0.01,
-      assertion: body.assertion || null,
-      reason: body.reason || null,
       explanation: body.explanation || null,
       marks: body.marks || 4,
       negative_marks: body.negativeMarks || 1,
       tags: body.tags || [],
-      source: 'manual',
+      source_type: 'manual',
       created_by: user.id
     }
     
@@ -132,21 +125,18 @@ export async function POST(request: NextRequest) {
     // Transform response
     const transformedQuestion = {
       id: newQuestion.id,
-      topic: newQuestion.topic,
-      subtopic: newQuestion.subtopic,
+      topicId: newQuestion.topic_id,
+      subject: newQuestion.subject,
       difficulty: newQuestion.difficulty,
       type: newQuestion.question_type,
-      question: newQuestion.question,
+      question: newQuestion.question_text,
       options: newQuestion.options,
       correctAnswer: newQuestion.correct_answer,
-      numericalAnswer: newQuestion.numerical_answer,
-      numericalTolerance: newQuestion.numerical_tolerance,
-      assertion: newQuestion.assertion,
-      reason: newQuestion.reason,
       explanation: newQuestion.explanation,
       marks: newQuestion.marks,
       negativeMarks: newQuestion.negative_marks,
       tags: newQuestion.tags,
+      sourceType: newQuestion.source_type,
       createdAt: newQuestion.created_at,
       updatedAt: newQuestion.updated_at
     }
@@ -187,17 +177,13 @@ export async function PUT(request: NextRequest) {
     }
     
     // Only update fields that are provided
-    if (body.topic) updateData.topic = body.topic
-    if (body.subtopic !== undefined) updateData.subtopic = body.subtopic
+    if (body.topicId !== undefined) updateData.topic_id = body.topicId
+    if (body.subject) updateData.subject = body.subject
     if (body.type) updateData.question_type = body.type
     if (body.difficulty) updateData.difficulty = body.difficulty
-    if (body.question) updateData.question = body.question
+    if (body.question) updateData.question_text = body.question
     if (body.options !== undefined) updateData.options = body.options
     if (body.correctAnswer !== undefined) updateData.correct_answer = body.correctAnswer
-    if (body.numericalAnswer !== undefined) updateData.numerical_answer = body.numericalAnswer
-    if (body.numericalTolerance !== undefined) updateData.numerical_tolerance = body.numericalTolerance
-    if (body.assertion !== undefined) updateData.assertion = body.assertion
-    if (body.reason !== undefined) updateData.reason = body.reason
     if (body.explanation !== undefined) updateData.explanation = body.explanation
     if (body.marks !== undefined) updateData.marks = body.marks
     if (body.negativeMarks !== undefined) updateData.negative_marks = body.negativeMarks
@@ -219,21 +205,18 @@ export async function PUT(request: NextRequest) {
     // Transform response
     const transformedQuestion = {
       id: updatedQuestion.id,
-      topic: updatedQuestion.topic,
-      subtopic: updatedQuestion.subtopic,
+      topicId: updatedQuestion.topic_id,
+      subject: updatedQuestion.subject,
       difficulty: updatedQuestion.difficulty,
       type: updatedQuestion.question_type,
-      question: updatedQuestion.question,
+      question: updatedQuestion.question_text,
       options: updatedQuestion.options,
       correctAnswer: updatedQuestion.correct_answer,
-      numericalAnswer: updatedQuestion.numerical_answer,
-      numericalTolerance: updatedQuestion.numerical_tolerance,
-      assertion: updatedQuestion.assertion,
-      reason: updatedQuestion.reason,
       explanation: updatedQuestion.explanation,
       marks: updatedQuestion.marks,
       negativeMarks: updatedQuestion.negative_marks,
       tags: updatedQuestion.tags,
+      sourceType: updatedQuestion.source_type,
       createdAt: updatedQuestion.created_at,
       updatedAt: updatedQuestion.updated_at
     }

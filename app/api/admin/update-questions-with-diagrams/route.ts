@@ -75,17 +75,65 @@ export async function POST(request: NextRequest) {
     
     await fs.writeFile(outputPath, JSON.stringify(outputData, null, 2));
 
-    // Note: We're NOT creating a separate diagrams_metadata.json file anymore
-    // All information is contained in the main complete.json file
+    // Auto-upload to Supabase
+    const outputFileName = `${year}_${cleanExam}_${cleanSession}_${subject}_complete.json`;
+    
+    try {
+      const uploadResponse = await fetch(`${process.env.NEXT_PUBLIC_URL || 'http://localhost:3000'}/api/admin/upload-to-supabase`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fileName: outputFileName })
+      });
 
-    return NextResponse.json({
-      success: true,
-      questionsCount: updatedQuestions.length,
-      diagramsCount: diagrams.filter((d: any) => d.status === 'completed').length,
-      questions: updatedQuestions,
-      outputFile: outputPath,
-      outputFileName: `${year}_${cleanExam}_${cleanSession}_${subject}_complete.json`
-    });
+      const uploadResult = await uploadResponse.json();
+      
+      if (uploadResult.success) {
+        return NextResponse.json({
+          success: true,
+          questionsCount: updatedQuestions.length,
+          diagramsCount: diagrams.filter((d: any) => d.status === 'completed').length,
+          questions: updatedQuestions,
+          outputFile: outputPath,
+          outputFileName,
+          supabaseUpload: {
+            success: true,
+            testId: uploadResult.testId,
+            uploaded: uploadResult.summary.uploaded,
+            diagramsUploaded: uploadResult.summary.diagramsUploaded,
+            filesCleanedUp: uploadResult.summary.filesCleanedUp
+          }
+        });
+      } else {
+        // Upload failed, but we still saved locally
+        return NextResponse.json({
+          success: true,
+          questionsCount: updatedQuestions.length,
+          diagramsCount: diagrams.filter((d: any) => d.status === 'completed').length,
+          questions: updatedQuestions,
+          outputFile: outputPath,
+          outputFileName,
+          supabaseUpload: {
+            success: false,
+            error: uploadResult.error
+          }
+        });
+      }
+    } catch (uploadError) {
+      // Upload failed, but we still saved locally
+      console.error('Supabase upload error:', uploadError);
+      return NextResponse.json({
+        success: true,
+        questionsCount: updatedQuestions.length,
+        diagramsCount: diagrams.filter((d: any) => d.status === 'completed').length,
+        questions: updatedQuestions,
+        outputFile: outputPath,
+        outputFileName,
+        supabaseUpload: {
+          success: false,
+          error: 'Failed to upload to Supabase'
+        }
+      });
+    }
 
   } catch (error) {
     console.error('Error updating questions:', error);

@@ -10,7 +10,10 @@ export default function ExtractionSuccessPage() {
     fileName: '',
     questionsCount: 0,
     diagramsCount: 0,
-    savedPath: ''
+    savedPath: '',
+    uploaded: 0,
+    diagramsUploaded: 0,
+    testId: ''
   });
 
   useEffect(() => {
@@ -19,7 +22,10 @@ export default function ExtractionSuccessPage() {
       fileName: searchParams.get('file') || '',
       questionsCount: parseInt(searchParams.get('questions') || '0'),
       diagramsCount: parseInt(searchParams.get('diagrams') || '0'),
-      savedPath: searchParams.get('path') || ''
+      savedPath: searchParams.get('path') || '',
+      uploaded: parseInt(searchParams.get('uploaded') || '0'),
+      diagramsUploaded: parseInt(searchParams.get('diagramsUploaded') || '0'),
+      testId: searchParams.get('testId') || ''
     });
   }, [searchParams]);
 
@@ -61,16 +67,37 @@ export default function ExtractionSuccessPage() {
               <span className="font-semibold text-gray-800">{stats.fileName}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-600">Questions Updated:</span>
+              <span className="text-gray-600">Questions Extracted:</span>
               <span className="font-semibold text-gray-800">{stats.questionsCount}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">Diagrams Extracted:</span>
               <span className="font-semibold text-gray-800">{stats.diagramsCount}</span>
             </div>
-            {stats.savedPath && (
+            
+            {/* Supabase Upload Info */}
+            {stats.uploaded > 0 && (
+              <>
+                <div className="pt-3 border-t border-gray-200">
+                  <div className="flex justify-between text-green-600">
+                    <span>Uploaded to Supabase:</span>
+                    <span className="font-semibold">{stats.uploaded} questions</span>
+                  </div>
+                  <div className="flex justify-between text-green-600">
+                    <span>Diagrams in Storage:</span>
+                    <span className="font-semibold">{stats.diagramsUploaded}</span>
+                  </div>
+                </div>
+                <div className="bg-green-50 border border-green-200 rounded p-2">
+                  <p className="text-sm text-green-800 font-medium">✅ Successfully uploaded to database!</p>
+                  <p className="text-xs text-green-600 mt-1">Local files have been cleaned up</p>
+                </div>
+              </>
+            )}
+            
+            {stats.savedPath && !stats.uploaded && (
               <div className="pt-3 border-t border-gray-200">
-                <p className="text-sm text-gray-500">Saved to:</p>
+                <p className="text-sm text-gray-500">Saved locally to:</p>
                 <code className="text-xs bg-gray-100 px-2 py-1 rounded mt-1 block break-all">
                   {stats.savedPath}
                 </code>

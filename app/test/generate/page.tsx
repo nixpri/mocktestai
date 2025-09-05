@@ -231,6 +231,21 @@ export default function GenerateTestPage() {
           </div>
         )}
 
+        {/* Loading Overlay */}
+        {generating && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4">
+              <div className="flex flex-col items-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[var(--color-primary)] mb-4"></div>
+                <h3 className="text-lg font-semibold mb-2">Generating Test...</h3>
+                <p className="text-[var(--foreground-secondary)] text-center">
+                  Using AI to create personalized questions based on JEE patterns. This may take 30-60 seconds.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Quick Start Tab */}
         {activeTab === 'quick' && (
           <div className="grid md:grid-cols-3 gap-6 animate-fade-in">
@@ -241,7 +256,7 @@ export default function GenerateTestPage() {
                   key={preset.id}
                   onClick={() => handleQuickTest(preset)}
                   disabled={generating}
-                  className="group text-left disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="group text-left disabled:opacity-50 disabled:cursor-not-allowed hover:cursor-pointer"
                 >
                   <div className="card-airbnb p-6 hover-lift transition-all duration-[var(--transition-slow)]">
                     <div className={`w-full h-32 ${preset.color} rounded-[var(--radius-base)] mb-6 flex items-center justify-center`}>

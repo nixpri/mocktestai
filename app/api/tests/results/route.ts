@@ -22,10 +22,8 @@ export async function POST(request: NextRequest) {
     if (testId === 'demo-test-1') {
       testType = 'quick'
       testTitle = 'Quick Practice Test'
-    } else if (testId.startsWith('ai-test-')) {
-      testType = 'ai_generated'
-    } else if (testId.startsWith('topic-')) {
-      testType = 'topic'
+    } else if (testResult.testType) {
+      testType = testResult.testType
     }
 
     // Save test result to database

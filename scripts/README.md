@@ -1,63 +1,42 @@
-# Previous Year Questions Import
+# Development Tools and Scripts
 
-Complete solution to import all previous year questions with diagrams into Supabase.
+This directory contains utility scripts for development and maintenance.
 
-## Prerequisites
+## Available Scripts
+
+### dev-tools.js
+Development utilities and helper functions for local development.
+
+## Admin Panel Features
+
+Previous year question import and extraction is now handled through the web interface:
+
+1. **Extract Questions from PDFs**: `/admin/process-papers`
+   - Upload PDF files
+   - Automatic OCR and question extraction
+   - Diagram detection and extraction
+   - Direct upload to database
+
+2. **Manage Questions**: `/admin/questions`
+   - View all extracted questions
+   - Edit question details
+   - Manage test papers
+
+## Environment Setup
 
 Add these to your `.env.local` file:
 
 ```env
 # Required - Get from Supabase Dashboard → Settings → API
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGc...your-anon-key
 SUPABASE_SERVICE_ROLE_KEY=eyJhbGc...your-service-role-key
 ```
 
-## One Command Import
+## Getting Environment Variables
 
-```bash
-node scripts/import-previous-year.js
-```
+1. Open [Supabase Dashboard](https://app.supabase.com)
+2. Navigate to Settings → API
+3. Copy the required keys
 
-This single command does everything:
-1. ✅ Creates storage bucket if needed
-2. ✅ Uploads all diagrams to Supabase Storage
-3. ✅ Generates SQL with correct Supabase URLs
-4. ✅ Creates `load_previous_year_data.sql` file
-
-## Final Step
-
-1. Open [Supabase Dashboard](https://app.supabase.com) → SQL Editor
-2. Copy contents of `supabase/migrations/load_previous_year_data.sql`
-3. Click "Run"
-
-Done! 🎉
-
-## What Gets Imported
-
-- **4 Exams**: JEE Main 2007-2008 papers
-- **50+ Questions**: Physics questions with solutions
-- **19 Diagrams**: Uploaded to Supabase Storage with public URLs
-- **Standardized Topics**: Automatic topic mapping
-
-## Verification
-
-After import, check in SQL Editor:
-
-```sql
-SELECT 
-    (SELECT COUNT(*) FROM previous_year_exams) as exams,
-    (SELECT COUNT(*) FROM previous_year_questions) as questions,
-    (SELECT COUNT(*) FROM previous_year_questions WHERE diagram_url IS NOT NULL) as diagrams_with_urls;
-```
-
-## Troubleshooting
-
-If you get an error about missing environment variables:
-1. Copy `.env.local.example` to `.env.local`
-2. Add your Supabase URL and Service Role Key
-3. Get these from: Supabase Dashboard → Settings → API
-
-The Service Role Key is needed to:
-- Create storage buckets
-- Upload images to storage
-- Bypass RLS policies
+The Service Role Key is needed for admin operations that bypass Row Level Security.

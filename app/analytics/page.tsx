@@ -5,15 +5,14 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { 
   Brain, TrendingUp, Target, Clock, Award, 
-  BarChart3, Activity, Calendar, ChevronRight,
+  BarChart3, Calendar, ChevronRight,
   BookOpen, Zap, AlertCircle, ArrowUp, ArrowDown,
   Trophy, Percent, CheckCircle
 } from 'lucide-react'
 import Link from 'next/link'
 import {
-  LineChart, Line, BarChart, Bar, PieChart, Pie, Cell,
+  BarChart, Bar, PieChart, Pie, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
-  RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar,
   Area, AreaChart
 } from 'recharts'
 import { formatDuration, secondsToHours } from '@/lib/utils/timeUtils'
@@ -33,8 +32,8 @@ interface TestResult {
   percentage: number
   timeTaken: number
   date: string
-  topicBreakdown: Record<string, any>
-  difficultyBreakdown: Record<string, any>
+  topicBreakdown: Record<string, number>
+  difficultyBreakdown: Record<string, number>
 }
 
 interface AnalyticsData {
@@ -326,7 +325,7 @@ export default function AnalyticsPage() {
       
       history.forEach(test => {
         if (test.difficultyBreakdown) {
-          Object.entries(test.difficultyBreakdown).forEach(([difficulty, stats]: [string, any]) => {
+          Object.entries(test.difficultyBreakdown).forEach(([difficulty, stats]) => {
             if (difficultyStats[difficulty]) {
               difficultyStats[difficulty].attempted += stats.attempted || 0
               difficultyStats[difficulty].correct += stats.correct || 0
@@ -442,12 +441,17 @@ export default function AnalyticsPage() {
   })
 
   // Custom tooltip for charts
-  const CustomTooltip = ({ active, payload, label }: any) => {
+  interface TooltipProps {
+    active?: boolean;
+    payload?: Array<{ value: number; name: string; color?: string }>;
+    label?: string;
+  }
+  const CustomTooltip = ({ active, payload, label }: TooltipProps) => {
     if (active && payload && payload.length) {
       return (
         <div className="bg-[var(--background-elevated)] p-3 rounded-[var(--radius-sm)] shadow-lg border border-[var(--border-color)]">
           <p className="text-[var(--text-sm)] font-semibold text-[var(--foreground)]">{label}</p>
-          {payload.map((entry: any, index: number) => (
+          {payload.map((entry, index: number) => (
             <p key={index} className="text-[var(--text-sm)]" style={{ color: entry.color }}>
               {entry.name}: {entry.value}%
             </p>

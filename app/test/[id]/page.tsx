@@ -90,7 +90,7 @@ export default function TestPage() {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            source: 'demo',
+            sourceType: 'demo',
             count: 5,
             randomize: true
           })
@@ -138,15 +138,11 @@ export default function TestPage() {
           
           return {
             id: q.id,
-            topicId: q.topic,
+            topicId: q.topicId || 'physics',
             content: {
               text: q.question,
               options: formattedOptions,
-              correctAnswer: q.correctAnswer?.toLowerCase() || '',
-              numericalAnswer: q.numericalAnswer,
-              numericalTolerance: q.numericalTolerance,
-              assertion: q.assertion,
-              reason: q.reason
+              correctAnswer: q.correctAnswer?.toLowerCase() || ''
             },
             questionType: q.type,
             difficulty: q.difficulty,

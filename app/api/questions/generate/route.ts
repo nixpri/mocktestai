@@ -1,16 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { generateQuestion, generateMockTest } from '@/lib/ai/claude'
+import { generateQuestion, generateMockTest } from '@/lib/ai/groq'
 
 export async function POST(request: NextRequest) {
   try {
     // Check if API key is configured
-    if (!process.env.ANTHROPIC_API_KEY) {
-      console.error('ANTHROPIC_API_KEY not found in environment')
+    const apiKey = process.env.GROQ_API_KEY
+    if (!apiKey) {
+      console.error('GROQ_API_KEY not found in environment')
       return NextResponse.json(
         { 
           error: 'AI service not configured',
-          details: 'ANTHROPIC_API_KEY is missing. Please add it to your .env.local file and restart the server.'
+          details: 'GROQ_API_KEY is missing. Sign up for FREE at https://console.groq.com (no credit card required!) and add the key to your .env.local file.'
         },
         { status: 500 }
       )
@@ -27,6 +28,32 @@ export async function POST(request: NextRequest) {
       )
     }
     
+    // Ensure user has a profile (required for RLS policies)
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('id', user.id)
+      .single()
+    
+    if (!profile) {
+      // Create profile if it doesn't exist using upsert to avoid conflicts
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .upsert({
+          id: user.id,
+          email: user.email,
+          full_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
+          is_admin: false
+        }, {
+          onConflict: 'id'
+        })
+      
+      if (profileError) {
+        console.error('Error creating profile:', profileError)
+        // Continue anyway - profile might exist but have different RLS rules
+      }
+    }
+    
     const body = await request.json()
     const { type, params } = body
     
@@ -37,11 +64,11 @@ export async function POST(request: NextRequest) {
       // Save to questions bank with proper format
       try {
         const questionData = {
-          topic: params.topic || 'mechanics',
-          subtopic: params.subtopic || null,
+          question_text: question.question,
           question_type: params.questionType || 'mcq',
           difficulty: params.difficulty || 'medium',
-          question: question.question,
+          subject: 'Physics',
+          topic_id: null, // TODO: Map topic to topic_id
           options: question.options ? JSON.stringify(question.options) : null,
           correct_answer: question.correctAnswer || null,
           explanation: question.solution || null,
@@ -101,18 +128,18 @@ export async function POST(request: NextRequest) {
           }
           
           const questionData = {
-            topic: params.topics?.[i % params.topics.length] || params.topic || 'mechanics',
-            subtopic: null,
+            question_text: q.question,
             question_type: 'mcq',
             difficulty: q.estimatedTime <= 2 ? 'easy' : q.estimatedTime <= 3 ? 'medium' : 'hard',
-            question: q.question,
+            subject: 'Physics',
+            topic_id: null, // TODO: Map topic to topic_id
             options: formattedOptions,
             correct_answer: q.correctAnswer?.toUpperCase() || 'A',
             explanation: q.solution || q.explanation || null,
             marks: 4,
             negative_marks: 1,
             tags: q.concepts || [],
-            source: 'generated',
+            source_type: 'ai_generated',
             created_by: user.id
           }
           
@@ -164,47 +191,62 @@ export async function POST(request: NextRequest) {
         }
       })
       
-      // Create test in database with reference to saved questions
+      // Create test in database
       const { data: test, error: testError } = await supabase
         .from('tests')
         .insert({
-          user_id: user.id,
+          created_by: user.id,
           test_type: 'ai_generated',
           title: params.title || 'AI Generated Mock Test',
-          questions: savedQuestionIds.length > 0 ? savedQuestionIds : formattedQuestions,
+          description: 'AI-generated test based on your preferences',
+          subject: 'Physics',
+          total_questions: formattedQuestions.length,
           total_marks: formattedQuestions.length * 4,
           duration_minutes: params.duration || 180,
-          status: 'created'
+          difficulty_level: 'mixed', // AI-generated tests have mixed difficulty
+          is_public: false,
+          is_active: true,
+          published_at: new Date().toISOString()
         })
         .select()
         .single()
 
       if (testError) {
         console.error('Error creating test:', testError)
-        const testId = `ai-test-${Date.now()}`
-        return NextResponse.json({
-          success: true,
-          test: {
-            id: testId,
-            user_id: user.id,
-            test_type: 'ai_generated',
-            title: params.title || 'AI Generated Mock Test',
-            questions: formattedQuestions,
-            total_marks: formattedQuestions.length * 4,
-            duration_minutes: params.duration || 180,
-            status: 'created',
-            created_at: new Date().toISOString()
-          },
-          questions: formattedQuestions,
-          questionCount: formattedQuestions.length,
-          savedToDb: false,
-          savedQuestions: savedQuestionIds.length
-        })
+        throw new Error('Failed to create test in database: ' + testError.message)
+      }
+
+      // Link questions to the test
+      if (savedQuestionIds.length > 0 && test) {
+        const testQuestionLinks = savedQuestionIds.map((questionId, index) => ({
+          test_id: test.id,
+          question_id: questionId,
+          sequence_number: index + 1,
+          section: 'Physics'
+        }))
+
+        const { error: linkError } = await supabase
+          .from('test_questions')
+          .insert(testQuestionLinks)
+
+        if (linkError) {
+          console.error('Error linking questions to test:', linkError)
+        }
       }
 
       return NextResponse.json({
         success: true,
-        test,
+        test: {
+          id: test.id,
+          userId: user.id,
+          testType: 'ai_generated',
+          title: params.title || 'AI Generated Mock Test',
+          questions: formattedQuestions,
+          totalMarks: formattedQuestions.length * 4,
+          durationMinutes: params.duration || 180,
+          status: 'created',
+          createdAt: test.created_at
+        },
         questions: formattedQuestions,
         questionCount: formattedQuestions.length,
         savedToDb: true,

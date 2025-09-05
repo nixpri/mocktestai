@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useCallback, useEffect } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import ReactCrop, { type Crop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
@@ -53,6 +53,8 @@ export default function ProcessPreviousYearPapersPage() {
   const [subject, setSubject] = useState('Physics');
   const [session, setSession] = useState('');
   const [questionKey, setQuestionKey] = useState('');
+  const [status, setStatus] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
 
   // Process PDF and extract questions
   const processPDF = async (file: File) => {
@@ -93,7 +95,7 @@ export default function ProcessPreviousYearPapersPage() {
       console.log(`Extracted ${extractedQuestions.length} questions from ${metadata?.totalPages || 0} pages`);
       
       // Log question types for debugging
-      const questionTypes = extractedQuestions.reduce((acc: any, q: Question) => {
+      const questionTypes = extractedQuestions.reduce((acc: Record<string, number>, q: Question) => {
         const type = q.question_type || 'regular_mcq';
         acc[type] = (acc[type] || 0) + 1;
         return acc;
@@ -207,10 +209,15 @@ export default function ProcessPreviousYearPapersPage() {
 
   // Save current diagram and move to next
   const saveAndNext = async () => {
-    if (!currentTask || !completedCrop) return;
-
+    if (!currentTask || !completedCrop || isSaving) return;
+    
+    setIsSaving(true);
+    
     const croppedImage = getCroppedImg();
-    if (!croppedImage) return;
+    if (!croppedImage) {
+      setIsSaving(false);
+      return;
+    }
 
     // Update task status
     const updatedTasks = [...diagramTasks];
@@ -262,6 +269,8 @@ export default function ProcessPreviousYearPapersPage() {
       // All tasks completed - auto-save and redirect
       exportAllResults();
     }
+    
+    setIsSaving(false);
   };
 
   // Save individual diagram
@@ -291,9 +300,15 @@ export default function ProcessPreviousYearPapersPage() {
     }
   };
 
-  // Export all results
+  // Export all results and upload to Supabase
   const exportAllResults = async () => {
+    if (isSaving) return; // Prevent multiple calls
+    
     const completedTasks = diagramTasks.filter(t => t.status === 'completed');
+    
+    setIsSaving(true);
+    // Show uploading status
+    setStatus('Saving questions and uploading to Supabase...');
     
     try {
       const response = await fetch('/api/admin/update-questions-with-diagrams', {
@@ -313,19 +328,46 @@ export default function ProcessPreviousYearPapersPage() {
       if (response.ok) {
         const result = await response.json();
         
-        // Redirect to success page with stats
-        const params = new URLSearchParams({
-          file: pdfFile?.name || '',
-          questions: result.questionsCount.toString(),
-          diagrams: completedTasks.length.toString(),
-          path: result.outputFileName || 'complete.json'
-        });
-        
-        router.push(`/admin/extraction-success?${params.toString()}`);
+        // Check if Supabase upload was successful
+        if (result.supabaseUpload?.success) {
+          setStatus('✅ Successfully uploaded to Supabase! Files cleaned up.');
+          
+          // Redirect to success page with stats including Supabase info
+          const params = new URLSearchParams({
+            file: pdfFile?.name || '',
+            questions: result.questionsCount.toString(),
+            diagrams: completedTasks.length.toString(),
+            path: result.outputFileName || 'complete.json',
+            uploaded: result.supabaseUpload.uploaded.toString(),
+            diagramsUploaded: result.supabaseUpload.diagramsUploaded.toString(),
+            testId: result.supabaseUpload.testId || ''
+          });
+          
+          setTimeout(() => {
+            router.push(`/admin/extraction-success?${params.toString()}`);
+          }, 2000);
+        } else {
+          // Saved locally but Supabase upload failed
+          setStatus('⚠️ Saved locally but failed to upload to Supabase');
+          alert(`Questions saved locally but Supabase upload failed: ${result.supabaseUpload?.error || 'Unknown error'}`);
+          
+          // Still redirect but without Supabase info
+          const params = new URLSearchParams({
+            file: pdfFile?.name || '',
+            questions: result.questionsCount.toString(),
+            diagrams: completedTasks.length.toString(),
+            path: result.outputFileName || 'complete.json'
+          });
+          
+          router.push(`/admin/extraction-success?${params.toString()}`);
+        }
       }
     } catch (error) {
       console.error('Error exporting results:', error);
+      setStatus('❌ Failed to save results');
       alert('Failed to save results to server');
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -475,6 +517,13 @@ export default function ProcessPreviousYearPapersPage() {
           </div>
         )}
 
+        {/* Status Message */}
+        {status && (
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+            <p className="text-blue-800 font-medium">{status}</p>
+          </div>
+        )}
+
         {/* Progress Bar */}
         {totalTasks > 0 && (
           <div className="bg-white rounded-lg shadow p-4 mb-6">
@@ -561,10 +610,17 @@ export default function ProcessPreviousYearPapersPage() {
                 <div className="grid grid-cols-2 gap-3">
                   <button
                     onClick={saveAndNext}
-                    disabled={!completedCrop}
-                    className="py-3 bg-green-600 text-white rounded-md disabled:bg-gray-400 hover:bg-green-700 transition font-semibold"
+                    disabled={!completedCrop || isSaving}
+                    className="py-3 bg-green-600 text-white rounded-md disabled:bg-gray-400 hover:bg-green-700 transition font-semibold flex items-center justify-center"
                   >
-                    ✓ Save & Next
+                    {isSaving ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        Saving...
+                      </>
+                    ) : (
+                      '✓ Save & Next'
+                    )}
                   </button>
                   <button
                     onClick={skipTask}
@@ -640,9 +696,17 @@ export default function ProcessPreviousYearPapersPage() {
               {totalTasks > 0 && completedTasks + skippedTasks === totalTasks && (
                 <button
                   onClick={exportAllResults}
-                  className="mt-4 w-full py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition font-semibold"
+                  disabled={isSaving}
+                  className="mt-4 w-full py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400 transition font-semibold flex items-center justify-center"
                 >
-                  📥 Save & Complete
+                  {isSaving ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Uploading to Supabase...
+                    </>
+                  ) : (
+                    '📥 Save & Complete'
+                  )}
                 </button>
               )}
             </div>

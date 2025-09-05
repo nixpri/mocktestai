@@ -18,18 +18,18 @@ export async function POST(request: NextRequest) {
       difficulty, 
       questionType,
       count = 5,
-      source,
+      sourceType,
       randomize = true 
     } = body
     
     // First, let's check what sources we have in the database
     const { data: allQuestions } = await supabase
       .from('questions')
-      .select('source, topic, question_type')
+      .select('source_type, topic, question_type')
       .limit(20)
     
     console.log('Total questions in DB:', allQuestions?.length || 0)
-    console.log('Available sources in DB:', [...new Set(allQuestions?.map(q => q.source) || [])])
+    console.log('Available sources in DB:', [...new Set(allQuestions?.map(q => q.source_type) || [])])
     console.log('Sample questions:', allQuestions?.slice(0, 3))
     
     // Build query
@@ -39,7 +39,9 @@ export async function POST(request: NextRequest) {
     
     // Apply filters
     if (topic && topic !== 'all') {
-      query = query.eq('topic', topic)
+      // For now, filter by subject instead of topic
+      // TODO: Update to use topic_id once topics are properly mapped
+      query = query.eq('subject', 'Physics')
     }
     
     if (difficulty && difficulty !== 'all') {
@@ -50,17 +52,17 @@ export async function POST(request: NextRequest) {
       query = query.eq('question_type', questionType)
     }
     
-    if (source) {
-      query = query.eq('source', source)
+    if (sourceType) {
+      query = query.eq('source_type', sourceType)
     }
     
     // Execute query
     const { data: questions, error } = await query
     
-    console.log('Query filters:', { topic, difficulty, questionType, source, count })
+    console.log('Query filters:', { topic, difficulty, questionType, sourceType, count })
     console.log('Questions found:', questions?.length || 0)
     if (questions && questions.length > 0) {
-      console.log('First question source:', questions[0].source)
+      console.log('First question source:', questions[0].source_type)
     }
     
     if (error) {

@@ -1,17 +1,16 @@
--- MockTest AI Complete Database Schema
--- Single file to drop and recreate everything with all fixes
+-- MockTest AI Unified Database Schema
+-- Comprehensive schema with complete JEE syllabus topics
+-- Version 2.1 - No backward compatibility
 
 -- =====================================================
--- DROP ALL EXISTING TABLES
+-- DROP EXISTING TABLES (IF THEY EXIST)
 -- =====================================================
+DROP TABLE IF EXISTS public.user_analytics CASCADE;
+DROP TABLE IF EXISTS public.question_analytics CASCADE;
 DROP TABLE IF EXISTS public.test_responses CASCADE;
 DROP TABLE IF EXISTS public.test_results CASCADE;
+DROP TABLE IF EXISTS public.test_questions CASCADE;
 DROP TABLE IF EXISTS public.tests CASCADE;
-DROP TABLE IF EXISTS public.user_previous_year_attempts CASCADE;
-DROP TABLE IF EXISTS public.exam_analysis CASCADE;
-DROP TABLE IF EXISTS public.question_patterns CASCADE;
-DROP TABLE IF EXISTS public.previous_year_questions CASCADE;
-DROP TABLE IF EXISTS public.previous_year_exams CASCADE;
 DROP TABLE IF EXISTS public.questions CASCADE;
 DROP TABLE IF EXISTS public.topics CASCADE;
 DROP TABLE IF EXISTS public.profiles CASCADE;
@@ -20,13 +19,15 @@ DROP TABLE IF EXISTS public.profiles CASCADE;
 -- ENABLE EXTENSIONS
 -- =====================================================
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+CREATE EXTENSION IF NOT EXISTS "pg_trgm" SCHEMA public;
 
 -- =====================================================
--- CREATE TABLES WITH CORRECT SCHEMA
+-- CORE TABLES
 -- =====================================================
 
 -- User profiles (extends Supabase auth.users)
-CREATE TABLE IF NOT EXISTS public.profiles (
+CREATE TABLE public.profiles (
     id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
     email TEXT UNIQUE NOT NULL,
     full_name TEXT,
@@ -39,754 +40,751 @@ CREATE TABLE IF NOT EXISTS public.profiles (
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Topics for categorization
-CREATE TABLE IF NOT EXISTS public.topics (
+-- Enhanced topics table with JEE metadata
+CREATE TABLE public.topics (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    
+    -- Basic Information
     name TEXT NOT NULL,
+    subject TEXT NOT NULL CHECK (subject IN ('Physics', 'Chemistry', 'Mathematics')),
     description TEXT,
-    order_index INTEGER,
-    parent_id UUID REFERENCES topics(id),
-    created_at TIMESTAMPTZ DEFAULT NOW()
+    
+    -- Hierarchy
+    parent_id UUID REFERENCES topics(id) ON DELETE CASCADE,
+    order_index INTEGER DEFAULT 0,
+    level INTEGER DEFAULT 0, -- 0: subject, 1: main topic, 2: subtopic, 3: concept
+    
+    -- JEE Specific Metadata
+    jee_code TEXT, -- Official JEE chapter code (e.g., "P1.1", "C2.3")
+    weightage_percentage DECIMAL(5,2), -- Typical weightage in JEE exam
+    difficulty_level INTEGER CHECK (difficulty_level BETWEEN 1 AND 5), -- 1: Easy to 5: Very Hard
+    
+    -- Learning Metadata
+    prerequisites UUID[], -- Array of topic IDs that should be studied first
+    common_concepts JSONB, -- {concepts: ["Newton's Laws", "Conservation"], formulas: ["F=ma"]}
+    question_patterns JSONB, -- {types: ["numerical", "conceptual"], patterns: ["direct formula", "multi-concept"]}
+    
+    -- Statistics
+    avg_time_per_question INTEGER, -- Average time in seconds
+    common_mistakes JSONB, -- Common errors students make
+    
+    -- Status
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW(),
+    
+    CONSTRAINT unique_topic_name_parent UNIQUE(name, parent_id, subject)
 );
 
--- Questions bank
-CREATE TABLE IF NOT EXISTS public.questions (
+-- Unified Questions Table (replaces old questions table)
+CREATE TABLE IF NOT EXISTS questions (
+    -- Core fields
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    topic TEXT NOT NULL CHECK (topic IN ('mechanics', 'thermodynamics', 'electromagnetism', 'optics', 'modern_physics', 'waves_oscillations')),
-    subtopic TEXT,
-    question_type TEXT NOT NULL CHECK (question_type IN ('mcq', 'numerical', 'assertion')),
-    difficulty TEXT NOT NULL CHECK (difficulty IN ('easy', 'medium', 'hard')),
-    question TEXT NOT NULL,
+    source_type TEXT DEFAULT 'manual' CHECK (source_type IN ('manual', 'previous_year', 'ai_generated', 'demo')),
+    source_metadata JSONB DEFAULT '{}',
     
-    -- MCQ specific fields
-    options JSONB, -- Array of options for MCQ
-    correct_answer TEXT, -- A, B, C, D for MCQ; A-E for assertion
+    -- Question content
+    question_text TEXT NOT NULL,
+    question_type TEXT NOT NULL CHECK (question_type IN ('mcq', 'numerical', 'assertion', 'matrix', 'paragraph')),
+    question_metadata JSONB DEFAULT '{}',
     
-    -- Numerical specific fields
-    numerical_answer DECIMAL,
-    numerical_tolerance DECIMAL DEFAULT 0.01,
+    -- Categorization
+    subject TEXT DEFAULT 'Physics' CHECK (subject IN ('Physics', 'Chemistry', 'Mathematics')),
+    topic_id UUID REFERENCES topics(id) ON DELETE SET NULL,
+    difficulty TEXT DEFAULT 'medium' CHECK (difficulty IN ('easy', 'medium', 'hard', 'expert')),
     
-    -- Assertion specific fields
-    assertion TEXT,
-    reason TEXT,
-    
-    -- Common fields
+    -- Answer Information
+    options JSONB,
+    correct_answer TEXT,
     explanation TEXT,
+    solution_approach TEXT, -- Step-by-step approach
+    hints JSONB,
+    
+    -- Scoring
     marks INTEGER DEFAULT 4,
     negative_marks INTEGER DEFAULT 1,
-    tags TEXT[],
-    source TEXT DEFAULT 'manual' CHECK (source IN ('generated', 'manual', 'demo')),
-    year INTEGER,
+    time_estimate INTEGER,
+    
+    -- Media
+    has_diagram BOOLEAN DEFAULT FALSE,
+    diagram_url TEXT,
+    diagram_description TEXT,
+    additional_media JSONB, -- {videos: [], animations: []}
     
     -- Metadata
-    created_by UUID REFERENCES auth.users(id),
+    tags TEXT[],
+    concepts_tested TEXT[], -- ["momentum", "energy conservation"]
+    is_active BOOLEAN DEFAULT TRUE,
+    is_verified BOOLEAN DEFAULT FALSE,
+    usage_count INTEGER DEFAULT 0,
+    success_rate DECIMAL(5,2),
+    
+    -- Tracking
+    created_by UUID REFERENCES profiles(id) ON DELETE SET NULL,
     created_at TIMESTAMPTZ DEFAULT NOW(),
-    updated_at TIMESTAMPTZ DEFAULT NOW()
+    updated_at TIMESTAMPTZ DEFAULT NOW(),
+    
+    -- Full-text search (will be updated by trigger)
+    search_vector tsvector
 );
 
--- Tests
-CREATE TABLE IF NOT EXISTS public.tests (
+-- UNIFIED TESTS TABLE
+CREATE TABLE public.tests (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
-    test_type TEXT NOT NULL CHECK (test_type IN ('mock', 'topic_wise', 'custom', 'daily_practice', 'ai_generated')),
+    
+    -- Test Type and Source
+    test_type TEXT DEFAULT 'practice' CHECK (test_type IN (
+        'practice', 'mock', 'previous_year', 'ai_generated', 
+        'custom', 'adaptive', 'topic_wise', 'chapter_test'
+    )),
+    test_metadata JSONB DEFAULT '{}',
+    
+    -- Basic Information
     title TEXT NOT NULL,
-    questions JSONB,
+    description TEXT,
+    instructions JSONB,
+    
+    -- Categorization
+    subject TEXT,
+    topic_ids UUID[],
+    
+    -- Test Configuration
+    total_questions INTEGER NOT NULL,
     total_marks INTEGER NOT NULL,
     duration_minutes INTEGER NOT NULL,
-    started_at TIMESTAMPTZ,
-    submitted_at TIMESTAMPTZ,
-    status TEXT DEFAULT 'created' CHECK (status IN ('created', 'in_progress', 'completed', 'abandoned')),
-    created_at TIMESTAMPTZ DEFAULT NOW()
-);
-
--- Test responses
-CREATE TABLE IF NOT EXISTS public.test_responses (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    test_id UUID REFERENCES tests(id) ON DELETE CASCADE,
-    user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
-    question_id UUID REFERENCES questions(id),
-    user_answer JSONB,
-    is_correct BOOLEAN,
-    marks_obtained DECIMAL,
-    time_spent_seconds INTEGER,
-    marked_for_review BOOLEAN DEFAULT FALSE,
-    created_at TIMESTAMPTZ DEFAULT NOW()
-);
-
--- Test results (supports both DB tests and Quick Tests)
-CREATE TABLE IF NOT EXISTS public.test_results (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    test_id VARCHAR(255), -- Can be UUID or string like 'demo-test-1'
-    test_title VARCHAR(255), -- Store title directly for Quick Tests
-    test_type VARCHAR(50) DEFAULT 'standard', -- ai_generated, topic, standard
-    user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
-    total_questions INTEGER NOT NULL,
-    attempted_questions INTEGER NOT NULL,
-    correct_answers INTEGER NOT NULL,
-    wrong_answers INTEGER NOT NULL,
-    total_marks_obtained DECIMAL NOT NULL,
-    total_marks INTEGER NOT NULL,
-    percentage DECIMAL NOT NULL,
-    time_taken_minutes INTEGER,
-    topic_breakdown JSONB DEFAULT '{}',
-    difficulty_breakdown JSONB DEFAULT '{}',
-    questions_data JSONB DEFAULT '[]',
-    user_answers JSONB DEFAULT '{}',
-    rank INTEGER,
-    percentile DECIMAL,
-    created_at TIMESTAMPTZ DEFAULT NOW()
-);
-
--- =====================================================
--- PREVIOUS YEAR QUESTIONS TABLES
--- =====================================================
-
--- Previous year exams metadata
-CREATE TABLE IF NOT EXISTS public.previous_year_exams (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    exam_name TEXT NOT NULL, -- JEE Main, JEE Advanced, AIEEE
-    year INTEGER NOT NULL,
-    session TEXT, -- 1, 2, 1A, 1B, Morning, Evening
-    paper_code TEXT, -- Paper 1, Paper 2
-    exam_date DATE,
-    total_questions INTEGER,
-    total_marks INTEGER,
-    duration_minutes INTEGER DEFAULT 180,
-    pdf_file_name TEXT,
-    processing_status TEXT DEFAULT 'pending' CHECK (processing_status IN ('pending', 'processing', 'completed', 'failed')),
-    extracted_at TIMESTAMPTZ,
-    created_at TIMESTAMPTZ DEFAULT NOW(),
-    updated_at TIMESTAMPTZ DEFAULT NOW(),
-    UNIQUE(exam_name, year, session)
-);
-
--- Previous year questions
-CREATE TABLE IF NOT EXISTS public.previous_year_questions (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    exam_id UUID REFERENCES previous_year_exams(id) ON DELETE CASCADE,
+    sections JSONB, -- For multi-section tests
     
-    -- Question details
-    question_number INTEGER NOT NULL,
-    question_text TEXT NOT NULL,
-    question_type TEXT NOT NULL CHECK (question_type IN (
-        'regular_mcq',      -- Standard MCQ with 4 options
-        'numerical',        -- Numerical answer type
-        'statement',        -- Statement-1 and Statement-2 type
-        'matrix_matching',  -- Column I and Column II matching
-        'linked_comprehension', -- Passage based questions
-        'assertion_reason'  -- Assertion and Reason type
-    )),
+    -- Difficulty and Scoring
+    difficulty_level TEXT CHECK (difficulty_level IN ('easy', 'medium', 'hard', 'mixed', 'adaptive')),
+    passing_marks INTEGER,
+    negative_marking BOOLEAN DEFAULT TRUE,
+    partial_marking BOOLEAN DEFAULT FALSE,
     
-    -- Subject and topic
-    subject TEXT NOT NULL CHECK (subject IN ('Physics', 'Chemistry', 'Mathematics')),
-    topic TEXT NOT NULL, -- Mechanics, Optics, Thermodynamics, etc.
-    subtopic TEXT, -- More specific topic categorization
+    -- Question Distribution
+    question_distribution JSONB, -- {easy: 10, medium: 15, hard: 5}
+    topic_distribution JSONB, -- {mechanics: 10, thermodynamics: 5}
     
-    -- Options (for MCQ types)
-    options JSONB, -- Array of {label, text} objects
-    column_ii_options JSONB, -- For matrix matching questions
+    -- Access Control
+    is_public BOOLEAN DEFAULT TRUE,
+    is_active BOOLEAN DEFAULT TRUE,
+    requires_subscription BOOLEAN DEFAULT FALSE,
+    allowed_attempts INTEGER DEFAULT NULL, -- NULL = unlimited
     
-    -- Answers
-    correct_answer TEXT, -- Can be single option (A) or pattern (A→p,q; B→r,s)
-    numerical_answer DECIMAL, -- For numerical type
-    numerical_tolerance DECIMAL DEFAULT 0.01,
-    
-    -- Additional content
-    assertion TEXT, -- For assertion-reason type
-    reason TEXT, -- For assertion-reason type
-    statement_1 TEXT, -- For statement type
-    statement_2 TEXT, -- For statement type
-    passage TEXT, -- For linked comprehension
-    
-    -- Explanation and solution
-    explanation TEXT,
-    detailed_solution TEXT,
-    solution_approach TEXT[], -- Array of approach tags
-    
-    -- Difficulty and scoring
-    difficulty TEXT CHECK (difficulty IN ('easy', 'medium', 'hard', 'expert')),
-    marks INTEGER DEFAULT 4,
-    negative_marks INTEGER DEFAULT 1,
-    
-    -- Diagram information
-    has_diagram BOOLEAN DEFAULT FALSE,
-    diagram_description TEXT,
-    diagram_path TEXT, -- Path to diagram image in storage
-    diagram_url TEXT, -- Public URL for diagram
-    
-    -- Metadata
-    page_number INTEGER, -- Page number in original PDF
-    sequence_in_exam INTEGER, -- Order in the actual exam
-    time_allocated_seconds INTEGER, -- Expected time to solve
-    common_mistakes TEXT[], -- Array of common mistakes
-    
-    -- Stats (will be updated based on user attempts)
+    -- Analytics
     attempt_count INTEGER DEFAULT 0,
-    correct_count INTEGER DEFAULT 0,
-    avg_time_taken_seconds INTEGER,
+    avg_score DECIMAL(5,2),
+    avg_time_taken INTEGER,
+    difficulty_rating DECIMAL(3,2), -- User-rated difficulty
     
-    -- Search and indexing
-    search_vector tsvector,
-    tags TEXT[],
-    
-    created_at TIMESTAMPTZ DEFAULT NOW(),
-    updated_at TIMESTAMPTZ DEFAULT NOW(),
-    
-    UNIQUE(exam_id, question_number)
-);
-
--- Question patterns table (for AI analysis)
-CREATE TABLE IF NOT EXISTS public.question_patterns (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    pattern_name TEXT NOT NULL,
-    pattern_description TEXT,
-    subject TEXT CHECK (subject IN ('Physics', 'Chemistry', 'Mathematics')),
-    topic TEXT,
-    example_question_ids UUID[], -- Array of question IDs that follow this pattern
-    pattern_template TEXT, -- Template for generating similar questions
-    key_concepts TEXT[], -- Key concepts tested
-    difficulty_range TEXT[], -- Array of difficulty levels this pattern appears in
-    frequency_in_exams INTEGER DEFAULT 1, -- How often this pattern appears
-    years_appeared INTEGER[], -- Years when this pattern appeared
+    -- Tracking
+    created_by UUID REFERENCES profiles(id) ON DELETE SET NULL,
+    published_at TIMESTAMPTZ,
+    expires_at TIMESTAMPTZ,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Exam analysis table
-CREATE TABLE IF NOT EXISTS public.exam_analysis (
+-- Links questions to tests
+CREATE TABLE public.test_questions (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    exam_id UUID REFERENCES previous_year_exams(id) ON DELETE CASCADE,
-    subject TEXT CHECK (subject IN ('Physics', 'Chemistry', 'Mathematics')),
-    topic_distribution JSONB, -- {topic: question_count} mapping
-    difficulty_distribution JSONB, -- {difficulty: count} mapping
-    average_difficulty DECIMAL,
-    unique_patterns INTEGER,
-    new_question_types TEXT[],
-    compared_to_previous_year JSONB, -- Analysis comparing to previous year
-    ai_insights TEXT,
-    created_at TIMESTAMPTZ DEFAULT NOW()
+    test_id UUID NOT NULL REFERENCES tests(id) ON DELETE CASCADE,
+    question_id UUID NOT NULL REFERENCES questions(id) ON DELETE CASCADE,
+    sequence_number INTEGER NOT NULL,
+    section TEXT,
+    marks_override INTEGER,
+    negative_marks_override INTEGER,
+    is_mandatory BOOLEAN DEFAULT FALSE,
+    
+    CONSTRAINT unique_test_question_sequence UNIQUE(test_id, sequence_number)
 );
 
--- User's previous year attempts
-CREATE TABLE IF NOT EXISTS public.user_previous_year_attempts (
+-- Test attempts by users
+CREATE TABLE public.test_results (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
-    exam_id UUID REFERENCES previous_year_exams(id) ON DELETE CASCADE,
-    started_at TIMESTAMPTZ DEFAULT NOW(),
+    test_id UUID NOT NULL REFERENCES tests(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+    
+    -- Test Information
+    test_title TEXT,
+    test_type TEXT,
+    
+    -- Attempt Information
+    attempt_number INTEGER DEFAULT 1,
+    started_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     submitted_at TIMESTAMPTZ,
-    time_taken_seconds INTEGER,
+    time_taken INTEGER,
+    time_taken_minutes INTEGER,
     
-    -- Scores
-    total_attempted INTEGER,
-    correct_answers INTEGER,
-    incorrect_answers INTEGER,
-    unattempted INTEGER,
-    marks_obtained INTEGER,
-    negative_marks INTEGER,
-    final_score INTEGER,
+    -- Question Counts
+    total_questions INTEGER DEFAULT 0,
+    attempted_questions INTEGER DEFAULT 0,
+    correct_answers INTEGER DEFAULT 0,
+    wrong_answers INTEGER DEFAULT 0,
     
-    -- Percentile (calculated based on all attempts)
-    percentile DECIMAL,
+    -- Legacy columns (for backward compatibility)
+    total_attempted INTEGER DEFAULT 0,
+    total_correct INTEGER DEFAULT 0,
+    total_incorrect INTEGER DEFAULT 0,
+    total_skipped INTEGER DEFAULT 0,
     
-    -- Subject-wise breakdown
-    physics_score INTEGER,
-    chemistry_score INTEGER,
-    mathematics_score INTEGER,
+    -- Scoring
+    total_marks INTEGER,
+    total_marks_obtained DECIMAL(10,2),
+    marks_obtained DECIMAL(10,2),
+    percentage DECIMAL(5,2),
     
-    -- Question-wise responses
-    responses JSONB, -- Array of {question_id, answer, time_taken, marked_for_review}
+    -- Detailed Performance
+    topic_breakdown JSONB,
+    difficulty_breakdown JSONB,
+    questions_data JSONB,
+    user_answers JSONB,
+    
+    -- Section-wise Performance
+    section_scores JSONB,
+    topic_wise_scores JSONB,
+    difficulty_wise_scores JSONB,
     
     -- Analysis
-    strong_topics TEXT[],
-    weak_topics TEXT[],
-    accuracy_percentage DECIMAL,
+    accuracy DECIMAL(5,2),
+    speed DECIMAL(10,2),
+    rank INTEGER,
+    percentile DECIMAL(5,2),
+    
+    -- Strengths and Weaknesses
+    strong_topics UUID[],
+    weak_topics UUID[],
+    
+    -- Metadata
+    status TEXT DEFAULT 'in_progress' CHECK (status IN ('in_progress', 'completed', 'abandoned', 'expired', 'submitted')),
+    device_info JSONB,
+    ip_address INET,
     
     created_at TIMESTAMPTZ DEFAULT NOW(),
-    UNIQUE(user_id, exam_id, started_at)
+    
+    CONSTRAINT unique_user_test_attempt UNIQUE(test_id, user_id, attempt_number)
+);
+
+-- Individual question responses
+CREATE TABLE public.test_responses (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    result_id UUID NOT NULL REFERENCES test_results(id) ON DELETE CASCADE,
+    question_id UUID NOT NULL REFERENCES questions(id) ON DELETE CASCADE,
+    
+    -- Response Details
+    user_answer TEXT,
+    is_correct BOOLEAN,
+    is_attempted BOOLEAN DEFAULT FALSE,
+    is_marked_for_review BOOLEAN DEFAULT FALSE,
+    is_answered_later BOOLEAN DEFAULT FALSE,
+    
+    -- Timing
+    time_spent INTEGER,
+    first_seen_at TIMESTAMPTZ,
+    last_modified_at TIMESTAMPTZ,
+    answered_at TIMESTAMPTZ,
+    
+    -- Analysis
+    confidence_level INTEGER CHECK (confidence_level BETWEEN 1 AND 5),
+    marks_awarded DECIMAL(10,2),
+    partial_credit DECIMAL(5,2),
+    
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    
+    CONSTRAINT unique_result_question UNIQUE(result_id, question_id)
 );
 
 -- =====================================================
--- INDEXES
+-- ANALYTICS TABLES
 -- =====================================================
-CREATE INDEX idx_profiles_email ON profiles(email);
-CREATE INDEX idx_questions_topic ON questions(topic);
+
+-- Question performance analytics
+CREATE TABLE public.question_analytics (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    question_id UUID NOT NULL REFERENCES questions(id) ON DELETE CASCADE,
+    
+    -- Performance Metrics
+    total_attempts INTEGER DEFAULT 0,
+    correct_attempts INTEGER DEFAULT 0,
+    partially_correct INTEGER DEFAULT 0,
+    avg_time_spent INTEGER,
+    median_time_spent INTEGER,
+    skip_rate DECIMAL(5,2),
+    
+    -- Difficulty Analysis
+    calculated_difficulty DECIMAL(3,2),
+    discrimination_index DECIMAL(3,2),
+    point_biserial DECIMAL(3,2), -- Correlation with total score
+    
+    -- Pattern Analysis
+    common_wrong_answers JSONB,
+    time_distribution JSONB,
+    topic_correlation JSONB, -- Performance correlation with other topics
+    
+    -- By User Segment
+    performance_by_level JSONB, -- {beginner: 0.3, intermediate: 0.6, advanced: 0.9}
+    
+    updated_at TIMESTAMPTZ DEFAULT NOW(),
+    
+    CONSTRAINT unique_question_analytics UNIQUE(question_id)
+);
+
+-- User performance analytics
+CREATE TABLE public.user_analytics (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+    
+    -- Overall Performance
+    total_questions_attempted INTEGER DEFAULT 0,
+    total_correct INTEGER DEFAULT 0,
+    total_time_spent INTEGER, -- in seconds
+    overall_accuracy DECIMAL(5,2),
+    avg_time_per_question INTEGER,
+    
+    -- Subject-wise Performance
+    subject_performance JSONB,
+    
+    -- Topic-wise Performance  
+    topic_performance JSONB,
+    topic_mastery JSONB, -- {topic_id: mastery_level (0-100)}
+    
+    -- Difficulty Performance
+    difficulty_performance JSONB,
+    
+    -- Question Type Performance
+    question_type_performance JSONB,
+    
+    -- Learning Patterns
+    learning_curve JSONB, -- Performance over time
+    study_patterns JSONB, -- Time of day, duration patterns
+    
+    -- Trends
+    performance_trend JSONB,
+    improvement_rate DECIMAL(5,2),
+    consistency_score DECIMAL(5,2),
+    
+    -- Strengths and Weaknesses
+    strengths TEXT[],
+    weaknesses TEXT[],
+    recommended_topics UUID[],
+    recommended_difficulty TEXT,
+    
+    -- Predictions
+    predicted_score JSONB, -- {JEE_Main: 180, JEE_Advanced: 120}
+    predicted_rank JSONB,
+    
+    last_updated TIMESTAMPTZ DEFAULT NOW(),
+    
+    CONSTRAINT unique_user_analytics UNIQUE(user_id)
+);
+
+-- =====================================================
+-- INDEXES FOR PERFORMANCE
+-- =====================================================
+
+-- Questions indexes
+CREATE INDEX idx_questions_source ON questions(source_type);
+CREATE INDEX idx_questions_subject ON questions(subject);
+CREATE INDEX idx_questions_topic ON questions(topic_id);
 CREATE INDEX idx_questions_difficulty ON questions(difficulty);
 CREATE INDEX idx_questions_type ON questions(question_type);
-CREATE INDEX idx_questions_created_by ON questions(created_by);
+CREATE INDEX idx_questions_active ON questions(is_active) WHERE is_active = TRUE;
+CREATE INDEX idx_questions_search ON questions USING GIN(search_vector);
+CREATE INDEX idx_questions_source_metadata ON questions USING GIN(source_metadata);
 CREATE INDEX idx_questions_tags ON questions USING GIN(tags);
-CREATE INDEX idx_tests_user ON tests(user_id);
-CREATE INDEX idx_tests_status ON tests(status);
-CREATE INDEX idx_test_responses_test ON test_responses(test_id);
-CREATE INDEX idx_test_responses_user ON test_responses(user_id);
-CREATE INDEX idx_test_results_user ON test_results(user_id);
-CREATE INDEX idx_test_results_created ON test_results(created_at DESC);
-CREATE INDEX idx_test_results_user_created ON test_results(user_id, created_at DESC);
+CREATE INDEX idx_questions_concepts ON questions USING GIN(concepts_tested);
 
--- Indexes for previous year questions
-CREATE INDEX IF NOT EXISTS idx_pyq_exam_id ON previous_year_questions(exam_id);
-CREATE INDEX IF NOT EXISTS idx_pyq_subject ON previous_year_questions(subject);
-CREATE INDEX IF NOT EXISTS idx_pyq_topic ON previous_year_questions(topic);
-CREATE INDEX IF NOT EXISTS idx_pyq_difficulty ON previous_year_questions(difficulty);
-CREATE INDEX IF NOT EXISTS idx_pyq_year ON previous_year_questions USING btree ((exam_id));
-CREATE INDEX IF NOT EXISTS idx_pyq_search ON previous_year_questions USING gin(search_vector);
-CREATE INDEX IF NOT EXISTS idx_pyq_tags ON previous_year_questions USING gin(tags);
+-- Tests indexes
+CREATE INDEX idx_tests_type ON tests(test_type);
+CREATE INDEX idx_tests_subject ON tests(subject);
+CREATE INDEX idx_tests_difficulty ON tests(difficulty_level);
+CREATE INDEX idx_tests_active ON tests(is_active) WHERE is_active = TRUE;
+CREATE INDEX idx_tests_public ON tests(is_public) WHERE is_public = TRUE;
+CREATE INDEX idx_tests_metadata ON tests USING GIN(test_metadata);
+CREATE INDEX idx_tests_topics ON tests USING GIN(topic_ids);
 
--- Indexes for previous year exams
-CREATE INDEX IF NOT EXISTS idx_pye_year ON previous_year_exams(year);
-CREATE INDEX IF NOT EXISTS idx_pye_exam_name ON previous_year_exams(exam_name);
+-- Topics indexes
+CREATE INDEX idx_topics_subject ON topics(subject);
+CREATE INDEX idx_topics_parent ON topics(parent_id);
+CREATE INDEX idx_topics_level ON topics(level);
+CREATE INDEX idx_topics_active ON topics(is_active) WHERE is_active = TRUE;
+CREATE INDEX idx_topics_prerequisites ON topics USING GIN(prerequisites);
 
--- Indexes for user attempts
-CREATE INDEX IF NOT EXISTS idx_upa_user_id ON user_previous_year_attempts(user_id);
-CREATE INDEX IF NOT EXISTS idx_upa_exam_id ON user_previous_year_attempts(exam_id);
+-- Test questions indexes
+CREATE INDEX idx_test_questions_test ON test_questions(test_id);
+CREATE INDEX idx_test_questions_question ON test_questions(question_id);
+CREATE INDEX idx_test_questions_section ON test_questions(section);
+
+-- Results indexes
+CREATE INDEX idx_results_user ON test_results(user_id);
+CREATE INDEX idx_results_test ON test_results(test_id);
+CREATE INDEX idx_results_status ON test_results(status);
+CREATE INDEX idx_results_submitted ON test_results(submitted_at);
+CREATE INDEX idx_results_percentile ON test_results(percentile);
+
+-- Responses indexes
+CREATE INDEX idx_responses_result ON test_responses(result_id);
+CREATE INDEX idx_responses_question ON test_responses(question_id);
+CREATE INDEX idx_responses_correct ON test_responses(is_correct);
+
+-- Analytics indexes
+CREATE INDEX idx_question_analytics_question ON question_analytics(question_id);
+CREATE INDEX idx_question_analytics_difficulty ON question_analytics(calculated_difficulty);
+CREATE INDEX idx_user_analytics_user ON user_analytics(user_id);
 
 -- =====================================================
--- ROW LEVEL SECURITY (RLS)
+-- ROW LEVEL SECURITY
 -- =====================================================
 
--- Enable RLS on all tables
-ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.topics ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.questions ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.tests ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.test_responses ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.test_results ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.previous_year_exams ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.previous_year_questions ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.user_previous_year_attempts ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.question_patterns ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.exam_analysis ENABLE ROW LEVEL SECURITY;
+ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE questions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE tests ENABLE ROW LEVEL SECURITY;
+ALTER TABLE test_questions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE test_results ENABLE ROW LEVEL SECURITY;
+ALTER TABLE test_responses ENABLE ROW LEVEL SECURITY;
+ALTER TABLE topics ENABLE ROW LEVEL SECURITY;
 
 -- Profiles policies
-CREATE POLICY "Users can view their own profile"
-ON public.profiles FOR SELECT
-TO authenticated
-USING (auth.uid() = id);
+CREATE POLICY "Public profiles are viewable by everyone" ON profiles
+    FOR SELECT USING (true);
 
-CREATE POLICY "Users can update their own profile"
-ON public.profiles FOR UPDATE
-TO authenticated
-USING (auth.uid() = id)
-WITH CHECK (auth.uid() = id);
+CREATE POLICY "Users can insert own profile" ON profiles
+    FOR INSERT WITH CHECK (auth.uid() = id);
 
-CREATE POLICY "Users can insert their own profile"
-ON public.profiles FOR INSERT
-TO authenticated
-WITH CHECK (auth.uid() = id);
-
--- Topics policies (everyone can read)
-CREATE POLICY "Anyone can view topics"
-ON public.topics FOR SELECT
-TO authenticated
-USING (true);
+CREATE POLICY "Users can update own profile" ON profiles
+    FOR UPDATE USING (auth.uid() = id);
 
 -- Questions policies
-CREATE POLICY "Anyone can view questions"
-ON public.questions FOR SELECT
-TO authenticated
-USING (true);
+CREATE POLICY "Active questions viewable by all" ON questions
+    FOR SELECT USING (is_active = TRUE);
 
-CREATE POLICY "Authenticated users can create questions"
-ON public.questions FOR INSERT
-TO authenticated
-WITH CHECK (auth.uid() = created_by);
+CREATE POLICY "Admins can manage questions" ON questions
+    FOR ALL USING (
+        EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND is_admin = TRUE)
+    );
 
-CREATE POLICY "Users can update their own questions"
-ON public.questions FOR UPDATE
-TO authenticated
-USING (auth.uid() = created_by)
-WITH CHECK (auth.uid() = created_by);
+-- Tests policies  
+-- View policies
+CREATE POLICY "Public tests viewable by all" ON tests
+    FOR SELECT USING (is_public = TRUE AND is_active = TRUE);
 
-CREATE POLICY "Users can delete their own questions"
-ON public.questions FOR DELETE
-TO authenticated
-USING (auth.uid() = created_by);
+CREATE POLICY "Users can view their attempted tests" ON tests
+    FOR SELECT USING (
+        EXISTS (
+            SELECT 1 FROM test_results 
+            WHERE test_id = tests.id AND user_id = auth.uid()
+        )
+    );
 
--- Tests policies
-CREATE POLICY "Users can create their own tests"
-ON public.tests FOR INSERT
-TO authenticated
-WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can view own created tests" ON tests
+    FOR SELECT USING (created_by = auth.uid());
 
-CREATE POLICY "Users can view their own tests"
-ON public.tests FOR SELECT
-TO authenticated
-USING (auth.uid() = user_id);
+-- Modification policies
+CREATE POLICY "Users can create own tests" ON tests
+    FOR INSERT WITH CHECK (auth.uid() = created_by);
 
-CREATE POLICY "Users can update their own tests"
-ON public.tests FOR UPDATE
-TO authenticated
-USING (auth.uid() = user_id)
-WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can update own tests" ON tests
+    FOR UPDATE USING (auth.uid() = created_by);
 
--- Test responses policies
-CREATE POLICY "Users can insert their own responses"
-ON public.test_responses FOR INSERT
-TO authenticated
-WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can delete own tests" ON tests
+    FOR DELETE USING (auth.uid() = created_by);
 
-CREATE POLICY "Users can view their own responses"
-ON public.test_responses FOR SELECT
-TO authenticated
-USING (auth.uid() = user_id);
+-- Topics policies
+CREATE POLICY "Topics viewable by all" ON topics
+    FOR SELECT USING (is_active = TRUE);
+
+CREATE POLICY "Admins can manage topics" ON topics
+    FOR ALL USING (
+        EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND is_admin = TRUE)
+    );
 
 -- Test results policies
-CREATE POLICY "Users can insert their own test results"
-ON public.test_results FOR INSERT
-TO authenticated
-WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can view own results" ON test_results
+    FOR SELECT USING (user_id = auth.uid());
 
-CREATE POLICY "Users can view their own test results"
-ON public.test_results FOR SELECT
-TO authenticated
-USING (auth.uid() = user_id);
+CREATE POLICY "Users can create own results" ON test_results
+    FOR INSERT WITH CHECK (user_id = auth.uid());
 
-CREATE POLICY "Users can update their own test results"
-ON public.test_results FOR UPDATE
-TO authenticated
-USING (auth.uid() = user_id)
-WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can update own in-progress results" ON test_results
+    FOR UPDATE USING (user_id = auth.uid() AND status = 'in_progress');
 
-CREATE POLICY "Users can delete their own test results"
-ON public.test_results FOR DELETE
-TO authenticated
-USING (auth.uid() = user_id);
+-- Test responses policies
+CREATE POLICY "Users can view own responses" ON test_responses
+    FOR SELECT USING (
+        EXISTS (
+            SELECT 1 FROM test_results 
+            WHERE id = test_responses.result_id AND user_id = auth.uid()
+        )
+    );
 
--- Policies for previous_year_exams (everyone can read)
-CREATE POLICY "Previous year exams are viewable by everyone"
-    ON previous_year_exams FOR SELECT
-    USING (true);
-
-CREATE POLICY "Only admins can insert exams"
-    ON previous_year_exams FOR INSERT
-    WITH CHECK (EXISTS (
-        SELECT 1 FROM profiles 
-        WHERE profiles.id = auth.uid() 
-        AND profiles.is_admin = true
-    ));
-
-CREATE POLICY "Only admins can update exams"
-    ON previous_year_exams FOR UPDATE
-    USING (EXISTS (
-        SELECT 1 FROM profiles 
-        WHERE profiles.id = auth.uid() 
-        AND profiles.is_admin = true
-    ));
-
--- Policies for previous_year_questions (everyone can read)
-CREATE POLICY "Previous year questions are viewable by everyone"
-    ON previous_year_questions FOR SELECT
-    USING (true);
-
-CREATE POLICY "Only admins can manage questions"
-    ON previous_year_questions FOR ALL
-    USING (EXISTS (
-        SELECT 1 FROM profiles 
-        WHERE profiles.id = auth.uid() 
-        AND profiles.is_admin = true
-    ));
-
--- Policies for user attempts (users can see their own)
-CREATE POLICY "Users can view their own attempts"
-    ON user_previous_year_attempts FOR SELECT
-    USING (auth.uid() = user_id);
-
-CREATE POLICY "Users can create their own attempts"
-    ON user_previous_year_attempts FOR INSERT
-    WITH CHECK (auth.uid() = user_id);
-
-CREATE POLICY "Users can update their own attempts"
-    ON user_previous_year_attempts FOR UPDATE
-    USING (auth.uid() = user_id);
-
--- Policies for question patterns (everyone can read)
-CREATE POLICY "Question patterns are viewable by everyone"
-    ON question_patterns FOR SELECT
-    USING (true);
-
-CREATE POLICY "Only admins can manage patterns"
-    ON question_patterns FOR ALL
-    USING (EXISTS (
-        SELECT 1 FROM profiles 
-        WHERE profiles.id = auth.uid() 
-        AND profiles.is_admin = true
-    ));
-
--- Policies for exam analysis (everyone can read)
-CREATE POLICY "Exam analysis is viewable by everyone"
-    ON exam_analysis FOR SELECT
-    USING (true);
-
-CREATE POLICY "Only admins can manage analysis"
-    ON exam_analysis FOR ALL
-    USING (EXISTS (
-        SELECT 1 FROM profiles 
-        WHERE profiles.id = auth.uid() 
-        AND profiles.is_admin = true
-    ));
+CREATE POLICY "Users can manage own responses" ON test_responses
+    FOR ALL USING (
+        EXISTS (
+            SELECT 1 FROM test_results 
+            WHERE id = test_responses.result_id AND user_id = auth.uid()
+        )
+    );
 
 -- =====================================================
--- TRIGGERS
+-- FUNCTIONS AND TRIGGERS
 -- =====================================================
 
--- Update profiles.updated_at on change
-CREATE OR REPLACE FUNCTION update_updated_at_column()
+-- Update timestamp trigger
+CREATE OR REPLACE FUNCTION update_updated_at()
 RETURNS TRIGGER AS $$
 BEGIN
     NEW.updated_at = NOW();
     RETURN NEW;
 END;
-$$ language 'plpgsql';
+$$ LANGUAGE plpgsql;
 
-CREATE TRIGGER update_profiles_updated_at BEFORE UPDATE ON profiles
-    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
-CREATE TRIGGER update_questions_updated_at BEFORE UPDATE ON questions
-    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
-CREATE TRIGGER update_pye_updated_at BEFORE UPDATE ON previous_year_exams
-    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
-CREATE TRIGGER update_pyq_updated_at BEFORE UPDATE ON previous_year_questions
-    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
--- Update search vector when question is inserted or updated
+-- Function to update search vector
 CREATE OR REPLACE FUNCTION update_question_search_vector()
-RETURNS trigger AS $$
+RETURNS TRIGGER AS $$
 BEGIN
     NEW.search_vector := 
-        setweight(to_tsvector('english', COALESCE(NEW.question_text, '')), 'A') ||
-        setweight(to_tsvector('english', COALESCE(NEW.topic, '')), 'B') ||
-        setweight(to_tsvector('english', COALESCE(NEW.explanation, '')), 'C');
+        setweight(to_tsvector('english', coalesce(NEW.question_text, '')), 'A') ||
+        setweight(to_tsvector('english', coalesce(NEW.explanation, '')), 'B') ||
+        setweight(to_tsvector('english', coalesce(array_to_string(NEW.tags, ' '), '')), 'C');
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER update_pyq_search_vector
-    BEFORE INSERT OR UPDATE ON previous_year_questions
-    FOR EACH ROW
-    EXECUTE FUNCTION update_question_search_vector();
+-- Apply update trigger to relevant tables
+CREATE TRIGGER update_questions_updated_at BEFORE UPDATE ON questions
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 
--- =====================================================
--- COMMENTS
--- =====================================================
-COMMENT ON TABLE public.profiles IS 'User profiles extending Supabase auth';
-COMMENT ON TABLE public.topics IS 'Topics and subtopics for question categorization';
-COMMENT ON TABLE public.questions IS 'Question bank with solutions';
-COMMENT ON TABLE public.tests IS 'Test instances created by users';
-COMMENT ON TABLE public.test_responses IS 'User responses to test questions';
-COMMENT ON TABLE public.test_results IS 'Aggregated test results and analytics';
-COMMENT ON COLUMN public.test_results.test_id IS 'Test ID - can be UUID for DB tests or string for Quick Tests';
-COMMENT ON COLUMN public.test_results.test_title IS 'Test title - stored directly for Quick Tests';
-COMMENT ON COLUMN public.test_results.test_type IS 'Test type: standard, quick, ai_generated, topic';
-COMMENT ON COLUMN public.test_results.topic_breakdown IS 'JSON object with topic-wise performance';
-COMMENT ON COLUMN public.test_results.difficulty_breakdown IS 'JSON object with difficulty-wise performance';
+CREATE TRIGGER update_questions_search_vector BEFORE INSERT OR UPDATE ON questions
+    FOR EACH ROW EXECUTE FUNCTION update_question_search_vector();
 
--- =====================================================
--- SEED DATA - Demo Questions
--- =====================================================
+CREATE TRIGGER update_tests_updated_at BEFORE UPDATE ON tests
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 
--- Delete existing demo questions first to avoid conflicts
-DELETE FROM questions WHERE source = 'demo';
+CREATE TRIGGER update_profiles_updated_at BEFORE UPDATE ON profiles
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 
--- Insert demo questions for Quick Test
-INSERT INTO questions (
-  topic, subtopic, question_type, difficulty, question, 
-  options, correct_answer, explanation, marks, negative_marks, 
-  tags, source
-) VALUES
--- Question 1: Kinematics (Medium, MCQ)
-(
-  'mechanics',
-  'Kinematics',
-  'mcq',
-  'medium',
-  'A particle moves along a straight line with velocity $v = 3t^2 - 6t + 4$ m/s. Find the acceleration at $t = 2$ seconds.',
-  '["6 m/s²", "12 m/s²", "18 m/s²", "24 m/s²"]'::jsonb,
-  'A',
-  'Acceleration is the derivative of velocity: $a = \frac{dv}{dt} = 6t - 6$. At $t = 2$, $a = 6(2) - 6 = 6$ m/s²',
-  4,
-  1,
-  ARRAY['JEE Main', 'Kinematics', 'Differentiation'],
-  'demo'
-),
--- Question 2: Projectile Motion (Hard, MCQ)
-(
-  'mechanics',
-    'Projectile Motion',
-    'mcq',
-    'hard',
-    'A projectile is fired at an angle of 45° with initial velocity 40 m/s. Find the maximum height reached. (Take g = 10 m/s²)',
-    '["40 m", "60 m", "80 m", "100 m"]'::jsonb,
-    'A',
-    'Maximum height $H = \frac{u^2 \sin^2\theta}{2g} = \frac{40^2 \times \sin^2(45°)}{2 \times 10} = \frac{1600 \times 0.5}{20} = 40$ m',
-    4,
-    1,
-    ARRAY['JEE Advanced', 'Projectile Motion'],
-    'demo'
-),
--- Question 3: Heat Transfer (Hard, Numerical)  
-(
-  'thermodynamics',
-    'Heat Transfer',
-    'numerical',
-    'hard',
-    'A metal rod of length 50 cm and cross-sectional area 2 cm² has one end at 100°C and the other at 0°C. If the thermal conductivity is 400 W/m·K, calculate the rate of heat transfer in watts.',
-    NULL,
-    NULL,
-    'Using Fourier''s law: $Q = kA\frac{\Delta T}{L} = 400 \times 2 \times 10^{-4} \times \frac{100}{0.5} = 16$ W',
-    4,
-    1,
-    ARRAY['JEE Advanced', 'Heat Transfer', 'Conduction'],
-    'demo'
-),
--- Question 4: Electric Field (Easy, MCQ)
-(
-  'electromagnetism',
-    'Electric Field',
-    'mcq',
-    'easy',
-    'The electric field due to a point charge at a distance r is E. What will be the electric field at distance 2r?',
-    '["E/2", "E/4", "2E", "4E"]'::jsonb,
-    'B',
-    'Electric field varies inversely with square of distance: $E \propto \frac{1}{r^2}$. So at 2r, field becomes E/4.',
-    4,
-    1,
-    ARRAY['JEE Main', 'Electric Field', 'Coulomb''s Law'],
-    'demo'
-),
--- Question 5: Photoelectric Effect (Medium, Numerical)
-(
-  'modern_physics',
-    'Photoelectric Effect',
-    'numerical',
-    'medium',
-    'Light of wavelength 400 nm is incident on a metal surface with work function 2.0 eV. Calculate the maximum kinetic energy of photoelectrons in eV. (Use hc = 1240 eV·nm)',
-    NULL,
-    NULL,
-    'Energy of photon: $E = \frac{hc}{\lambda} = \frac{1240}{400} = 3.1$ eV. Maximum KE = E - W = 3.1 - 2.0 = 1.1 eV',
-    4,
-    1,
-    ARRAY['JEE Main', 'Modern Physics', 'Photoelectric Effect'],
-    'demo'
-),
--- Question 6: Simple Harmonic Motion (Medium, MCQ)
-(
-  'waves_oscillations',
-    'SHM',
-    'mcq',
-    'medium',
-    'A particle executing SHM has amplitude 10 cm and time period 2 seconds. Find its maximum velocity.',
-    '["10π cm/s", "20π cm/s", "5π cm/s", "15π cm/s"]'::jsonb,
-    'A',
-    'Maximum velocity $v_{max} = A\omega = A \times \frac{2\pi}{T} = 10 \times \frac{2\pi}{2} = 10\pi$ cm/s',
-    4,
-    1,
-    ARRAY['JEE Main', 'SHM', 'Oscillations'],
-    'demo'
-),
--- Question 7: Thermodynamic Process (Hard, MCQ)
-(
-  'thermodynamics',
-    'Thermodynamic Processes',
-    'mcq',
-    'hard',
-    'In an adiabatic process, if the volume of an ideal gas is halved, by what factor does the pressure increase? (γ = 1.4)',
-    '["2.0", "2.6", "2.8", "3.0"]'::jsonb,
-    'B',
-    'For adiabatic process: $PV^{\gamma} = constant$. If $V_2 = V_1/2$, then $P_2/P_1 = (V_1/V_2)^{\gamma} = 2^{1.4} = 2.64 ≈ 2.6$',
-    4,
-    1,
-    ARRAY['JEE Advanced', 'Thermodynamics', 'Adiabatic Process'],
-    'demo'
-),
--- Question 8: Electromagnetic Induction (Medium, Numerical)
-(
-  'electromagnetism',
-    'Electromagnetic Induction',
-    'numerical',
-    'medium',
-    'A coil of 100 turns and area 0.1 m² is placed perpendicular to a magnetic field that changes from 0.5 T to 0.1 T in 0.2 seconds. Calculate the induced EMF in volts.',
-    NULL,
-    NULL,
-    'Induced EMF: $E = -N\frac{d\Phi}{dt} = -N \times A \times \frac{dB}{dt} = 100 \times 0.1 \times \frac{0.5-0.1}{0.2} = 20$ V',
-    4,
-    1,
-    ARRAY['JEE Main', 'EMI', 'Faraday''s Law'],
-    'demo'
-),
--- Question 9: Optics (Easy, MCQ)
-(
-  'optics',
-    'Ray Optics',
-    'mcq',
-    'easy',
-    'A convex lens has a focal length of 20 cm. An object is placed at 30 cm from the lens. Where is the image formed?',
-    '["60 cm on opposite side", "40 cm on opposite side", "50 cm on opposite side", "30 cm on opposite side"]'::jsonb,
-    'A',
-    'Using lens formula: $\frac{1}{f} = \frac{1}{v} - \frac{1}{u}$. Here, $\frac{1}{20} = \frac{1}{v} - \frac{1}{-30}$. Solving: $v = 60$ cm',
-    4,
-    1,
-    ARRAY['JEE Main', 'Optics', 'Lens Formula'],
-    'demo'
-),
--- Question 10: Rotational Motion (Hard, Numerical)
-(
-  'mechanics',
-    'Rotational Motion',
-    'numerical',
-    'hard',
-    'A solid sphere of mass 2 kg and radius 0.1 m rolls down an inclined plane of height 1.4 m. Find its velocity at the bottom in m/s. (g = 10 m/s²)',
-    NULL,
-    NULL,
-    'Using energy conservation: $mgh = \frac{1}{2}mv^2 + \frac{1}{2}I\omega^2$. For solid sphere: $I = \frac{2}{5}mr^2$. Solving: $v = \sqrt{\frac{10gh}{7}} = \sqrt{\frac{10 \times 10 \times 1.4}{7}} = 4.47$ m/s',
-    4,
-    1,
-  ARRAY['JEE Advanced', 'Rotational Motion', 'Rolling Motion'],
-  'demo'
-);
+CREATE TRIGGER update_topics_updated_at BEFORE UPDATE ON topics
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 
--- Update numerical answers for numerical questions (needed separately due to DECIMAL type)
-UPDATE questions 
-SET numerical_answer = 16, numerical_tolerance = 0.5
-WHERE question LIKE '%metal rod of length 50 cm%' AND question_type = 'numerical' AND source = 'demo';
-
-UPDATE questions 
-SET numerical_answer = 1.1, numerical_tolerance = 0.1
-WHERE question LIKE '%wavelength 400 nm%' AND question_type = 'numerical' AND source = 'demo';
-
-UPDATE questions 
-SET numerical_answer = 20, numerical_tolerance = 0.5
-WHERE question LIKE '%coil of 100 turns%' AND question_type = 'numerical' AND source = 'demo';
-
-UPDATE questions 
-SET numerical_answer = 4.47, numerical_tolerance = 0.1
-WHERE question LIKE '%solid sphere of mass 2 kg%' AND question_type = 'numerical' AND source = 'demo';
-
--- =====================================================
--- SET DEFAULT ADMIN USER
--- =====================================================
-UPDATE public.profiles
-SET is_admin = TRUE
-WHERE email = 'nixpri@gmail.com';
-
--- =====================================================
--- VERIFY SEED DATA
--- =====================================================
-DO $$
+-- Function to calculate test results
+CREATE OR REPLACE FUNCTION calculate_test_result(p_result_id UUID)
+RETURNS VOID AS $$
 DECLARE
-  demo_count INTEGER;
+    v_test_id UUID;
+    v_total_marks INTEGER;
+    v_marks_obtained DECIMAL(10,2) := 0;
+    v_total_attempted INTEGER := 0;
+    v_total_correct INTEGER := 0;
+    v_total_incorrect INTEGER := 0;
+    v_total_skipped INTEGER := 0;
 BEGIN
-  SELECT COUNT(*) INTO demo_count FROM questions WHERE source = 'demo';
-  IF demo_count = 0 THEN
-    RAISE NOTICE 'WARNING: No demo questions were inserted. Check for errors above.';
-  ELSE
-    RAISE NOTICE 'Success: % demo questions inserted.', demo_count;
-  END IF;
-END $$;
+    -- Get test details
+    SELECT test_id INTO v_test_id FROM test_results WHERE id = p_result_id;
+    SELECT total_marks INTO v_total_marks FROM tests WHERE id = v_test_id;
+    
+    -- Calculate response statistics
+    SELECT 
+        COUNT(*) FILTER (WHERE is_attempted = TRUE),
+        COUNT(*) FILTER (WHERE is_correct = TRUE),
+        COUNT(*) FILTER (WHERE is_attempted = TRUE AND is_correct = FALSE),
+        COUNT(*) FILTER (WHERE is_attempted = FALSE),
+        COALESCE(SUM(marks_awarded), 0)
+    INTO 
+        v_total_attempted,
+        v_total_correct,
+        v_total_incorrect,
+        v_total_skipped,
+        v_marks_obtained
+    FROM test_responses
+    WHERE result_id = p_result_id;
+    
+    -- Update test results
+    UPDATE test_results
+    SET 
+        total_attempted = v_total_attempted,
+        total_correct = v_total_correct,
+        total_incorrect = v_total_incorrect,
+        total_skipped = v_total_skipped,
+        marks_obtained = v_marks_obtained,
+        percentage = CASE 
+            WHEN v_total_marks > 0 
+            THEN (v_marks_obtained / v_total_marks) * 100
+            ELSE 0
+        END,
+        accuracy = CASE 
+            WHEN v_total_attempted > 0 
+            THEN (v_total_correct::DECIMAL / v_total_attempted) * 100
+            ELSE 0
+        END,
+        status = 'completed',
+        submitted_at = NOW()
+    WHERE id = p_result_id;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Function to update question analytics
+CREATE OR REPLACE FUNCTION update_question_analytics(p_question_id UUID)
+RETURNS VOID AS $$
+BEGIN
+    INSERT INTO question_analytics (question_id, total_attempts, correct_attempts, avg_time_spent)
+    SELECT 
+        p_question_id,
+        COUNT(*),
+        COUNT(*) FILTER (WHERE is_correct = TRUE),
+        AVG(time_spent)
+    FROM test_responses
+    WHERE question_id = p_question_id
+    ON CONFLICT (question_id) DO UPDATE
+    SET 
+        total_attempts = EXCLUDED.total_attempts,
+        correct_attempts = EXCLUDED.correct_attempts,
+        avg_time_spent = EXCLUDED.avg_time_spent,
+        updated_at = NOW();
+END;
+$$ LANGUAGE plpgsql;
 
 -- =====================================================
--- DONE
+-- COMPREHENSIVE JEE SYLLABUS TOPICS
 -- =====================================================
-SELECT 
-  'Database schema created successfully!' as message,
-  (SELECT COUNT(*) FROM questions WHERE source = 'demo') as demo_questions_count;
+
+-- Clear existing topics
+TRUNCATE TABLE topics CASCADE;
+
+-- Function to insert topics with hierarchy
+CREATE OR REPLACE FUNCTION insert_topic(
+    p_name TEXT,
+    p_subject TEXT,
+    p_parent_name TEXT DEFAULT NULL,
+    p_jee_code TEXT DEFAULT NULL,
+    p_weightage DECIMAL DEFAULT NULL,
+    p_difficulty INTEGER DEFAULT NULL,
+    p_concepts JSONB DEFAULT NULL,
+    p_patterns JSONB DEFAULT NULL
+) RETURNS UUID AS $$
+DECLARE
+    v_parent_id UUID;
+    v_topic_id UUID;
+    v_level INTEGER;
+BEGIN
+    -- Get parent ID if provided
+    IF p_parent_name IS NOT NULL THEN
+        SELECT id INTO v_parent_id FROM topics 
+        WHERE name = p_parent_name AND subject = p_subject;
+        
+        SELECT level + 1 INTO v_level FROM topics WHERE id = v_parent_id;
+    ELSE
+        v_level := 0;
+    END IF;
+    
+    -- Insert topic
+    INSERT INTO topics (
+        name, subject, parent_id, level, jee_code, 
+        weightage_percentage, difficulty_level,
+        common_concepts, question_patterns
+    ) VALUES (
+        p_name, p_subject, v_parent_id, COALESCE(v_level, 0), p_jee_code,
+        p_weightage, p_difficulty,
+        p_concepts, p_patterns
+    ) RETURNING id INTO v_topic_id;
+    
+    RETURN v_topic_id;
+END;
+$$ LANGUAGE plpgsql;
+
+-- =====================================================
+-- INSERT PHYSICS TOPICS
+-- =====================================================
+
+-- Main Physics Topics
+SELECT insert_topic('Physics', 'Physics', NULL, 'P', 100, NULL);
+
+-- 1. MECHANICS (30-35% weightage)
+SELECT insert_topic('Mechanics', 'Physics', 'Physics', 'P1', 35, 3, 
+    '{"concepts": ["Force", "Motion", "Energy", "Momentum"], "formulas": ["F=ma", "v=u+at", "s=ut+½at²"]}'::jsonb,
+    '{"types": ["numerical", "conceptual"], "patterns": ["collision problems", "projectile motion"]}'::jsonb);
+
+-- Mechanics subtopics
+SELECT insert_topic('Units and Dimensions', 'Physics', 'Mechanics', 'P1.1', 2, 1);
+SELECT insert_topic('Kinematics', 'Physics', 'Mechanics', 'P1.2', 4, 2);
+SELECT insert_topic('Laws of Motion', 'Physics', 'Mechanics', 'P1.3', 4, 2);
+SELECT insert_topic('Work, Energy and Power', 'Physics', 'Mechanics', 'P1.4', 4, 3);
+SELECT insert_topic('Rotational Motion', 'Physics', 'Mechanics', 'P1.5', 5, 4);
+SELECT insert_topic('Gravitation', 'Physics', 'Mechanics', 'P1.6', 3, 2);
+SELECT insert_topic('Properties of Matter', 'Physics', 'Mechanics', 'P1.7', 3, 2);
+SELECT insert_topic('Fluid Mechanics', 'Physics', 'Mechanics', 'P1.8', 3, 3);
+SELECT insert_topic('Simple Harmonic Motion', 'Physics', 'Mechanics', 'P1.9', 3, 3);
+SELECT insert_topic('Waves', 'Physics', 'Mechanics', 'P1.10', 4, 3);
+
+-- 2. THERMODYNAMICS (8-10% weightage)
+SELECT insert_topic('Thermodynamics', 'Physics', 'Physics', 'P2', 10, 3,
+    '{"concepts": ["Heat", "Temperature", "Entropy"], "formulas": ["Q=mcΔT", "PV=nRT", "ΔU=Q-W"]}'::jsonb);
+
+SELECT insert_topic('Thermal Properties', 'Physics', 'Thermodynamics', 'P2.1', 2, 2);
+SELECT insert_topic('Kinetic Theory of Gases', 'Physics', 'Thermodynamics', 'P2.2', 3, 3);
+SELECT insert_topic('Laws of Thermodynamics', 'Physics', 'Thermodynamics', 'P2.3', 4, 3);
+SELECT insert_topic('Heat Transfer', 'Physics', 'Thermodynamics', 'P2.4', 1, 2);
+
+-- 3. ELECTROMAGNETISM (25-30% weightage)
+SELECT insert_topic('Electromagnetism', 'Physics', 'Physics', 'P3', 30, 4,
+    '{"concepts": ["Electric Field", "Magnetic Field", "EMF"], "formulas": ["F=qE", "F=qvB", "ε=-dΦ/dt"]}'::jsonb);
+
+SELECT insert_topic('Electrostatics', 'Physics', 'Electromagnetism', 'P3.1', 6, 3);
+SELECT insert_topic('Capacitance', 'Physics', 'Electromagnetism', 'P3.2', 3, 3);
+SELECT insert_topic('Current Electricity', 'Physics', 'Electromagnetism', 'P3.3', 5, 2);
+SELECT insert_topic('Moving Charges and Magnetism', 'Physics', 'Electromagnetism', 'P3.4', 5, 4);
+SELECT insert_topic('Magnetism and Matter', 'Physics', 'Electromagnetism', 'P3.5', 2, 3);
+SELECT insert_topic('Electromagnetic Induction', 'Physics', 'Electromagnetism', 'P3.6', 5, 4);
+SELECT insert_topic('Alternating Current', 'Physics', 'Electromagnetism', 'P3.7', 4, 4);
+
+-- 4. OPTICS (10-12% weightage)
+SELECT insert_topic('Optics', 'Physics', 'Physics', 'P4', 12, 3,
+    '{"concepts": ["Reflection", "Refraction", "Interference"], "formulas": ["n₁sinθ₁=n₂sinθ₂", "1/f=1/v-1/u"]}'::jsonb);
+
+SELECT insert_topic('Ray Optics', 'Physics', 'Optics', 'P4.1', 6, 2);
+SELECT insert_topic('Wave Optics', 'Physics', 'Optics', 'P4.2', 6, 4);
+
+-- 5. MODERN PHYSICS (10-12% weightage)
+SELECT insert_topic('Modern Physics', 'Physics', 'Physics', 'P5', 12, 4,
+    '{"concepts": ["Photoelectric Effect", "Atomic Models", "Radioactivity"], "formulas": ["E=hν", "E=mc²"]}'::jsonb);
+
+SELECT insert_topic('Dual Nature of Matter', 'Physics', 'Modern Physics', 'P5.1', 3, 3);
+SELECT insert_topic('Atoms', 'Physics', 'Modern Physics', 'P5.2', 3, 3);
+SELECT insert_topic('Nuclei', 'Physics', 'Modern Physics', 'P5.3', 3, 3);
+SELECT insert_topic('Semiconductor Electronics', 'Physics', 'Modern Physics', 'P5.4', 3, 3);
+
+-- 6. COMMUNICATION SYSTEMS (1-2% weightage)
+SELECT insert_topic('Communication Systems', 'Physics', 'Physics', 'P6', 1, 2);
+
+-- Drop the temporary function
+DROP FUNCTION IF EXISTS insert_topic;
+
+-- =====================================================
+-- GRANT PERMISSIONS
+-- =====================================================
+
+GRANT ALL ON ALL TABLES IN SCHEMA public TO postgres;
+GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO postgres;
+GRANT ALL ON ALL FUNCTIONS IN SCHEMA public TO postgres;
+
+-- Allow authenticated users
+GRANT USAGE ON SCHEMA public TO authenticated;
+GRANT ALL ON ALL TABLES IN SCHEMA public TO authenticated;
+GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO authenticated;
+GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA public TO authenticated;
+
+-- Allow anonymous users limited access
+GRANT USAGE ON SCHEMA public TO anon;
+GRANT SELECT ON public.questions TO anon;
+GRANT SELECT ON public.tests TO anon;
+GRANT SELECT ON public.topics TO anon;
+
+-- =====================================================
+-- FINAL SETUP
+-- =====================================================
+
+-- Analyze tables for query optimization
+ANALYZE topics;
+ANALYZE questions;
+ANALYZE tests;
+ANALYZE test_questions;
+ANALYZE test_results;
+ANALYZE test_responses;

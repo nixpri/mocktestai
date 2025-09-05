@@ -23,7 +23,7 @@ export async function GET(request: Request) {
       if (!profile) {
         const { error: insertError } = await supabase
           .from('profiles')
-          .insert({
+          .upsert({
             id: data.user.id,
             email: data.user.email,
             full_name: data.user.user_metadata?.full_name || 
@@ -31,13 +31,13 @@ export async function GET(request: Request) {
                       data.user.email?.split('@')[0],
             avatar_url: data.user.user_metadata?.avatar_url || 
                        data.user.user_metadata?.picture
+          }, {
+            onConflict: 'id'
           })
         
         if (insertError) {
           console.error('Error creating profile in callback:', insertError)
-          // Don't fail auth, trigger should handle it
-        } else {
-          // Profile created successfully in callback
+          // Don't fail auth, profile might already exist with different RLS
         }
       }
     }
