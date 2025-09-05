@@ -136,6 +136,14 @@ export default function DashboardPage() {
                 <BarChart3 className="h-5 w-5" />
                 <span className="text-[var(--text-base)] font-medium">Analytics</span>
               </Link>
+              {isAdmin && (
+                <Link
+                  href="/admin"
+                  className="flex items-center gap-2 px-3 py-1 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg transition-colors duration-[var(--transition-base)]"
+                >
+                  <span className="text-[var(--text-base)] font-medium">Admin Panel</span>
+                </Link>
+              )}
               <div className="flex items-center gap-2 lg:gap-4">
                 <span className="hidden lg:inline text-[var(--text-sm)] text-[var(--foreground-secondary)] max-w-[200px] truncate">
                   {user?.email}
@@ -171,6 +179,15 @@ export default function DashboardPage() {
             <BarChart3 className="h-5 w-5" />
             <span>Analytics</span>
           </Link>
+          {isAdmin && (
+            <Link
+              href="/admin"
+              onClick={() => setMobileMenuOpen(false)}
+              className="flex items-center gap-2 p-3 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg transition-colors"
+            >
+              <span>Admin Panel</span>
+            </Link>
+          )}
           <div className="p-3 text-sm text-[var(--foreground-secondary)]">
             {user?.email}
           </div>
