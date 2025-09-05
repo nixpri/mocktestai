@@ -7,6 +7,11 @@
 DROP TABLE IF EXISTS public.test_responses CASCADE;
 DROP TABLE IF EXISTS public.test_results CASCADE;
 DROP TABLE IF EXISTS public.tests CASCADE;
+DROP TABLE IF EXISTS public.user_previous_year_attempts CASCADE;
+DROP TABLE IF EXISTS public.exam_analysis CASCADE;
+DROP TABLE IF EXISTS public.question_patterns CASCADE;
+DROP TABLE IF EXISTS public.previous_year_questions CASCADE;
+DROP TABLE IF EXISTS public.previous_year_exams CASCADE;
 DROP TABLE IF EXISTS public.questions CASCADE;
 DROP TABLE IF EXISTS public.topics CASCADE;
 DROP TABLE IF EXISTS public.profiles CASCADE;
@@ -133,6 +138,174 @@ CREATE TABLE IF NOT EXISTS public.test_results (
 );
 
 -- =====================================================
+-- PREVIOUS YEAR QUESTIONS TABLES
+-- =====================================================
+
+-- Previous year exams metadata
+CREATE TABLE IF NOT EXISTS public.previous_year_exams (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    exam_name TEXT NOT NULL, -- JEE Main, JEE Advanced, AIEEE
+    year INTEGER NOT NULL,
+    session TEXT, -- 1, 2, 1A, 1B, Morning, Evening
+    paper_code TEXT, -- Paper 1, Paper 2
+    exam_date DATE,
+    total_questions INTEGER,
+    total_marks INTEGER,
+    duration_minutes INTEGER DEFAULT 180,
+    pdf_file_name TEXT,
+    processing_status TEXT DEFAULT 'pending' CHECK (processing_status IN ('pending', 'processing', 'completed', 'failed')),
+    extracted_at TIMESTAMPTZ,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW(),
+    UNIQUE(exam_name, year, session)
+);
+
+-- Previous year questions
+CREATE TABLE IF NOT EXISTS public.previous_year_questions (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    exam_id UUID REFERENCES previous_year_exams(id) ON DELETE CASCADE,
+    
+    -- Question details
+    question_number INTEGER NOT NULL,
+    question_text TEXT NOT NULL,
+    question_type TEXT NOT NULL CHECK (question_type IN (
+        'regular_mcq',      -- Standard MCQ with 4 options
+        'numerical',        -- Numerical answer type
+        'statement',        -- Statement-1 and Statement-2 type
+        'matrix_matching',  -- Column I and Column II matching
+        'linked_comprehension', -- Passage based questions
+        'assertion_reason'  -- Assertion and Reason type
+    )),
+    
+    -- Subject and topic
+    subject TEXT NOT NULL CHECK (subject IN ('Physics', 'Chemistry', 'Mathematics')),
+    topic TEXT NOT NULL, -- Mechanics, Optics, Thermodynamics, etc.
+    subtopic TEXT, -- More specific topic categorization
+    
+    -- Options (for MCQ types)
+    options JSONB, -- Array of {label, text} objects
+    column_ii_options JSONB, -- For matrix matching questions
+    
+    -- Answers
+    correct_answer TEXT, -- Can be single option (A) or pattern (A→p,q; B→r,s)
+    numerical_answer DECIMAL, -- For numerical type
+    numerical_tolerance DECIMAL DEFAULT 0.01,
+    
+    -- Additional content
+    assertion TEXT, -- For assertion-reason type
+    reason TEXT, -- For assertion-reason type
+    statement_1 TEXT, -- For statement type
+    statement_2 TEXT, -- For statement type
+    passage TEXT, -- For linked comprehension
+    
+    -- Explanation and solution
+    explanation TEXT,
+    detailed_solution TEXT,
+    solution_approach TEXT[], -- Array of approach tags
+    
+    -- Difficulty and scoring
+    difficulty TEXT CHECK (difficulty IN ('easy', 'medium', 'hard', 'expert')),
+    marks INTEGER DEFAULT 4,
+    negative_marks INTEGER DEFAULT 1,
+    
+    -- Diagram information
+    has_diagram BOOLEAN DEFAULT FALSE,
+    diagram_description TEXT,
+    diagram_path TEXT, -- Path to diagram image in storage
+    diagram_url TEXT, -- Public URL for diagram
+    
+    -- Metadata
+    page_number INTEGER, -- Page number in original PDF
+    sequence_in_exam INTEGER, -- Order in the actual exam
+    time_allocated_seconds INTEGER, -- Expected time to solve
+    common_mistakes TEXT[], -- Array of common mistakes
+    
+    -- Stats (will be updated based on user attempts)
+    attempt_count INTEGER DEFAULT 0,
+    correct_count INTEGER DEFAULT 0,
+    avg_time_taken_seconds INTEGER,
+    
+    -- Search and indexing
+    search_vector tsvector,
+    tags TEXT[],
+    
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW(),
+    
+    UNIQUE(exam_id, question_number)
+);
+
+-- Question patterns table (for AI analysis)
+CREATE TABLE IF NOT EXISTS public.question_patterns (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    pattern_name TEXT NOT NULL,
+    pattern_description TEXT,
+    subject TEXT CHECK (subject IN ('Physics', 'Chemistry', 'Mathematics')),
+    topic TEXT,
+    example_question_ids UUID[], -- Array of question IDs that follow this pattern
+    pattern_template TEXT, -- Template for generating similar questions
+    key_concepts TEXT[], -- Key concepts tested
+    difficulty_range TEXT[], -- Array of difficulty levels this pattern appears in
+    frequency_in_exams INTEGER DEFAULT 1, -- How often this pattern appears
+    years_appeared INTEGER[], -- Years when this pattern appeared
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Exam analysis table
+CREATE TABLE IF NOT EXISTS public.exam_analysis (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    exam_id UUID REFERENCES previous_year_exams(id) ON DELETE CASCADE,
+    subject TEXT CHECK (subject IN ('Physics', 'Chemistry', 'Mathematics')),
+    topic_distribution JSONB, -- {topic: question_count} mapping
+    difficulty_distribution JSONB, -- {difficulty: count} mapping
+    average_difficulty DECIMAL,
+    unique_patterns INTEGER,
+    new_question_types TEXT[],
+    compared_to_previous_year JSONB, -- Analysis comparing to previous year
+    ai_insights TEXT,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- User's previous year attempts
+CREATE TABLE IF NOT EXISTS public.user_previous_year_attempts (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
+    exam_id UUID REFERENCES previous_year_exams(id) ON DELETE CASCADE,
+    started_at TIMESTAMPTZ DEFAULT NOW(),
+    submitted_at TIMESTAMPTZ,
+    time_taken_seconds INTEGER,
+    
+    -- Scores
+    total_attempted INTEGER,
+    correct_answers INTEGER,
+    incorrect_answers INTEGER,
+    unattempted INTEGER,
+    marks_obtained INTEGER,
+    negative_marks INTEGER,
+    final_score INTEGER,
+    
+    -- Percentile (calculated based on all attempts)
+    percentile DECIMAL,
+    
+    -- Subject-wise breakdown
+    physics_score INTEGER,
+    chemistry_score INTEGER,
+    mathematics_score INTEGER,
+    
+    -- Question-wise responses
+    responses JSONB, -- Array of {question_id, answer, time_taken, marked_for_review}
+    
+    -- Analysis
+    strong_topics TEXT[],
+    weak_topics TEXT[],
+    accuracy_percentage DECIMAL,
+    
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    UNIQUE(user_id, exam_id, started_at)
+);
+
+-- =====================================================
 -- INDEXES
 -- =====================================================
 CREATE INDEX idx_profiles_email ON profiles(email);
@@ -149,6 +322,23 @@ CREATE INDEX idx_test_results_user ON test_results(user_id);
 CREATE INDEX idx_test_results_created ON test_results(created_at DESC);
 CREATE INDEX idx_test_results_user_created ON test_results(user_id, created_at DESC);
 
+-- Indexes for previous year questions
+CREATE INDEX IF NOT EXISTS idx_pyq_exam_id ON previous_year_questions(exam_id);
+CREATE INDEX IF NOT EXISTS idx_pyq_subject ON previous_year_questions(subject);
+CREATE INDEX IF NOT EXISTS idx_pyq_topic ON previous_year_questions(topic);
+CREATE INDEX IF NOT EXISTS idx_pyq_difficulty ON previous_year_questions(difficulty);
+CREATE INDEX IF NOT EXISTS idx_pyq_year ON previous_year_questions USING btree ((exam_id));
+CREATE INDEX IF NOT EXISTS idx_pyq_search ON previous_year_questions USING gin(search_vector);
+CREATE INDEX IF NOT EXISTS idx_pyq_tags ON previous_year_questions USING gin(tags);
+
+-- Indexes for previous year exams
+CREATE INDEX IF NOT EXISTS idx_pye_year ON previous_year_exams(year);
+CREATE INDEX IF NOT EXISTS idx_pye_exam_name ON previous_year_exams(exam_name);
+
+-- Indexes for user attempts
+CREATE INDEX IF NOT EXISTS idx_upa_user_id ON user_previous_year_attempts(user_id);
+CREATE INDEX IF NOT EXISTS idx_upa_exam_id ON user_previous_year_attempts(exam_id);
+
 -- =====================================================
 -- ROW LEVEL SECURITY (RLS)
 -- =====================================================
@@ -160,6 +350,11 @@ ALTER TABLE public.questions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.tests ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.test_responses ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.test_results ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.previous_year_exams ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.previous_year_questions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.user_previous_year_attempts ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.question_patterns ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.exam_analysis ENABLE ROW LEVEL SECURITY;
 
 -- Profiles policies
 CREATE POLICY "Users can view their own profile"
@@ -256,6 +451,79 @@ ON public.test_results FOR DELETE
 TO authenticated
 USING (auth.uid() = user_id);
 
+-- Policies for previous_year_exams (everyone can read)
+CREATE POLICY "Previous year exams are viewable by everyone"
+    ON previous_year_exams FOR SELECT
+    USING (true);
+
+CREATE POLICY "Only admins can insert exams"
+    ON previous_year_exams FOR INSERT
+    WITH CHECK (EXISTS (
+        SELECT 1 FROM profiles 
+        WHERE profiles.id = auth.uid() 
+        AND profiles.is_admin = true
+    ));
+
+CREATE POLICY "Only admins can update exams"
+    ON previous_year_exams FOR UPDATE
+    USING (EXISTS (
+        SELECT 1 FROM profiles 
+        WHERE profiles.id = auth.uid() 
+        AND profiles.is_admin = true
+    ));
+
+-- Policies for previous_year_questions (everyone can read)
+CREATE POLICY "Previous year questions are viewable by everyone"
+    ON previous_year_questions FOR SELECT
+    USING (true);
+
+CREATE POLICY "Only admins can manage questions"
+    ON previous_year_questions FOR ALL
+    USING (EXISTS (
+        SELECT 1 FROM profiles 
+        WHERE profiles.id = auth.uid() 
+        AND profiles.is_admin = true
+    ));
+
+-- Policies for user attempts (users can see their own)
+CREATE POLICY "Users can view their own attempts"
+    ON user_previous_year_attempts FOR SELECT
+    USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can create their own attempts"
+    ON user_previous_year_attempts FOR INSERT
+    WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update their own attempts"
+    ON user_previous_year_attempts FOR UPDATE
+    USING (auth.uid() = user_id);
+
+-- Policies for question patterns (everyone can read)
+CREATE POLICY "Question patterns are viewable by everyone"
+    ON question_patterns FOR SELECT
+    USING (true);
+
+CREATE POLICY "Only admins can manage patterns"
+    ON question_patterns FOR ALL
+    USING (EXISTS (
+        SELECT 1 FROM profiles 
+        WHERE profiles.id = auth.uid() 
+        AND profiles.is_admin = true
+    ));
+
+-- Policies for exam analysis (everyone can read)
+CREATE POLICY "Exam analysis is viewable by everyone"
+    ON exam_analysis FOR SELECT
+    USING (true);
+
+CREATE POLICY "Only admins can manage analysis"
+    ON exam_analysis FOR ALL
+    USING (EXISTS (
+        SELECT 1 FROM profiles 
+        WHERE profiles.id = auth.uid() 
+        AND profiles.is_admin = true
+    ));
+
 -- =====================================================
 -- TRIGGERS
 -- =====================================================
@@ -274,6 +542,29 @@ CREATE TRIGGER update_profiles_updated_at BEFORE UPDATE ON profiles
 
 CREATE TRIGGER update_questions_updated_at BEFORE UPDATE ON questions
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_pye_updated_at BEFORE UPDATE ON previous_year_exams
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_pyq_updated_at BEFORE UPDATE ON previous_year_questions
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+-- Update search vector when question is inserted or updated
+CREATE OR REPLACE FUNCTION update_question_search_vector()
+RETURNS trigger AS $$
+BEGIN
+    NEW.search_vector := 
+        setweight(to_tsvector('english', COALESCE(NEW.question_text, '')), 'A') ||
+        setweight(to_tsvector('english', COALESCE(NEW.topic, '')), 'B') ||
+        setweight(to_tsvector('english', COALESCE(NEW.explanation, '')), 'C');
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER update_pyq_search_vector
+    BEFORE INSERT OR UPDATE ON previous_year_questions
+    FOR EACH ROW
+    EXECUTE FUNCTION update_question_search_vector();
 
 -- =====================================================
 -- COMMENTS
