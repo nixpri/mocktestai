@@ -130,6 +130,13 @@ export default function DashboardPage() {
             {/* Desktop Menu */}
             <div className="hidden sm:flex items-center gap-4 lg:gap-6">
               <Link
+                href="/previous-years"
+                className="flex items-center gap-2 text-[var(--foreground-secondary)] hover:text-[var(--foreground)] transition-colors duration-[var(--transition-base)]"
+              >
+                <Calendar className="h-5 w-5" />
+                <span className="text-[var(--text-base)] font-medium">Previous Years</span>
+              </Link>
+              <Link
                 href="/analytics"
                 className="flex items-center gap-2 text-[var(--foreground-secondary)] hover:text-[var(--foreground)] transition-colors duration-[var(--transition-base)]"
               >
@@ -171,6 +178,14 @@ export default function DashboardPage() {
       {/* Mobile Menu */}
       {mobileMenuOpen && (
         <div className="sm:hidden bg-[var(--background-elevated)] border-b border-[var(--border-color-light)] px-4 py-3">
+          <Link
+            href="/previous-years"
+            onClick={() => setMobileMenuOpen(false)}
+            className="flex items-center gap-2 p-3 text-[var(--foreground-secondary)] hover:text-[var(--foreground)] hover:bg-[var(--background-secondary)] rounded-lg transition-colors"
+          >
+            <Calendar className="h-5 w-5" />
+            <span>Previous Years</span>
+          </Link>
           <Link
             href="/analytics"
             onClick={() => setMobileMenuOpen(false)}
