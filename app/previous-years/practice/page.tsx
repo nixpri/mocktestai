@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { ArrowLeft, Filter, BookOpen, Play, Clock, Target } from 'lucide-react'
-import LoadingSpinner from '@/components/LoadingSpinner'
+import LoadingSpinner from '@/components/ui/LoadingSpinner'
 import Link from 'next/link'
 
 interface TopicInfo {

@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { ArrowLeft, Calendar, FileText, Clock, PlayCircle, BookOpen } from 'lucide-react'
-import LoadingSpinner from '@/components/LoadingSpinner'
+import LoadingSpinner from '@/components/ui/LoadingSpinner'
 import Link from 'next/link'
 
 interface SessionData {

@@ -130,13 +130,6 @@ export default function DashboardPage() {
             {/* Desktop Menu */}
             <div className="hidden sm:flex items-center gap-4 lg:gap-6">
               <Link
-                href="/previous-years"
-                className="flex items-center gap-2 text-[var(--foreground-secondary)] hover:text-[var(--foreground)] transition-colors duration-[var(--transition-base)]"
-              >
-                <Calendar className="h-5 w-5" />
-                <span className="text-[var(--text-base)] font-medium">Previous Years</span>
-              </Link>
-              <Link
                 href="/analytics"
                 className="flex items-center gap-2 text-[var(--foreground-secondary)] hover:text-[var(--foreground)] transition-colors duration-[var(--transition-base)]"
               >
@@ -179,14 +172,6 @@ export default function DashboardPage() {
       {mobileMenuOpen && (
         <div className="sm:hidden bg-[var(--background-elevated)] border-b border-[var(--border-color-light)] px-4 py-3">
           <Link
-            href="/previous-years"
-            onClick={() => setMobileMenuOpen(false)}
-            className="flex items-center gap-2 p-3 text-[var(--foreground-secondary)] hover:text-[var(--foreground)] hover:bg-[var(--background-secondary)] rounded-lg transition-colors"
-          >
-            <Calendar className="h-5 w-5" />
-            <span>Previous Years</span>
-          </Link>
-          <Link
             href="/analytics"
             onClick={() => setMobileMenuOpen(false)}
             className="flex items-center gap-2 p-3 text-[var(--foreground-secondary)] hover:text-[var(--foreground)] hover:bg-[var(--background-secondary)] rounded-lg transition-colors"
@@ -225,7 +210,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Quick Actions - Epic Card Design */}
-        <div className="grid md:grid-cols-2 gap-6 mb-10">
+        <div className="grid md:grid-cols-3 gap-6 mb-10">
           <Link href="/test/generate" className="group block">
             <div className="relative overflow-hidden rounded-[var(--radius-lg)] bg-[var(--background-elevated)] border-2 border-[var(--border-color)] hover:border-[var(--color-success)] transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl" style={{ minHeight: '280px' }}>
               <div className="p-8 h-full flex flex-col">
@@ -270,6 +255,31 @@ export default function DashboardPage() {
                 </div>
                 <div className="mt-auto pt-4 border-t border-[var(--border-color-light)]">
                   <span className="text-xs uppercase tracking-wider font-semibold text-[var(--color-info)]">Start Practice →</span>
+                </div>
+              </div>
+            </div>
+          </Link>
+
+          {/* Previous Years Card */}
+          <Link href="/previous-years" className="group block">
+            <div className="relative overflow-hidden rounded-[var(--radius-lg)] bg-[var(--background-elevated)] border-2 border-[var(--border-color)] hover:border-[var(--color-warning)] transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl" style={{ minHeight: '280px' }}>
+              <div className="p-8 h-full flex flex-col">
+                <div className="flex items-start justify-between mb-6">
+                  <div className="p-4 bg-gradient-to-br from-[var(--color-warning)]/20 to-[var(--color-warning)]/10 rounded-2xl">
+                    <Calendar className="h-8 w-8 text-[var(--color-warning)]" />
+                  </div>
+                  <ArrowRight className="h-6 w-6 text-[var(--foreground-muted)] opacity-0 group-hover:opacity-100 group-hover:translate-x-2 transition-all duration-300" />
+                </div>
+                <div className="flex-grow">
+                  <h3 className="text-lg sm:text-xl lg:text-2xl font-bold mb-2 sm:mb-3 text-[var(--foreground)]">Previous Years</h3>
+                  <p className="text-sm sm:text-base text-[var(--foreground-secondary)] mb-3 sm:mb-4">Practice with authentic JEE papers from past exams</p>
+                  <div className="flex items-center gap-3 text-sm text-[var(--foreground-secondary)]">
+                    <span>📚 Real Papers</span>
+                    <span>🎯 Pattern Analysis</span>
+                  </div>
+                </div>
+                <div className="mt-auto pt-4 border-t border-[var(--border-color-light)]">
+                  <span className="text-xs uppercase tracking-wider font-semibold text-[var(--color-warning)]">Browse Papers →</span>
                 </div>
               </div>
             </div>

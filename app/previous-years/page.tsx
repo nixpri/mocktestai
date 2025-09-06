@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { useRouter } from 'next/navigation'
 import { Calendar, FileText, Clock, Award } from 'lucide-react'
-import LoadingSpinner from '@/components/LoadingSpinner'
+import LoadingSpinner from '@/components/ui/LoadingSpinner'
 
 interface YearData {
   year: string
