@@ -30,7 +30,7 @@ export interface UnifiedQuestion {
     steps?: string[]
     images?: string[]
   }
-  source: string
+  source: 'generated' | 'manual'
   tags: string[]
   hasDiagram?: boolean
   diagramUrl?: string
@@ -276,7 +276,7 @@ export function transformAIQuestion(question: any): UnifiedQuestion | null {
       latex: question.solution.latex,
       steps: question.solution.steps
     } : undefined,
-    source: 'ai_generated',
+    source: 'generated',
     tags: question.tags || question.concepts || [],
     hasDiagram: false,
     hasLatex: question.question?.includes('$') || question.text?.includes('$') || false

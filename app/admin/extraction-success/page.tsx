@@ -1,10 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
-export default function ExtractionSuccessPage() {
+function ExtractionSuccessContent() {
   const searchParams = useSearchParams();
   const [stats, setStats] = useState({
     fileName: '',
@@ -133,5 +133,13 @@ export default function ExtractionSuccessPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function ExtractionSuccessPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ExtractionSuccessContent />
+    </Suspense>
   );
 }

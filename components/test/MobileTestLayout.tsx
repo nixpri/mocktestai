@@ -25,7 +25,7 @@ interface MobileTestLayoutProps {
   duration?: number
   onTimeUp?: () => void
   timeRemaining?: number
-  setTimeRemaining?: (time: number) => void
+  setTimeRemaining?: (time: number | ((prev: number) => number)) => void
   questions: UnifiedQuestion[]
   answers: Record<string, any>
   markedForReview: Set<string>
@@ -161,13 +161,14 @@ export default function MobileTestLayout({
       {/* Mobile Palette Drawer */}
       {showMobilePalette && (
         <MobilePaletteDrawer
+          isOpen={showMobilePalette}
           questions={questions}
-          currentQuestionIndex={currentQuestion - 1}
+          currentIndex={currentQuestion - 1}
           answers={answers}
           markedForReview={markedForReview}
           onQuestionSelect={onQuestionSelect}
           onClose={onClosePalette}
-          stats={stats}
+          onSubmit={onSubmit}
         />
       )}
     </div>

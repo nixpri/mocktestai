@@ -61,7 +61,7 @@ export default function GenerateTestPage() {
     { id: 'waves', name: 'Waves & Oscillations', icon: '〰️' }
   ]
 
-  const handleQuickTest = async (preset: { topic: string; difficulty: string; count: number; type: string }) => {
+  const handleQuickTest = async (preset: typeof quickTestPresets[0]) => {
     setGenerating(true)
     setError(null)
     
@@ -112,7 +112,7 @@ export default function GenerateTestPage() {
         router.push(`/test/${data.test.id}`)
       }
     } catch (err) {
-      setError(err.message || 'An error occurred while generating the test')
+      setError(err instanceof Error ? err.message : 'An error occurred while generating the test')
     } finally {
       setGenerating(false)
     }
@@ -157,7 +157,7 @@ export default function GenerateTestPage() {
         router.push(`/test/${data.test.id}`)
       }
     } catch (err) {
-      setError(err.message || 'An error occurred while generating the test')
+      setError(err instanceof Error ? err.message : 'An error occurred while generating the test')
     } finally {
       setGenerating(false)
     }

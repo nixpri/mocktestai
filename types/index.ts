@@ -31,10 +31,16 @@ export interface Question {
       text: string
       latex?: string
     }[]
-    correctAnswer?: string | number
+    correctAnswer?: string | number | string[]
+    // Additional fields for specific question types
+    assertion?: string
+    reason?: string
+    columnA?: any[]
+    columnB?: any[]
+    correctMatches?: Record<string, string>
   }
-  questionType: 'mcq' | 'numerical' | 'assertion_reasoning'
-  difficulty: 'easy' | 'medium' | 'hard'
+  questionType: 'mcq' | 'numerical' | 'assertion_reasoning' | 'matching' | 'statement' | 'matrix_match'
+  difficulty: 'easy' | 'medium' | 'hard' | 'expert'
   marks: number
   negativeMarks: number
   solution?: {
@@ -47,6 +53,11 @@ export interface Question {
   year?: number
   tags: string[]
   validationScore?: number
+  // Additional fields for compatibility
+  subject?: string
+  topic?: string
+  hasDiagram?: boolean
+  diagramUrl?: string
 }
 
 export interface Test {

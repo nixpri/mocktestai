@@ -124,7 +124,7 @@ export default function PreviousYearTestPage({
           test_id: currentTestId,
           question_id: q.id,
           sequence_number: index + 1,
-          section: q.subject || 'General'
+          section: (q as any).subject || 'General'
         }))
 
         const { error: linkError } = await supabase
@@ -159,12 +159,12 @@ export default function PreviousYearTestPage({
       questions.forEach((question) => {
         const userAnswer = answers[question.id]
         if (userAnswer) {
-          if (userAnswer === question.correct_answer) {
+          if (userAnswer === question.content.correctAnswer) {
             correctCount++
             totalMarks += question.marks
           } else {
             incorrectCount++
-            totalMarks -= question.negative_marks
+            totalMarks -= question.negativeMarks
           }
         }
       })

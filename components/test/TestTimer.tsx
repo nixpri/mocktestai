@@ -19,7 +19,7 @@ export default function TestTimer({
 }: TestTimerProps) {
   const [isPaused, setIsPaused] = useState(false)
   const lastUpdateTime = useRef(Date.now())
-  const timerRef = useRef<NodeJS.Timeout>()
+  const timerRef = useRef<NodeJS.Timeout | null>(null)
 
   useEffect(() => {
     if (isPaused) return

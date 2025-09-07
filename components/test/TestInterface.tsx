@@ -171,11 +171,9 @@ export default function TestInterface({
         {/* Main Content */}
         <div className="flex-1 flex flex-col">
           <TestHeader
-            title={testTitle}
-            currentQuestion={currentQuestionIndex + 1}
-            totalQuestions={questions.length}
-            onSave={onSave ? handleSave : undefined}
+            testTitle={testTitle}
             saving={saving}
+            onSubmit={handleSubmit}
           />
 
           <div className="flex-1 overflow-auto p-6">
@@ -262,11 +260,10 @@ export default function TestInterface({
           
           <QuestionPalette
             questions={questions}
-            currentQuestionIndex={currentQuestionIndex}
+            currentIndex={currentQuestionIndex}
             answers={answers}
             markedForReview={markedForReview}
             onQuestionSelect={navigateToQuestion}
-            stats={stats}
           />
         </div>
       </div>
@@ -304,9 +301,13 @@ export default function TestInterface({
       {/* Submit Modal */}
       {showSubmitModal && (
         <SubmitModal
-          stats={stats}
+          isOpen={showSubmitModal}
+          onClose={() => setShowSubmitModal(false)}
           onConfirm={handleSubmit}
-          onCancel={() => setShowSubmitModal(false)}
+          answeredCount={stats.answered}
+          totalQuestions={questions.length}
+          markedCount={stats.markedForReview}
+          unansweredCount={stats.notAnswered}
         />
       )}
     </>

@@ -20,7 +20,7 @@ export default function TestPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const supabase = createClient()
-  const mode = searchParams.get('mode') || 'test' // 'test', 'practice', or 'view'
+  const mode = searchParams.get('mode') || 'test'
   
   const [test, setTest] = useState<Test | null>(null)
   const [questions, setQuestions] = useState<UnifiedQuestion[]>([])
@@ -118,7 +118,7 @@ export default function TestPage() {
         }
         
         // Transform questions to unified format
-        questions = data.questions.map((q: any) => transformDatabaseQuestion(q)).filter(q => q !== null) as UnifiedQuestion[]
+        questions = data.questions.map((q: any) => transformDatabaseQuestion(q)).filter((q: any): q is UnifiedQuestion => q !== null)
       } else {
         // Load from database using API route to bypass RLS
         const response = await fetch(`/api/tests/${testId}`)
@@ -137,7 +137,7 @@ export default function TestPage() {
           questions = []
         } else {
           // Transform database format to unified format
-          questions = data.questions.map((question: any) => transformDatabaseQuestion(question)).filter(q => q !== null) as UnifiedQuestion[]
+          questions = data.questions.map((question: any) => transformDatabaseQuestion(question)).filter((q: any): q is UnifiedQuestion => q !== null)
         }
       }
 
@@ -662,7 +662,7 @@ export default function TestPage() {
                   selectedAnswer={answers[currentQuestion.id]}
                   onAnswerSelect={(answer) => handleAnswerSelect(currentQuestion.id, answer)}
                   showAnswer={mode === 'practice' || mode === 'view'}
-                  mode={mode}
+                  mode={mode as 'test' | 'practice' | 'view'}
                 />
               </div>
 

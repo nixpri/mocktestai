@@ -69,8 +69,10 @@ export function SelectContent({ children, className = '' }: { children: React.Re
   if (!context) throw new Error('SelectContent must be used within Select')
 
   useEffect(() => {
+    if (!context) return
+    
     function handleClickOutside(event: MouseEvent) {
-      if (ref.current && !ref.current.contains(event.target as Node)) {
+      if (ref.current && !ref.current.contains(event.target as Node) && context) {
         context.setOpen(false)
       }
     }
@@ -79,7 +81,7 @@ export function SelectContent({ children, className = '' }: { children: React.Re
       document.addEventListener('mousedown', handleClickOutside)
       return () => document.removeEventListener('mousedown', handleClickOutside)
     }
-  }, [context.open, context])
+  }, [context?.open, context])
 
   if (!context.open) return null
 

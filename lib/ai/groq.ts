@@ -357,7 +357,9 @@ export async function getCachedOrGenerateQuestion(params: GenerateQuestionParams
   // Clear cache if it gets too large
   if (questionCache.size > 100) {
     const firstKey = questionCache.keys().next().value
-    questionCache.delete(firstKey)
+    if (firstKey !== undefined) {
+      questionCache.delete(firstKey)
+    }
   }
   
   return question
