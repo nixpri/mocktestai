@@ -46,14 +46,20 @@ export function transformDatabaseQuestion(question: any): UnifiedQuestion | null
   const originalType = questionType
   questionType = questionType.toLowerCase().trim()
   
+  // Get question text to check for STATEMENT-1/STATEMENT-2 pattern
+  const questionText = question.question || question.question_text || question.text || ''
   
-  // Handle statement variations (statement 1, statement 2, statement-1, statement-2, etc.)
-  // Also handle "STATEMENT-1 STATEMENT-2" type questions
-  if (questionType.includes('statement')) {
+  // Check if this is a STATEMENT-1/STATEMENT-2 with "because" - these are assertion-reasoning
+  if (questionText.includes('STATEMENT-1') && questionText.includes('STATEMENT-2') && 
+      (questionText.toLowerCase().includes('because') || questionText.includes('BECAUSE'))) {
+    questionType = 'assertion_reasoning'
+  }
+  // Handle other statement variations (statement 1, statement 2, statement-1, statement-2, etc.)
+  else if (questionType.includes('statement')) {
     questionType = 'statement'
   }
   // Handle matrix matching variations
-  if (questionType === 'matrix_match' || questionType === 'matrix matching' || questionType === 'matching' || questionType.includes('matrix') || questionType.includes('match')) {
+  else if (questionType === 'matrix_match' || questionType === 'matrix matching' || questionType === 'matching' || questionType.includes('matrix') || questionType.includes('match')) {
     questionType = 'matching'
   }
   
@@ -133,14 +139,58 @@ export function transformDatabaseQuestion(question: any): UnifiedQuestion | null
     assertion = question.assertion || ''
     reason = question.reason || ''
     
-    // Standard options for assertion-reasoning
-    options = [
-      { id: 'A', text: 'Both Assertion and Reason are true and Reason is the correct explanation of Assertion' },
-      { id: 'B', text: 'Both Assertion and Reason are true but Reason is not the correct explanation of Assertion' },
-      { id: 'C', text: 'Assertion is true but Reason is false' },
-      { id: 'D', text: 'Assertion is false but Reason is true' },
-      { id: 'E', text: 'Both Assertion and Reason are false' }
-    ]
+    // If not found in separate fields, try to extract from question text
+    if (!assertion && !reason && questionText) {
+      // Look for STATEMENT-1 and STATEMENT-2 pattern
+      const statement1Match = questionText.match(/STATEMENT-1[:\s]*(.*?)(?=STATEMENT-2|because|BECAUSE|$)/s)
+      const statement2Match = questionText.match(/STATEMENT-2[:\s]*(.*?)$/s)
+      
+      if (statement1Match && statement2Match) {
+        assertion = statement1Match[1].trim()
+        // Remove "because" from the beginning of statement 2 if present
+        reason = statement2Match[1].replace(/^because\s+/i, '').trim()
+      }
+    }
+    
+    // Check if custom options are provided, otherwise use standard options
+    if (Array.isArray(question.options) && question.options.length > 0) {
+      options = question.options.map((opt: any, idx: number) => {
+        if (typeof opt === 'string') {
+          return {
+            id: String.fromCharCode(65 + idx), // A, B, C, D, E
+            text: opt,
+            latex: opt.includes('$') || opt.includes('\\(') ? opt : undefined
+          }
+        } else if (opt && typeof opt === 'object') {
+          return {
+            id: opt.id || String.fromCharCode(65 + idx),
+            text: opt.text || opt.value || '',
+            latex: opt.latex || (opt.text?.includes('$') ? opt.text : undefined)
+          }
+        }
+        return {
+          id: String.fromCharCode(65 + idx),
+          text: ''
+        }
+      })
+    } else if (question.option_a || question.option_b || question.option_c || question.option_d) {
+      // Check for separate option fields
+      options = []
+      if (question.option_a) options.push({ id: 'A', text: question.option_a })
+      if (question.option_b) options.push({ id: 'B', text: question.option_b })
+      if (question.option_c) options.push({ id: 'C', text: question.option_c })
+      if (question.option_d) options.push({ id: 'D', text: question.option_d })
+      if (question.option_e) options.push({ id: 'E', text: question.option_e })
+    } else {
+      // Use standard assertion-reasoning options
+      options = [
+        { id: 'A', text: 'Both Assertion and Reason are true and Reason is the correct explanation of Assertion' },
+        { id: 'B', text: 'Both Assertion and Reason are true but Reason is not the correct explanation of Assertion' },
+        { id: 'C', text: 'Assertion is true but Reason is false' },
+        { id: 'D', text: 'Assertion is false but Reason is true' },
+        { id: 'E', text: 'Both Assertion and Reason are false' }
+      ]
+    }
   } else if (questionType === 'matching') {
     
     // Try all possible locations for column data

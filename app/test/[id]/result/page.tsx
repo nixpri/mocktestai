@@ -74,10 +74,26 @@ export default function TestResultPage() {
         return
       }
       
-      // Transform questions to unified format
-      const transformedQuestions = (testResult.questions_data || [])
-        .map((q: any) => transformDatabaseQuestion(q))
-        .filter((q: UnifiedQuestion | null): q is UnifiedQuestion => q !== null)
+      // Transform questions to unified format if needed
+      console.log('Test result questions_data:', testResult.questions_data)
+      const questionsArray = testResult.questions_data || []
+      
+      let transformedQuestions: UnifiedQuestion[] = []
+      if (questionsArray.length > 0) {
+        // Check if questions are already in unified format
+        const firstQuestion = questionsArray[0]
+        if (firstQuestion.questionType && firstQuestion.content) {
+          // Already in unified format
+          console.log('Questions already in unified format')
+          transformedQuestions = questionsArray
+        } else {
+          // Need to transform
+          console.log('Transforming questions to unified format')
+          transformedQuestions = questionsArray
+            .map((q: any) => transformDatabaseQuestion(q))
+            .filter((q: UnifiedQuestion | null): q is UnifiedQuestion => q !== null)
+        }
+      }
       
       const displayResult: TestResult = {
         testId: testResult.test_id,
