@@ -255,6 +255,7 @@ export default function QuestionDisplay({
                   
                   {/* Interactive Matching Component */}
                   <MatchingAnswerInput
+                    key={question.id}
                     columnA={question.content.columnA || []}
                     columnB={question.content.columnB || []}
                     value={selectedAnswer as string}

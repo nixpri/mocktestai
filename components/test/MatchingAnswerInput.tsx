@@ -26,21 +26,34 @@ export default function MatchingAnswerInput({
   const parseValue = (val: string | Record<string, string> | null): Record<string, string> => {
     if (!val) return {}
     if (typeof val === 'object') return val
+    if (typeof val !== 'string') return {}
+    if (val.trim() === '') return {}
     
     // Parse string format like "1-a, 2-b, 3-c, 4-d"
     const matches: Record<string, string> = {}
-    const pairs = val.split(',').map(p => p.trim())
-    pairs.forEach(pair => {
-      const [left, right] = pair.split('-').map(s => s.trim())
-      if (left && right) {
-        matches[left] = right
-      }
-    })
+    try {
+      const pairs = val.split(',').map(p => p.trim()).filter(p => p)
+      pairs.forEach(pair => {
+        const [left, right] = pair.split('-').map(s => s.trim())
+        if (left && right) {
+          matches[left] = right
+        }
+      })
+    } catch (e) {
+      console.error('Error parsing match value:', e)
+      return {}
+    }
     return matches
   }
 
   const [matches, setMatches] = useState<Record<string, string>>(parseValue(value))
   const [openDropdown, setOpenDropdown] = useState<string | null>(null)
+
+  // Reset matches when value prop changes (e.g., when navigating to a different question)
+  useEffect(() => {
+    setMatches(parseValue(value))
+    setOpenDropdown(null) // Also close any open dropdown
+  }, [value, columnA, columnB]) // Also reset if columns change
 
   // Detect the numbering style from question text
   const hasLetterOptions = columnB.some((item: any) => {
