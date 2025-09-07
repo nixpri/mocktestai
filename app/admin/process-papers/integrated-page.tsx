@@ -52,9 +52,14 @@ export default function ProcessPreviousYearPapersPage() {
   const [exam, setExam] = useState('JEE Main');
   const [subject, setSubject] = useState('Physics');
   const [session, setSession] = useState('');
-  const [questionKey, setQuestionKey] = useState('');
   const [status, setStatus] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+  const [showUploadStatus, setShowUploadStatus] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState({
+    questions: 0,
+    diagrams: 0,
+    status: 'Preparing upload...'
+  });
 
   // Process PDF and extract questions
   const processPDF = async (file: File) => {
@@ -69,9 +74,6 @@ export default function ProcessPreviousYearPapersPage() {
       extractFormData.append('exam', exam);
       extractFormData.append('subject', subject);
       extractFormData.append('session', session);
-      if (questionKey) {
-        extractFormData.append('questionKey', questionKey);
-      }
       
       const extractResponse = await fetch('/api/admin/extract-questions', {
         method: 'POST',
@@ -307,8 +309,13 @@ export default function ProcessPreviousYearPapersPage() {
     const completedTasks = diagramTasks.filter(t => t.status === 'completed');
     
     setIsSaving(true);
-    // Show uploading status
-    setStatus('Saving questions and uploading to Supabase...');
+    setShowUploadStatus(true);
+    setUploadProgress({
+      questions: 0,
+      diagrams: 0,
+      status: 'Preparing upload...'
+    });
+    setStatus('Uploading to database...');
     
     try {
       const response = await fetch('/api/admin/update-questions-with-diagrams', {
@@ -328,24 +335,34 @@ export default function ProcessPreviousYearPapersPage() {
       if (response.ok) {
         const result = await response.json();
         
+        // Update progress
+        if (result.supabaseUpload) {
+          setUploadProgress({
+            questions: result.supabaseUpload.uploaded || 0,
+            diagrams: result.supabaseUpload.diagramsUploaded || 0,
+            status: 'Upload complete!'
+          });
+        }
+        
         // Check if Supabase upload was successful
         if (result.supabaseUpload?.success) {
           setStatus('✅ Successfully uploaded to Supabase! Files cleaned up.');
+          
+          // Wait a moment to show success
+          await new Promise(resolve => setTimeout(resolve, 1500));
           
           // Redirect to success page with stats including Supabase info
           const params = new URLSearchParams({
             file: pdfFile?.name || '',
             questions: result.questionsCount.toString(),
-            diagrams: completedTasks.length.toString(),
+            diagrams: (result.diagramsExtracted || completedTasks.length).toString(),
             path: result.outputFileName || 'complete.json',
             uploaded: result.supabaseUpload.uploaded.toString(),
             diagramsUploaded: result.supabaseUpload.diagramsUploaded.toString(),
             testId: result.supabaseUpload.testId || ''
           });
           
-          setTimeout(() => {
-            router.push(`/admin/extraction-success?${params.toString()}`);
-          }, 2000);
+          router.push(`/admin/extraction-success?${params.toString()}`);
         } else {
           // Saved locally but Supabase upload failed
           setStatus('⚠️ Saved locally but failed to upload to Supabase');
@@ -368,6 +385,7 @@ export default function ProcessPreviousYearPapersPage() {
       alert('Failed to save results to server');
     } finally {
       setIsSaving(false);
+      setShowUploadStatus(false);
     }
   };
 
@@ -460,22 +478,6 @@ export default function ProcessPreviousYearPapersPage() {
                 />
                 <p className="mt-1 text-xs text-gray-500">
                   Identifies different papers in the same year (e.g., JEE Main has multiple sessions)
-                </p>
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Answer Key (Optional)
-                </label>
-                <input
-                  type="text"
-                  value={questionKey}
-                  onChange={(e) => setQuestionKey(e.target.value)}
-                  placeholder="e.g., ABDCABCD... or comma-separated: A,B,D,C..."
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-                <p className="mt-1 text-xs text-gray-500">
-                  Enter the answer key for automatic answer marking
                 </p>
               </div>
             </div>
@@ -619,7 +621,7 @@ export default function ProcessPreviousYearPapersPage() {
                         Saving...
                       </>
                     ) : (
-                      '✓ Save & Next'
+                      currentTaskIndex === diagramTasks.length - 1 ? '✓ Save and Submit' : '✓ Save & Next'
                     )}
                   </button>
                   <button
@@ -754,6 +756,50 @@ export default function ProcessPreviousYearPapersPage() {
               <p className="mt-4 font-semibold">Processing Previous Year Paper</p>
               <p className="text-sm text-gray-500 mt-2">Extracting questions from all pages...</p>
               <p className="text-xs text-gray-400 mt-1">This may take 1-2 minutes for multi-page PDFs</p>
+            </div>
+          </div>
+        )}
+
+        {/* Upload Status Modal */}
+        {showUploadStatus && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white p-8 rounded-lg text-center max-w-md w-full">
+              <div className="mb-6">
+                <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-200 border-t-blue-600 mx-auto"></div>
+              </div>
+              
+              <h3 className="text-xl font-bold mb-4">Uploading to Database</h3>
+              
+              <div className="space-y-4">
+                <div>
+                  <div className="flex justify-between text-sm mb-1">
+                    <span>Questions</span>
+                    <span className="font-semibold">{uploadProgress.questions} uploaded</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div 
+                      className="bg-blue-600 h-2 rounded-full transition-all duration-500"
+                      style={{ width: `${(uploadProgress.questions / questions.length) * 100}%` }}
+                    />
+                  </div>
+                </div>
+                
+                <div>
+                  <div className="flex justify-between text-sm mb-1">
+                    <span>Diagrams</span>
+                    <span className="font-semibold">{uploadProgress.diagrams} uploaded</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div 
+                      className="bg-green-600 h-2 rounded-full transition-all duration-500"
+                      style={{ width: `${(uploadProgress.diagrams / diagramTasks.filter(t => t.status === 'completed').length) * 100 || 0}%` }}
+                    />
+                  </div>
+                </div>
+              </div>
+              
+              <p className="mt-6 text-sm text-gray-600">{uploadProgress.status}</p>
+              <p className="mt-2 text-xs text-gray-500">Please wait while we save your data...</p>
             </div>
           </div>
         )}

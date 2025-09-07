@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
+import { createClient } from '@/lib/supabase/client';
 
 interface AdminCard {
   title: string;
@@ -86,7 +87,11 @@ export default function AdminDashboard() {
                 User Dashboard →
               </Link>
               <button
-                onClick={() => router.push('/')}
+                onClick={async () => {
+                  const supabase = createClient();
+                  await supabase.auth.signOut();
+                  router.push('/auth');
+                }}
                 className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition"
               >
                 Exit Admin

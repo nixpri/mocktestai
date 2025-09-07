@@ -1,36 +1,24 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, use } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter, useSearchParams } from 'next/navigation'
 import TestInterface from '@/components/test/TestInterface'
 import LoadingSpinner from '@/components/ui/LoadingSpinner'
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/ui/Button'
 import { ArrowLeft, AlertCircle } from 'lucide-react'
 import Link from 'next/link'
+import { transformDatabaseQuestion, UnifiedQuestion } from '@/lib/utils/questionTransformer'
 
-interface Question {
-  id: string
-  question_text: string
-  question_type: string
-  options?: any
-  correct_answer?: string
-  explanation?: string
-  marks: number
-  negative_marks: number
-  difficulty: string
-  subject: string
-  topic?: string
-  has_diagram: boolean
-  diagram_url?: string
-}
+// Using the unified question interface from questionTransformer
 
 export default function PreviousYearTestPage({ 
   params 
 }: { 
-  params: { year: string; session: string } 
+  params: Promise<{ year: string; session: string }> 
 }) {
-  const [questions, setQuestions] = useState<Question[]>([])
+  const { year, session } = use(params)
+  const [questions, setQuestions] = useState<UnifiedQuestion[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [testId, setTestId] = useState<string | null>(null)
@@ -41,7 +29,7 @@ export default function PreviousYearTestPage({
 
   useEffect(() => {
     initializeTest()
-  }, [params.year, params.session])
+  }, [year, session])
 
   const initializeTest = async () => {
     setLoading(true)
@@ -66,12 +54,23 @@ export default function PreviousYearTestPage({
       if (questionError) throw questionError
 
       // Filter questions based on metadata
-      const filteredQuestions = questionData?.filter((q) => {
+      const filteredRawQuestions = questionData?.filter((q) => {
         const metadata = q.source_metadata as any
-        return metadata?.year === params.year && 
-               metadata?.session === params.session &&
+        // Convert both to strings for comparison
+        const metadataYear = metadata?.year?.toString()
+        const paramYear = year.toString()
+        const metadataSession = metadata?.session?.toString()
+        const paramSession = session.toString()
+        
+        return metadataYear === paramYear && 
+               metadataSession === paramSession &&
                (metadata?.exam || 'JEE Main') === exam
       }) || []
+
+      // Transform questions to unified format
+      const filteredQuestions = filteredRawQuestions
+        .map(q => transformDatabaseQuestion(q))
+        .filter((q): q is UnifiedQuestion => q !== null)
 
       if (filteredQuestions.length === 0) {
         setError('No questions found for this paper. Please check back later.')
@@ -84,8 +83,8 @@ export default function PreviousYearTestPage({
         .from('tests')
         .select('id')
         .eq('test_type', 'previous_year')
-        .eq('test_metadata->year', params.year)
-        .eq('test_metadata->session', params.session)
+        .eq('test_metadata->year', year)
+        .eq('test_metadata->session', session)
         .eq('test_metadata->exam', exam)
         .single()
 
@@ -97,11 +96,11 @@ export default function PreviousYearTestPage({
           .from('tests')
           .insert({
             test_type: 'previous_year',
-            title: `${exam} ${params.year} - Session ${params.session}`,
-            description: `Official ${exam} paper from ${params.year}`,
+            title: `${exam} ${year} - Session ${session}`,
+            description: `Official ${exam} paper from ${year}`,
             test_metadata: {
-              year: params.year,
-              session: params.session,
+              year: year,
+              session: session,
               exam: exam,
               is_official: true
             },
@@ -203,7 +202,7 @@ export default function PreviousYearTestPage({
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <LoadingSpinner size="large" />
-          <p className="mt-4 text-gray-600">Loading {exam} {params.year} Paper...</p>
+          <p className="mt-4 text-gray-600">Loading {exam} {year} Paper...</p>
         </div>
       </div>
     )
@@ -221,7 +220,7 @@ export default function PreviousYearTestPage({
           </h2>
           <p className="text-center text-gray-600 mb-6">{error}</p>
           <div className="flex gap-3">
-            <Link href={`/previous-years/${params.year}`} className="flex-1">
+            <Link href={`/previous-years/${year}`} className="flex-1">
               <Button variant="outline" className="w-full">
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Back to Sessions
@@ -245,7 +244,7 @@ export default function PreviousYearTestPage({
           <p className="text-gray-600 mb-6">
             This paper hasn't been uploaded yet. Please check back later.
           </p>
-          <Link href={`/previous-years/${params.year}`}>
+          <Link href={`/previous-years/${year}`}>
             <Button variant="outline">
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Sessions
@@ -256,37 +255,18 @@ export default function PreviousYearTestPage({
     )
   }
 
-  // Transform questions to match TestInterface format
-  const formattedQuestions = questions.map((q) => ({
-    id: q.id,
-    topicId: q.topic || 'general',
-    content: {
-      text: q.question_text,
-      options: q.options || [],
-      correctAnswer: q.correct_answer,
-      diagram: q.has_diagram ? q.diagram_url : undefined
-    },
-    questionType: q.question_type as any,
-    difficulty: q.difficulty as any,
-    marks: q.marks,
-    negativeMarks: q.negative_marks,
-    solution: {
-      text: q.explanation || '',
-      steps: []
-    },
-    source: 'previous_year' as const,
-    tags: []
-  }))
-
+  // Questions are already in UnifiedQuestion format from the transformation above
   return (
     <TestInterface
-      testId={testId || `previous-year-${params.year}-${params.session}`}
-      questions={formattedQuestions}
+      testId={testId || `previous-year-${year}-${session}`}
+      questions={questions}
       duration={180}
-      testTitle={`${exam} ${params.year} - Session ${params.session}`}
-      onComplete={handleTestComplete}
-      showSolutions={false}
-      allowReview={true}
+      testTitle={`${exam} ${year} - Session ${session}`}
+      onSubmit={async (answers, timeSpent) => {
+        const totalTimeSpent = Object.values(timeSpent).reduce((acc: number, val: number) => acc + val, 0)
+        await handleTestComplete(answers, totalTimeSpent)
+      }}
+      mode="test"
     />
   )
 }

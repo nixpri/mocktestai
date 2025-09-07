@@ -7,6 +7,8 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import LatexRenderer from '@/components/test/LatexRenderer'
 import { formatDuration } from '@/lib/utils/timeUtils'
+import { transformDatabaseQuestion, UnifiedQuestion } from '@/lib/utils/questionTransformer'
+import QuestionDisplay from '@/components/test/QuestionDisplay'
 
 interface TestResult {
   testId: string
@@ -23,7 +25,7 @@ interface TestResult {
   date: string
   topicBreakdown?: any
   difficultyBreakdown?: any
-  questionsData?: any[]
+  questionsData?: UnifiedQuestion[]
   userAnswers?: { [key: string]: any }
 }
 
@@ -51,6 +53,15 @@ export default function TestResultPage() {
         return
       }
       
+      // Check if this is a local practice test result
+      if (resultId.startsWith('local-')) {
+        const localResult = localStorage.getItem(`test_result_${resultId}`)
+        if (localResult) {
+          setResult(JSON.parse(localResult))
+          return
+        }
+      }
+      
       const { data: testResult, error } = await supabase
         .from('test_results')
         .select('*')
@@ -62,6 +73,11 @@ export default function TestResultPage() {
         router.push('/dashboard')
         return
       }
+      
+      // Transform questions to unified format
+      const transformedQuestions = (testResult.questions_data || [])
+        .map((q: any) => transformDatabaseQuestion(q))
+        .filter((q: UnifiedQuestion | null): q is UnifiedQuestion => q !== null)
       
       const displayResult: TestResult = {
         testId: testResult.test_id,
@@ -78,7 +94,7 @@ export default function TestResultPage() {
         date: testResult.created_at,
         topicBreakdown: testResult.topic_breakdown || {},
         difficultyBreakdown: testResult.difficulty_breakdown || {},
-        questionsData: testResult.questions_data || [],
+        questionsData: transformedQuestions,
         userAnswers: testResult.user_answers || {}
       }
       
@@ -423,33 +439,11 @@ export default function TestResultPage() {
 
           {/* Questions List */}
           <div className="space-y-4">
-            {filteredQuestions().map((question: any, index: number) => {
+            {filteredQuestions().map((question: UnifiedQuestion, index: number) => {
               const userAnswer = result.userAnswers?.[question.id]
+              const correctAnswer = question.content?.correctAnswer
               
-              let correctAnswer = question.content?.correctAnswer || 
-                                 question.correctAnswer || 
-                                 question.correct_answer || ''
-              
-              const normalizedUserAnswer = userAnswer?.toString().toLowerCase()
-              const normalizedCorrectAnswer = correctAnswer?.toString().toLowerCase()
-              
-              let isCorrect = false
-              if (question.questionType === 'numerical' || question.type === 'numerical') {
-                const numericalAnswer = question.content?.numericalAnswer || 
-                                       question.numericalAnswer || 
-                                       question.numerical_answer
-                const tolerance = question.content?.numericalTolerance || 
-                                 question.numericalTolerance || 
-                                 question.numerical_tolerance || 0.01
-                if (numericalAnswer !== undefined && userAnswer !== undefined) {
-                  const userNum = parseFloat(userAnswer)
-                  const correctNum = parseFloat(numericalAnswer)
-                  isCorrect = Math.abs(userNum - correctNum) <= tolerance
-                }
-              } else {
-                isCorrect = normalizedUserAnswer === normalizedCorrectAnswer
-              }
-              
+              const isCorrect = userAnswer === correctAnswer
               const wasAttempted = userAnswer !== undefined && userAnswer !== null && userAnswer !== ''
               
               return (
@@ -468,117 +462,39 @@ export default function TestResultPage() {
                           </p>
                           <div className="flex items-center gap-2 mt-1">
                             <span className="text-[var(--text-xs)] px-2 py-0.5 bg-[var(--background-secondary)] rounded-full text-[var(--foreground-muted)]">
-                              {question.topicId || question.topic || 'General'}
+                              {question.topicId || 'General'}
                             </span>
                             <span className="text-[var(--text-xs)] px-2 py-0.5 bg-[var(--background-secondary)] rounded-full text-[var(--foreground-muted)]">
                               {question.difficulty || 'Medium'}
+                            </span>
+                            <span className="text-[var(--text-xs)] px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full">
+                              {question.questionType.toUpperCase().replace('_', ' ')}
                             </span>
                           </div>
                         </div>
                       </div>
                       <div className="text-right">
                         <p className="text-[var(--text-sm)] font-semibold text-[var(--foreground)]">
-                          {wasAttempted ? (isCorrect ? `+${question.marks || 4}` : `-${question.negativeMarks || 1}`) : '0'} marks
+                          {wasAttempted ? (isCorrect ? `+${question.marks}` : `-${question.negativeMarks}`) : '0'} marks
                         </p>
                       </div>
                     </div>
 
                     <div className="mb-4">
-                      <LatexRenderer 
-                        content={question.content?.text || question.content?.questionText || question.question || 'Question text not available'}
-                        className="text-[var(--text-base)] text-[var(--foreground)]"
+                      <QuestionDisplay
+                        question={question}
+                        selectedAnswer={userAnswer}
+                        onAnswerSelect={() => {}}
+                        showAnswer={showSolutions}
+                        mode="view"
                       />
                     </div>
 
-                    {/* MCQ Options */}
-                    {(question.questionType === 'mcq' || question.type === 'mcq') && question.content?.options && (
-                      <div className="space-y-2 mb-4">
-                        {question.content.options.map((option: any, optIndex: number) => {
-                          const optionLetter = String.fromCharCode(65 + optIndex)
-                          const optionId = String.fromCharCode(97 + optIndex)
-                          
-                          const isUserAnswer = userAnswer === optionId || 
-                                              userAnswer === optionLetter || 
-                                              userAnswer === optionLetter.toLowerCase()
-                          
-                          const isCorrectOption = normalizedCorrectAnswer === optionId || 
-                                                 normalizedCorrectAnswer === optionLetter.toLowerCase()
-                          
-                          const optionText = typeof option === 'string' ? option : (option.text || option)
-                        
-                        return (
-                          <div 
-                            key={optIndex}
-                            className={`p-3 rounded-[var(--radius-sm)] border transition-all ${
-                              showSolutions ? (
-                                isCorrectOption 
-                                  ? 'bg-[var(--color-success)]/5 border-[var(--color-success)]/30' 
-                                  : isUserAnswer && !isCorrect
-                                  ? 'bg-[var(--color-error)]/5 border-[var(--color-error)]/30'
-                                  : 'bg-white border-[var(--border-color-light)]'
-                              ) : 'bg-white border-[var(--border-color-light)]'
-                            }`}
-                          >
-                            <div className="flex items-start gap-3">
-                              <span className="font-semibold text-[var(--foreground-secondary)]">{optionLetter}.</span>
-                              <div className="flex-1">
-                                <LatexRenderer content={optionText} className="text-[var(--text-sm)]" />
-                              </div>
-                              {showSolutions && (
-                                <>
-                                  {isCorrectOption && (
-                                    <CheckCircle className="h-4 w-4 text-[var(--color-success)] flex-shrink-0" />
-                                  )}
-                                  {isUserAnswer && !isCorrect && (
-                                    <XCircle className="h-4 w-4 text-[var(--color-error)] flex-shrink-0" />
-                                  )}
-                                </>
-                              )}
-                            </div>
-                          </div>
-                        )
-                      })}
-                      </div>
-                    )}
-
-                    {/* Numerical Answer */}
-                    {(question.questionType === 'numerical' || question.type === 'numerical') && showSolutions && (
-                      <div className="p-4 bg-[var(--background-secondary)] rounded-[var(--radius-sm)] mb-4">
-                        <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <p className="text-[var(--text-xs)] text-[var(--foreground-muted)] mb-1">Your Answer</p>
-                            <p className={`text-lg font-semibold ${wasAttempted ? (isCorrect ? 'text-[var(--color-success)]' : 'text-[var(--color-error)]') : 'text-[var(--foreground-muted)]'}`}>
-                              {wasAttempted ? userAnswer : 'Not attempted'}
-                            </p>
-                          </div>
-                          <div>
-                            <p className="text-[var(--text-xs)] text-[var(--foreground-muted)] mb-1">Correct Answer</p>
-                            <p className="text-lg font-semibold text-[var(--color-success)]">
-                              {question.content?.numericalAnswer || question.numericalAnswer || question.numerical_answer || 'N/A'}
-                              {(question.content?.numericalTolerance || question.numericalTolerance || question.numerical_tolerance) && (
-                                <span className="text-sm text-[var(--foreground-muted)] ml-1">
-                                  (±{question.content?.numericalTolerance || question.numericalTolerance || question.numerical_tolerance})
-                                </span>
-                              )}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Solution */}
-                    {showSolutions && (question.solution?.text || question.content?.explanation || question.explanation) && (
-                      <div className="p-4 bg-gradient-to-r from-[var(--color-primary)]/5 to-[var(--color-primary)]/10 rounded-[var(--radius-sm)] border border-[var(--color-primary)]/20">
-                        <p className="text-[var(--text-sm)] font-semibold text-[var(--color-primary)] mb-2 flex items-center gap-2">
-                          <Zap className="h-4 w-4" />
-                          Solution
-                        </p>
-                        <div className="text-[var(--text-sm)] text-[var(--foreground)]">
-                          <LatexRenderer 
-                            content={question.solution?.text || question.content?.explanation || question.explanation}
-                            className="leading-relaxed"
-                          />
-                        </div>
+                    {/* User's Answer Display for non-MCQ types that QuestionDisplay doesn't show */}
+                    {showSolutions && wasAttempted && !isCorrect && (
+                      <div className="p-3 bg-[var(--color-error)]/5 border border-[var(--color-error)]/20 rounded-[var(--radius-sm)] mb-4">
+                        <p className="text-[var(--text-xs)] text-[var(--color-error)] font-semibold mb-1">Your Answer:</p>
+                        <p className="text-[var(--text-sm)] text-[var(--foreground)]">{userAnswer}</p>
                       </div>
                     )}
                   </div>

@@ -107,7 +107,7 @@ export async function POST(request: NextRequest) {
       const generatedQuestions = await generateMockTest(params)
       
       // Save each question to the questions bank
-      const savedQuestionIds = []
+      const savedQuestionIds: string[] = []
       
       for (let i = 0; i < generatedQuestions.length; i++) {
         const q = generatedQuestions[i]
@@ -134,8 +134,8 @@ export async function POST(request: NextRequest) {
             subject: 'Physics',
             topic_id: null, // TODO: Map topic to topic_id
             options: formattedOptions,
-            correct_answer: q.correctAnswer?.toUpperCase() || 'A',
-            explanation: q.solution || q.explanation || null,
+            correct_answer: String(q.correctAnswer || 'A').toUpperCase(),
+            explanation: q.solution || (q as any).explanation || null,
             marks: 4,
             negative_marks: 1,
             tags: q.concepts || [],

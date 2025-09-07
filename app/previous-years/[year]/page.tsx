@@ -1,9 +1,9 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, use } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card'
+import { Button } from '@/components/ui/Button'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { ArrowLeft, Calendar, FileText, Clock, PlayCircle, BookOpen } from 'lucide-react'
 import LoadingSpinner from '@/components/ui/LoadingSpinner'
@@ -23,14 +23,14 @@ interface SessionData {
   has_answer_key: boolean
 }
 
-export default function YearSessionPage({ params }: { params: { year: string } }) {
+export default function YearSessionPage({ params }: { params: Promise<{ year: string }> }) {
   const [sessions, setSessions] = useState<SessionData[]>([])
   const [loading, setLoading] = useState(true)
   const router = useRouter()
   const searchParams = useSearchParams()
   const exam = searchParams.get('exam') || 'JEE Main'
   const supabase = createClient()
-  const year = params.year
+  const { year } = use(params)
 
   useEffect(() => {
     fetchSessionData()
@@ -105,30 +105,9 @@ export default function YearSessionPage({ params }: { params: { year: string } }
     router.push(`/previous-years/${year}/${session}/practice?exam=${encodeURIComponent(exam)}`)
   }
 
-  // Mock data for demonstration
-  const mockSessions: SessionData[] = [
-    {
-      session: '1',
-      paper_code: 'Paper 1',
-      question_count: 90,
-      subjects: ['Physics', 'Chemistry', 'Mathematics'],
-      difficulty_distribution: { easy: 30, medium: 40, hard: 20 },
-      has_solutions: true,
-      has_answer_key: true,
-    },
-    {
-      session: '2',
-      paper_code: 'Paper 2',
-      question_count: 90,
-      subjects: ['Physics', 'Chemistry', 'Mathematics'],
-      difficulty_distribution: { easy: 25, medium: 45, hard: 20 },
-      has_solutions: true,
-      has_answer_key: true,
-    },
-  ]
 
   // Use mock data if no real data (for development)
-  const displaySessions = sessions.length > 0 ? sessions : mockSessions
+  const displaySessions = sessions
 
   if (loading) {
     return (
@@ -287,8 +266,9 @@ export default function YearSessionPage({ params }: { params: { year: string } }
         {displaySessions.length === 0 && (
           <div className="text-center py-12">
             <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">No Sessions Available</h3>
-            <p className="text-gray-600">Papers for {exam} {year} are being processed.</p>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">No Sessions Available Yet</h3>
+            <p className="text-gray-600 mb-2">We're currently digitizing papers for {exam} {year}.</p>
+            <p className="text-sm text-gray-500">Meanwhile, you can practice with our AI-generated tests tailored to exam patterns.</p>
           </div>
         )}
 

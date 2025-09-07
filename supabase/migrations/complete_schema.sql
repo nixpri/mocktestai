@@ -77,7 +77,7 @@ CREATE TABLE public.topics (
 );
 
 -- Unified Questions Table (replaces old questions table)
-CREATE TABLE IF NOT EXISTS questions (
+CREATE TABLE public.questions (
     -- Core fields
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     source_type TEXT DEFAULT 'manual' CHECK (source_type IN ('manual', 'previous_year', 'ai_generated', 'demo')),

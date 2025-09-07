@@ -81,6 +81,7 @@ export async function POST(request: NextRequest) {
         pagePromises.push(
           converter(pageNum)
             .then(async (result) => {
+              if (!result.path) throw new Error('No path returned from converter');
               const imageBuffer = await fs.readFile(result.path);
               const base64Image = imageBuffer.toString('base64');
               
@@ -115,8 +116,8 @@ export async function POST(request: NextRequest) {
     
     // OPTIMIZATION 2: Optimal batch size for accuracy and speed
     const BATCH_SIZE = 4; // 4 pages per batch for better accuracy
-    const MAX_CONCURRENT_API_CALLS = 2; // Process 2 batches simultaneously to avoid rate limits
-    const batches = [];
+    const MAX_CONCURRENT_API_CALLS = 1; // Process 1 batch at a time to avoid rate limits
+    const batches: typeof pageImagePaths[] = [];
     
     for (let i = 0; i < pageImagePaths.length; i += BATCH_SIZE) {
       batches.push(pageImagePaths.slice(i, i + BATCH_SIZE));
@@ -140,28 +141,28 @@ export async function POST(request: NextRequest) {
     const processBatch = async (batch: typeof batches[0], batchIndex: number) => {
       console.log(`Processing batch ${batchIndex + 1}/${batches.length} (pages ${batch[0].pageNum}-${batch[batch.length - 1].pageNum})`);
       
-      try {
-        // Create image parts for Gemini
-        const imageParts = batch.map(page => ({
-          inlineData: {
-            mimeType: 'image/png',
-            data: page.base64
-          }
-        }));
-        
-        // Create the prompt for extraction
-        const prompt = `CRITICAL TASK: Extract ALL PHYSICS questions from JEE ${year} exam pages.
+      // Create image parts for Gemini (moved outside try for retry access)
+      const imageParts = batch.map(page => ({
+        inlineData: {
+          mimeType: 'image/png',
+          data: page.base64
+        }
+      }));
+      
+      // Create the prompt for extraction (moved outside try for retry access)
+      const prompt = `CRITICAL TASK: Extract ALL PHYSICS questions from JEE ${year} exam pages.
 
-⚠️ IMPORTANT CLARIFICATION:
-- Extract ALL Physics questions regardless of question number
-- Include questions WITH diagrams AND questions WITHOUT diagrams
-- The has_diagram field is for marking which questions have diagrams, NOT for filtering
-- DO NOT only return questions with diagrams - return ALL Physics questions!
-- DO NOT make assumptions based on question numbers - use CONTENT to identify Physics
+⚠️ EXTRACTION RULES - READ CAREFULLY:
+1. Extract EVERY Physics question you can find on these pages
+2. Include ALL questions - both WITH and WITHOUT diagrams
+3. The has_diagram field just marks if a diagram exists, it's NOT a filter
+4. Look at CONTENT to identify Physics, NOT question numbers
+5. Physics questions can be ANYWHERE (Q1-Q30, Q31-Q60, etc.)
+6. If you find less than 5 questions per batch, you're being too restrictive!
 
-You are viewing pages ${batch[0].pageNum}-${batch[batch.length - 1].pageNum} of a JEE paper.
-Physics questions are typically grouped together but can appear at ANY question numbers.
-IDENTIFY PHYSICS BY CONTENT, NOT BY QUESTION NUMBER!
+You are viewing pages ${batch[0].pageNum}-${batch[batch.length - 1].pageNum} of a JEE ${year} paper.
+CRITICAL: Physics section usually has 20-30 questions total in the paper.
+If this is a Physics-heavy batch, you should find 5-10 questions!
 
 ⚠️ STRICT SUBJECT FILTERING - READ CAREFULLY:
 
@@ -272,25 +273,40 @@ pure geometry, trigonometric identities, mathematical induction
 3. **Matrix Matching**: "Column I" matched with "Column II" (NOT a diagram - it's an answer format!)
 4. **Linked Comprehension**: Multiple questions based on a common passage/scenario
 
-═══ DIAGRAM DETECTION (VERY IMPORTANT) ═══
-Mark has_diagram=true for ANY of these:
-- Circuit diagrams (resistors, capacitors, batteries, switches)
-- Free body diagrams (forces, masses, pulleys, inclines)
-- Ray diagrams (lenses, mirrors, light paths)
-- Graphs (x-y plots, waveforms, field lines)
-- Mechanical setups (springs, pendulums, rotating objects)
-- Wave diagrams (interference patterns, standing waves)
-- Particle trajectories (projectile motion, charged particle paths)
-- Any geometric figure showing physical setup
+═══ DIAGRAM DETECTION (CRITICAL - LOOK CAREFULLY!) ═══
+⚠️ VISUAL SCAN REQUIRED: Look at EVERY part of the page for diagrams!
+Diagrams may appear ANYWHERE - before, after, or beside question text!
 
-SPECIFICALLY CHECK:
-- Any question mentioning "figure", "shown", "diagram", "circuit"
-- Questions with mechanical systems often have diagrams
-- Circuit problems frequently include circuit diagrams
-- Optics questions may have ray diagrams
+Mark has_diagram=true for ANY of these visual elements:
+- Circuit diagrams (resistors, capacitors, batteries, switches, wires)
+- Free body diagrams (forces shown as arrows, masses, pulleys, inclines)
+- Ray diagrams (lenses, mirrors, light paths, optical elements)
+- Graphs (x-y plots, waveforms, field lines, curves)
+- Mechanical setups (springs, pendulums, rotating objects, blocks)
+- Wave diagrams (interference patterns, standing waves, wave fronts)
+- Particle trajectories (projectile paths, charged particle motion)
+- Any geometric figure with physical meaning
+- Cylinder/piston diagrams
+- Pendulum or oscillator diagrams
+- Thermodynamic cycle diagrams
+- Vector diagrams
+
+TEXT CLUES that ALWAYS indicate a diagram exists:
+- "as shown in the figure"
+- "shown in figure"
+- "see the diagram"
+- "from the circuit"
+- "in the given setup"
+- References to visual elements: "the block", "the cylinder", "the circuit"
+
+SCAN STRATEGY:
+1. First scan the ENTIRE page visually for ANY drawings/figures
+2. Count ALL diagrams you see on the page
+3. Match each diagram to its question number
+4. Even if text doesn't mention a figure, if you SEE one near a question, mark has_diagram=true
 
 DO NOT mark has_diagram=true for:
-- Matrix matching answer grids
+- Matrix matching answer grids (text only)
 - Tables of numerical data only
 - Chemical structure diagrams
 
@@ -357,15 +373,22 @@ Extract based on CONTENT ONLY! The has_diagram field is just an attribute, NOT a
 - If a question mentions pure mathematical concepts without physics - it's Math, SKIP IT
 - Gas laws in chemistry context (van der Waals, ideal gas properties) are Chemistry - SKIP
 
-FINAL EXTRACTION REMINDER: 
-⚠️ Extract ALL Physics questions from these pages!
-- Include questions WITHOUT diagrams (has_diagram: false)
-- Include questions WITH diagrams (has_diagram: true)
-- You should typically find 5-10 Physics questions per batch
-- If you're only finding 1-2 questions, you're filtering too aggressively!
-- Extract based on PHYSICS CONTENT, not question numbers
-- Physics questions can be numbered ANYWHERE (Q1, Q15, Q21, Q45, etc.)
-- Check EVERY question on the page for Physics content
+FINAL EXTRACTION CHECKLIST: 
+✅ Did you check EVERY question on these pages?
+✅ Did you extract questions WITHOUT diagrams too?
+✅ Did you find at least 5 Physics questions (if this is a Physics section)?
+✅ Did you ignore question numbers and focus on CONTENT?
+
+⚠️ COMMON MISTAKES TO AVOID:
+- Only extracting questions with diagrams (WRONG - extract ALL Physics)
+- Assuming Physics must be Q1-Q20 (WRONG - can be anywhere)
+- Being too strict with filtering (extract if 70% sure it's Physics)
+- Missing questions split across pages
+
+EXPECTED OUTPUT:
+- Typical batch: 5-10 Physics questions
+- If you found only 1-2: You're too strict, re-check!
+- If you found 0: Double-check - might be Chemistry/Math pages
 
 IMPORTANT SCANNING NOTE:
 Physics questions USUALLY appear in continuous blocks (e.g., Q1-22 OR Q1-30)
@@ -377,6 +400,7 @@ HOWEVER, be VERY SUSPICIOUS of isolated questions outside the main Physics block
 
 RESPONSE FORMAT: Start directly with the JSON object. No explanatory text before the JSON.`;
 
+      try {
         // Call Gemini API with images and prompt
         const result = await model.generateContent([
           prompt,
@@ -400,7 +424,7 @@ RESPONSE FORMAT: Start directly with the JSON object. No explanatory text before
             try {
               data = JSON.parse(codeBlockMatch[1]);
             } catch (e2) {
-              console.log('Code block parse failed:', e2.message);
+              console.log('Code block parse failed:', (e2 as Error).message);
             }
           }
           
@@ -479,7 +503,7 @@ RESPONSE FORMAT: Start directly with the JSON object. No explanatory text before
                   try {
                     data = JSON.parse(jsonString);
                   } catch (e3) {
-                    console.error(`JSON parse error in batch ${batchIndex + 1}:`, e3.message);
+                    console.error(`JSON parse error in batch ${batchIndex + 1}:`, (e3 as Error).message);
                     // Try to fix common JSON issues
                     try {
                       jsonString = jsonString.replace(/,\s*}/, '}');
@@ -551,10 +575,10 @@ RESPONSE FORMAT: Start directly with the JSON object. No explanatory text before
         if (error.message?.includes('429') || error.message?.includes('quota')) {
           console.warn(`Rate limit hit for batch ${batchIndex + 1}`);
           
-          // Try up to 3 retries with exponential backoff
-          for (let retry = 1; retry <= 3; retry++) {
-            const waitTime = retry * 5000; // 5s, 10s, 15s
-            console.log(`Retry ${retry}/3 for batch ${batchIndex + 1} after ${waitTime/1000}s...`);
+          // Try up to 5 retries with longer exponential backoff
+          for (let retry = 1; retry <= 5; retry++) {
+            const waitTime = retry * 10000; // 10s, 20s, 30s, 40s, 50s
+            console.log(`Retry ${retry}/5 for batch ${batchIndex + 1} after ${waitTime/1000}s...`);
             await new Promise(resolve => setTimeout(resolve, waitTime));
             
             try {
@@ -571,8 +595,10 @@ RESPONSE FORMAT: Start directly with the JSON object. No explanatory text before
                 return retryData.questions || [];
               }
             } catch (retryError: any) {
-              if (retry === 3) {
-                console.error(`All retries failed for batch ${batchIndex + 1}`);
+              if (retry === 5) {
+                console.error(`CRITICAL: All retries failed for batch ${batchIndex + 1} - PAGES ${batch[0].pageNum}-${batch[batch.length - 1].pageNum} WILL BE MISSING!`);
+                // Throw error to stop processing instead of silently continuing
+                throw new Error(`Failed to process pages ${batch[0].pageNum}-${batch[batch.length - 1].pageNum} after 5 retries. Please try again with fewer concurrent requests or smaller batch size.`);
               }
             }
           }
@@ -608,8 +634,8 @@ RESPONSE FORMAT: Start directly with the JSON object. No explanatory text before
         
         // Add delay between groups to avoid rate limiting
         if (i + MAX_CONCURRENT_API_CALLS < batches.length) {
-          console.log('Waiting 2 seconds before next batch group...');
-          await new Promise(resolve => setTimeout(resolve, 2000)); // 2 second delay
+          console.log('Waiting 5 seconds before next batch group...');
+          await new Promise(resolve => setTimeout(resolve, 5000)); // 5 second delay to avoid rate limits
         }
       }
       

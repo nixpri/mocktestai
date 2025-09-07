@@ -4,8 +4,9 @@ import { createClient } from '@/lib/supabase/server'
 // GET - Fetch single question
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   try {
     const supabase = await createClient()
     
@@ -19,7 +20,7 @@ export async function GET(
     const { data: question, error } = await supabase
       .from('questions')
       .select('*')
-      .eq('id', params.id)
+      .eq('id', id)
       .single()
     
     if (error) {
@@ -62,8 +63,9 @@ export async function GET(
 // PUT - Update question
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   try {
     const supabase = await createClient()
     
@@ -127,7 +129,7 @@ export async function PUT(
     const { data: updatedQuestion, error } = await supabase
       .from('questions')
       .update(updateData)
-      .eq('id', params.id)
+      .eq('id', id)
       .select()
       .single()
     
@@ -171,8 +173,9 @@ export async function PUT(
 // DELETE - Delete question
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   try {
     const supabase = await createClient()
     
@@ -186,7 +189,7 @@ export async function DELETE(
     const { error } = await supabase
       .from('questions')
       .delete()
-      .eq('id', params.id)
+      .eq('id', id)
     
     if (error) {
       console.error('Error deleting question:', error)

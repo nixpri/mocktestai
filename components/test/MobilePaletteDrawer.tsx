@@ -9,7 +9,7 @@ interface MobilePaletteDrawerProps {
   onClose: () => void
   questions: Question[]
   currentIndex: number
-  answers: Record<string, any>
+  answers: Record<string, string | string[]>
   markedForReview: Set<string>
   onQuestionSelect: (index: number) => void
   onSubmit: () => void

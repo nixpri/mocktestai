@@ -1,6 +1,6 @@
 'use client'
 
-import { Brain, Save, Send, Home, ArrowLeft } from 'lucide-react'
+import { Brain, Save, Send, ArrowLeft } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
@@ -12,7 +12,7 @@ interface TestHeaderProps {
 
 export default function TestHeader({ testTitle, saving, onSubmit }: TestHeaderProps) {
   const router = useRouter()
-  const [showExitConfirm, setShowExitConfirm] = useState(false)
+  // const [showExitConfirm, setShowExitConfirm] = useState(false)  // TODO: Use modal instead of confirm
   
   const handleExit = () => {
     if (window.confirm('Are you sure you want to exit? Your progress will be saved.')) {

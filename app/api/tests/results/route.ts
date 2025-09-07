@@ -4,16 +4,28 @@ import { createClient } from '@/lib/supabase/server'
 // POST - Save test result
 export async function POST(request: NextRequest) {
   try {
+    const body = await request.json()
+    const { testId, testResult } = body
+
+    // For practice tests stored in localStorage, just return success without saving to DB
+    if (testId.startsWith('practice-') || testId.startsWith('ai_test_')) {
+      // Return a mock result ID for practice tests
+      return NextResponse.json({ 
+        success: true, 
+        result: { 
+          id: `local-${testId}-${Date.now()}`,
+          ...testResult
+        } 
+      })
+    }
+
     const supabase = await createClient()
     
-    // Check authentication
+    // Check authentication for non-practice tests
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
-
-    const body = await request.json()
-    const { testId, testResult } = body
 
     // Determine test type and title
     let testType = 'standard'
@@ -26,6 +38,25 @@ export async function POST(request: NextRequest) {
       testType = testResult.testType
     }
 
+    // Get the current attempt number for this user and test
+    const { data: previousAttempts, error: countError } = await supabase
+      .from('test_results')
+      .select('attempt_number')
+      .eq('test_id', testId)
+      .eq('user_id', user.id)
+      .order('attempt_number', { ascending: false })
+      .limit(1)
+
+    if (countError && countError.code !== 'PGRST116') { // PGRST116 means no rows found
+      console.error('Error checking previous attempts:', countError)
+      return NextResponse.json({ error: 'Failed to check previous attempts' }, { status: 500 })
+    }
+
+    // Calculate next attempt number
+    const attemptNumber = previousAttempts && previousAttempts.length > 0 
+      ? (previousAttempts[0].attempt_number || 0) + 1 
+      : 1
+
     // Save test result to database
     const { data: result, error: resultError } = await supabase
       .from('test_results')
@@ -34,6 +65,7 @@ export async function POST(request: NextRequest) {
         test_title: testTitle,
         test_type: testType,
         user_id: user.id,
+        attempt_number: attemptNumber,
         total_questions: testResult.totalQuestions,
         attempted_questions: testResult.attempted,
         correct_answers: testResult.correct,
@@ -45,14 +77,24 @@ export async function POST(request: NextRequest) {
         topic_breakdown: testResult.topicBreakdown || {},
         difficulty_breakdown: testResult.difficultyBreakdown || {},
         questions_data: testResult.questionsData || [],
-        user_answers: testResult.userAnswers || {}
+        user_answers: testResult.userAnswers || {},
+        status: 'completed',
+        submitted_at: new Date().toISOString()
       })
       .select()
       .single()
 
     if (resultError) {
       console.error('Error saving test result:', resultError)
-      return NextResponse.json({ error: 'Failed to save result' }, { status: 500 })
+      
+      // Handle specific database errors
+      if (resultError.code === '23505') {
+        return NextResponse.json({ 
+          error: 'You have already submitted this test. Each test attempt is saved separately.' 
+        }, { status: 409 })
+      }
+      
+      return NextResponse.json({ error: 'Failed to save result. Please try again.' }, { status: 500 })
     }
 
     return NextResponse.json({ success: true, result })

@@ -3,27 +3,43 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { Brain, BookOpen, Trophy, Target, LogOut, Clock, TrendingUp, ArrowRight, Zap, BarChart3, Calendar, GraduationCap, Menu, X } from 'lucide-react'
+import { Brain, BookOpen, Trophy, Target, LogOut, Clock, TrendingUp, ArrowRight, BarChart3, Calendar, GraduationCap, Menu, X, Filter, Zap } from 'lucide-react'
 import Link from 'next/link'
 
 export default function DashboardPage() {
-  const [user, setUser] = useState<any>(null)
+  const [user, setUser] = useState<{ email?: string; id?: string } | null>(null)
   const [loading, setLoading] = useState(true)
+  const [authChecking, setAuthChecking] = useState(true)
   const [isAdmin, setIsAdmin] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  // Practice mode state
+  const [practiceMode, setPracticeMode] = useState<'timed' | 'random'>('random')
+  const [practiceFilters, setPracticeFilters] = useState({
+    years: [] as string[],
+    subjects: [] as string[],
+    difficulty: [] as string[],
+    questionCount: 10
+  })
+  const [showPracticeModal, setShowPracticeModal] = useState(false)
+  
   const [stats, setStats] = useState({
     totalTests: 0,
     avgScore: '-',
     totalQuestions: 0,
-    recentTests: [] as any[]
+    recentTests: [] as Array<{ id: string; testId?: string; testTitle: string; score: number; percentage?: number; date: string; totalQuestions?: number; timeTaken?: number; totalMarks?: number }>
   })
   const router = useRouter()
   const supabase = createClient()
 
   useEffect(() => {
     checkUser()
-    loadStats()
   }, [])
+  
+  useEffect(() => {
+    if (!authChecking && user) {
+      loadStats()
+    }
+  }, [authChecking, user])
   
   const loadStats = async () => {
     try {
@@ -58,12 +74,14 @@ export default function DashboardPage() {
   }
 
   const checkUser = async () => {
+    setAuthChecking(true)
     try {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) {
         router.push('/auth')
-      } else {
-        setUser(user)
+        return
+      }
+      setUser(user)
         
         // Check if user is admin
         setIsAdmin(user?.email === 'nixpri@gmail.com')
@@ -92,12 +110,12 @@ export default function DashboardPage() {
             .select()
             .single()
         }
-      }
     } catch (error) {
       console.error('Error checking user:', error)
       router.push('/auth')
     } finally {
       setLoading(false)
+      setAuthChecking(false)
     }
   }
 
@@ -212,74 +230,80 @@ export default function DashboardPage() {
         {/* Quick Actions - Epic Card Design */}
         <div className="grid md:grid-cols-3 gap-6 mb-10">
           <Link href="/test/generate" className="group block">
-            <div className="relative overflow-hidden rounded-[var(--radius-lg)] bg-[var(--background-elevated)] border-2 border-[var(--border-color)] hover:border-[var(--color-success)] transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl" style={{ minHeight: '280px' }}>
-              <div className="p-8 h-full flex flex-col">
+            <div className="relative overflow-hidden rounded-[var(--radius-lg)] bg-[var(--background-elevated)] border-2 border-[var(--border-color)] hover:border-[var(--color-success)] transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl h-full">
+              <div className="p-8 h-full flex flex-col min-h-[320px]">
                 <div className="flex items-start justify-between mb-6">
                   <div className="p-4 bg-gradient-to-br from-[var(--color-success)]/20 to-[var(--color-success)]/10 rounded-2xl">
                     <Brain className="h-8 w-8 text-[var(--color-success)]" />
                   </div>
                   <ArrowRight className="h-6 w-6 text-[var(--foreground-muted)] opacity-0 group-hover:opacity-100 group-hover:translate-x-2 transition-all duration-300" />
                 </div>
-                <div className="flex-grow">
-                  <h3 className="text-lg sm:text-xl lg:text-2xl font-bold mb-2 sm:mb-3 text-[var(--foreground)]">AI Generated</h3>
-                  <p className="text-sm sm:text-base text-[var(--foreground-secondary)] mb-3 sm:mb-4">Personalized test tailored to your level</p>
-                  <div className="flex items-center gap-3 text-sm text-[var(--foreground-secondary)]">
-                    <span>🤖 Smart AI</span>
-                    <span>🎯 Adaptive</span>
+                <div className="flex-grow flex flex-col justify-between">
+                  <div>
+                    <h3 className="text-lg sm:text-xl lg:text-2xl font-bold mb-2 sm:mb-3 text-[var(--foreground)]">AI Generated</h3>
+                    <p className="text-sm sm:text-base text-[var(--foreground-secondary)] mb-3 sm:mb-4">Personalized test tailored to your level</p>
+                    <div className="flex items-center gap-3 text-sm text-[var(--foreground-secondary)]">
+                      <span>🤖 Smart AI</span>
+                      <span>🎯 Adaptive</span>
+                    </div>
                   </div>
-                </div>
-                <div className="mt-auto pt-4 border-t border-[var(--border-color-light)]">
-                  <span className="text-xs uppercase tracking-wider font-semibold text-[var(--color-success)]">Customize Test →</span>
+                  <div className="mt-6 pt-4 border-t border-[var(--border-color-light)]">
+                    <span className="text-xs uppercase tracking-wider font-semibold text-[var(--color-success)]">Customize Test →</span>
+                  </div>
                 </div>
               </div>
             </div>
           </Link>
 
-          {/* Practice Mode Card */}
-          <Link href="/practice" className="group block">
-            <div className="relative overflow-hidden rounded-[var(--radius-lg)] bg-[var(--background-elevated)] border-2 border-[var(--border-color)] hover:border-[var(--color-info)] transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl" style={{ minHeight: '280px' }}>
-              <div className="p-8 h-full flex flex-col">
+          {/* Custom Practice Session Card */}
+          <div className="group block cursor-pointer" onClick={() => setShowPracticeModal(true)}>
+            <div className="relative overflow-hidden rounded-[var(--radius-lg)] bg-[var(--background-elevated)] border-2 border-[var(--border-color)] hover:border-[var(--color-info)] transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl h-full">
+              <div className="p-8 h-full flex flex-col min-h-[320px]">
                 <div className="flex items-start justify-between mb-6">
                   <div className="p-4 bg-gradient-to-br from-[var(--color-info)]/20 to-[var(--color-info)]/10 rounded-2xl">
-                    <GraduationCap className="h-8 w-8 text-[var(--color-info)]" />
+                    <Filter className="h-8 w-8 text-[var(--color-info)]" />
                   </div>
                   <ArrowRight className="h-6 w-6 text-[var(--foreground-muted)] opacity-0 group-hover:opacity-100 group-hover:translate-x-2 transition-all duration-300" />
                 </div>
-                <div className="flex-grow">
-                  <h3 className="text-lg sm:text-xl lg:text-2xl font-bold mb-2 sm:mb-3 text-[var(--foreground)]">Practice Mode</h3>
-                  <p className="text-sm sm:text-base text-[var(--foreground-secondary)] mb-3 sm:mb-4">Learn at your own pace with hints and explanations</p>
-                  <div className="flex items-center gap-3 text-sm text-[var(--foreground-secondary)]">
-                    <span>💡 Hints</span>
-                    <span>⏸️ No Timer</span>
+                <div className="flex-grow flex flex-col justify-between">
+                  <div>
+                    <h3 className="text-lg sm:text-xl lg:text-2xl font-bold mb-2 sm:mb-3 text-[var(--foreground)]">Custom Practice</h3>
+                    <p className="text-sm sm:text-base text-[var(--foreground-secondary)] mb-3 sm:mb-4">Create personalized practice sessions from previous year questions</p>
+                    <div className="flex items-center gap-3 text-sm text-[var(--foreground-secondary)]">
+                      <span>🎯 Filtered</span>
+                      <span>📚 Past Papers</span>
+                    </div>
                   </div>
-                </div>
-                <div className="mt-auto pt-4 border-t border-[var(--border-color-light)]">
-                  <span className="text-xs uppercase tracking-wider font-semibold text-[var(--color-info)]">Start Practice →</span>
+                  <div className="mt-6 pt-4 border-t border-[var(--border-color-light)]">
+                    <span className="text-xs uppercase tracking-wider font-semibold text-[var(--color-info)]">Configure Practice →</span>
+                  </div>
                 </div>
               </div>
             </div>
-          </Link>
+          </div>
 
           {/* Previous Years Card */}
           <Link href="/previous-years" className="group block">
-            <div className="relative overflow-hidden rounded-[var(--radius-lg)] bg-[var(--background-elevated)] border-2 border-[var(--border-color)] hover:border-[var(--color-warning)] transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl" style={{ minHeight: '280px' }}>
-              <div className="p-8 h-full flex flex-col">
+            <div className="relative overflow-hidden rounded-[var(--radius-lg)] bg-[var(--background-elevated)] border-2 border-[var(--border-color)] hover:border-[var(--color-warning)] transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl h-full">
+              <div className="p-8 h-full flex flex-col min-h-[320px]">
                 <div className="flex items-start justify-between mb-6">
                   <div className="p-4 bg-gradient-to-br from-[var(--color-warning)]/20 to-[var(--color-warning)]/10 rounded-2xl">
                     <Calendar className="h-8 w-8 text-[var(--color-warning)]" />
                   </div>
                   <ArrowRight className="h-6 w-6 text-[var(--foreground-muted)] opacity-0 group-hover:opacity-100 group-hover:translate-x-2 transition-all duration-300" />
                 </div>
-                <div className="flex-grow">
-                  <h3 className="text-lg sm:text-xl lg:text-2xl font-bold mb-2 sm:mb-3 text-[var(--foreground)]">Previous Years</h3>
-                  <p className="text-sm sm:text-base text-[var(--foreground-secondary)] mb-3 sm:mb-4">Practice with authentic JEE papers from past exams</p>
-                  <div className="flex items-center gap-3 text-sm text-[var(--foreground-secondary)]">
-                    <span>📚 Real Papers</span>
-                    <span>🎯 Pattern Analysis</span>
+                <div className="flex-grow flex flex-col justify-between">
+                  <div>
+                    <h3 className="text-lg sm:text-xl lg:text-2xl font-bold mb-2 sm:mb-3 text-[var(--foreground)]">Previous Years</h3>
+                    <p className="text-sm sm:text-base text-[var(--foreground-secondary)] mb-3 sm:mb-4">Practice with authentic JEE papers from past exams</p>
+                    <div className="flex items-center gap-3 text-sm text-[var(--foreground-secondary)]">
+                      <span>📚 Real Papers</span>
+                      <span>🎯 Pattern Analysis</span>
+                    </div>
                   </div>
-                </div>
-                <div className="mt-auto pt-4 border-t border-[var(--border-color-light)]">
-                  <span className="text-xs uppercase tracking-wider font-semibold text-[var(--color-warning)]">Browse Papers →</span>
+                  <div className="mt-6 pt-4 border-t border-[var(--border-color-light)]">
+                    <span className="text-xs uppercase tracking-wider font-semibold text-[var(--color-warning)]">Browse Papers →</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -364,17 +388,17 @@ export default function DashboardPage() {
               {stats.recentTests.map((test, index) => (
                 <Link
                   key={index}
-                  href={`/test/${test.testId}/result?resultId=${test.id}`}
+                  href={`/test/${test.testId || test.id}/result?resultId=${test.id}`}
                   className="block group"
                 >
                   <div className="flex items-center justify-between p-4 bg-[var(--background-secondary)] rounded-[var(--radius-base)] hover:bg-[var(--background-elevated)] hover:shadow-md hover:scale-[1.01] transition-all duration-200 border border-transparent hover:border-[var(--border-color)]">
                     <div className="flex items-center gap-4">
                       <div className={`w-14 h-14 rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-md ${
-                        test.percentage >= 80 ? 'bg-gradient-to-br from-[var(--color-success)] to-green-600' :
-                        test.percentage >= 60 ? 'bg-gradient-to-br from-[var(--color-warning)] to-orange-600' :
+                        (test.percentage || test.score) >= 80 ? 'bg-gradient-to-br from-[var(--color-success)] to-green-600' :
+                        (test.percentage || test.score) >= 60 ? 'bg-gradient-to-br from-[var(--color-warning)] to-orange-600' :
                         'bg-gradient-to-br from-[var(--color-error)] to-red-600'
                       }`}>
-                        {test.percentage}%
+                        {test.percentage || test.score}%
                       </div>
                       <div>
                         <p className="text-[var(--text-lg)] font-semibold text-[var(--foreground)] group-hover:text-[var(--color-primary)] transition-colors">
@@ -386,10 +410,10 @@ export default function DashboardPage() {
                             {new Date(test.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                           </span>
                           <span className="flex items-center gap-1">
-                            📝 {test.totalQuestions} questions
+                            📝 {test.totalQuestions || 0} questions
                           </span>
                           <span className="flex items-center gap-1">
-                            ⏱️ {Math.floor(test.timeTaken / 60)} mins
+                            ⏱️ {Math.floor((test.timeTaken || 0) / 60)} mins
                           </span>
                         </div>
                       </div>
@@ -397,7 +421,7 @@ export default function DashboardPage() {
                     <div className="flex items-center gap-4">
                       <div className="text-center px-4 py-2 bg-[var(--background-elevated)] rounded-lg">
                         <p className="text-[var(--text-lg)] font-bold text-[var(--foreground)]">
-                          {test.score}/{test.totalMarks}
+                          {test.score}/{test.totalMarks || 100}
                         </p>
                         <p className="text-[var(--text-xs)] text-[var(--foreground-muted)] uppercase tracking-wide">
                           Score
@@ -416,15 +440,204 @@ export default function DashboardPage() {
               </div>
               <p className="text-2xl font-bold text-[var(--foreground)] mb-3">No tests yet</p>
               <p className="text-[var(--text-base)] text-[var(--foreground-secondary)] mb-8">Start practicing to see your progress here</p>
-              <Link href="/practice" className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-primary-hover)] text-white rounded-xl font-semibold text-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-300 group">
+              <button 
+                onClick={() => setShowPracticeModal(true)}
+                className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-primary-hover)] text-white rounded-xl font-semibold text-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-300 group"
+              >
                 <GraduationCap className="h-5 w-5" />
-                Start Practice Mode
+                Start Custom Practice
                 <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
-              </Link>
+              </button>
             </div>
           )}
         </div>
       </div>
+      
+      {/* Custom Practice Modal */}
+      {showPracticeModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b">
+              <div className="flex items-center justify-between">
+                <h2 className="text-2xl font-bold">Configure Custom Practice Session</h2>
+                <button
+                  onClick={() => setShowPracticeModal(false)}
+                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+              <p className="text-gray-600 mt-2">
+                Create a personalized practice session from previous year questions
+              </p>
+            </div>
+            
+            <div className="p-6 space-y-6">
+              {/* Practice Mode Selection */}
+              <div>
+                <label className="text-sm font-semibold text-gray-700 mb-3 block">
+                  Practice Mode
+                </label>
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    onClick={() => setPracticeMode('random')}
+                    className={`p-4 rounded-lg border-2 transition-all ${
+                      practiceMode === 'random'
+                        ? 'border-blue-500 bg-blue-50 text-blue-700'
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    <Zap className="h-5 w-5 mb-2" />
+                    <div className="font-semibold">Random Mix</div>
+                    <div className="text-sm opacity-75 mt-1">No time limit</div>
+                  </button>
+                  <button
+                    onClick={() => setPracticeMode('timed')}
+                    className={`p-4 rounded-lg border-2 transition-all ${
+                      practiceMode === 'timed'
+                        ? 'border-blue-500 bg-blue-50 text-blue-700'
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    <Clock className="h-5 w-5 mb-2" />
+                    <div className="font-semibold">Timed Mode</div>
+                    <div className="text-sm opacity-75 mt-1">2 min/question</div>
+                  </button>
+                </div>
+              </div>
+              
+              {/* Number of Questions */}
+              <div>
+                <label className="text-sm font-semibold text-gray-700 mb-3 block">
+                  Number of Questions
+                </label>
+                <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+                  {[5, 10, 15, 20, 30, 50].map(count => (
+                    <button
+                      key={count}
+                      onClick={() => setPracticeFilters(prev => ({ ...prev, questionCount: count }))}
+                      className={`py-2 px-4 rounded-lg border-2 transition-all ${
+                        practiceFilters.questionCount === count
+                          ? 'border-blue-500 bg-blue-50 text-blue-700'
+                          : 'border-gray-200 hover:border-gray-300'
+                      }`}
+                    >
+                      {count}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              
+              {/* Session Summary */}
+              <div className="bg-gray-50 rounded-lg p-4">
+                <h3 className="font-semibold text-gray-900 mb-3">Session Configuration</h3>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span className="text-gray-600">Mode:</span>
+                    <span className="ml-2 font-medium">
+                      {practiceMode === 'timed' ? 'Timed (2 min/question)' : 'Random Mix (No Timer)'}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">Questions:</span>
+                    <span className="ml-2 font-medium">{practiceFilters.questionCount}</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">Duration:</span>
+                    <span className="ml-2 font-medium">
+                      {practiceMode === 'timed' 
+                        ? `${practiceFilters.questionCount * 2} minutes`
+                        : 'Unlimited'}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">Source:</span>
+                    <span className="ml-2 font-medium">Previous Year Papers</span>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Info Message */}
+              <div className="flex items-start gap-2 text-sm text-blue-700 bg-blue-50 p-3 rounded-lg">
+                <span className="mt-0.5">ℹ️</span>
+                <div>
+                  <p className="font-medium">Practice Mode Features:</p>
+                  <ul className="mt-1 space-y-1 text-blue-600">
+                    <li>• Questions from authentic previous year papers</li>
+                    <li>• View solutions immediately after answering</li>
+                    <li>• No negative marking in practice mode</li>
+                    <li>• Detailed explanations for each question</li>
+                  </ul>
+                </div>
+              </div>
+              
+              {/* Action Buttons */}
+              <div className="flex gap-3 justify-end pt-4 border-t">
+                <button
+                  onClick={() => setShowPracticeModal(false)}
+                  className="px-6 py-2 text-gray-600 hover:text-gray-900 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={async () => {
+                    // Start practice session
+                    const { data: { user } } = await supabase.auth.getUser()
+                    
+                    if (!user) {
+                      router.push('/auth?redirect=/dashboard')
+                      return
+                    }
+                    
+                    // Import the transformer
+                    const { transformDatabaseQuestion } = await import('@/lib/utils/questionTransformer')
+                    
+                    // Fetch random questions from previous years
+                    const { data: questions, error } = await supabase
+                      .from('questions')
+                      .select('*')
+                      .eq('source_type', 'previous_year')
+                      .limit(practiceFilters.questionCount)
+                    
+                    if (error || !questions || questions.length === 0) {
+                      alert('No questions available. Please try again later.')
+                      return
+                    }
+                    
+                    // Transform questions to unified format
+                    const transformedQuestions = questions.map(q => transformDatabaseQuestion(q)).filter(q => q !== null)
+                    
+                    // Create a practice test
+                    const testId = `practice-${Date.now()}`
+                    const testData = {
+                      test: {
+                        id: testId,
+                        title: `Custom Practice - ${new Date().toLocaleDateString()}`,
+                        testType: 'practice',
+                        durationMinutes: practiceMode === 'timed' ? practiceFilters.questionCount * 2 : 999,
+                        questions: transformedQuestions.map(q => q!.id),
+                        totalMarks: transformedQuestions.reduce((sum, q) => sum + (q!.marks || 4), 0)
+                      },
+                      questions: transformedQuestions
+                    }
+                    
+                    // Store in localStorage
+                    localStorage.setItem(`ai_test_${testId}`, JSON.stringify(testData))
+                    
+                    // Navigate to test page
+                    router.push(`/test/${testId}?mode=practice`)
+                    setShowPracticeModal(false)
+                  }}
+                  className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+                >
+                  <Zap className="h-4 w-4" />
+                  Start Practice Session
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

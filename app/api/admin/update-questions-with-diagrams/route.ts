@@ -8,7 +8,7 @@ export async function POST(request: NextRequest) {
     
     // Get list of actual saved diagram files
     const diagramsDir = path.join(process.cwd(), 'data', 'previous-year', 'jee', 'extracted_diagrams');
-    const diagramFiles = await fs.readdir(diagramsDir).catch(() => []);
+    const diagramFiles = await fs.readdir(diagramsDir).catch(() => [] as string[]);
     
     // Update questions with actual diagram file paths
     const updatedQuestions = await Promise.all(questions.map(async (question: any) => {
@@ -92,6 +92,7 @@ export async function POST(request: NextRequest) {
           success: true,
           questionsCount: updatedQuestions.length,
           diagramsCount: diagrams.filter((d: any) => d.status === 'completed').length,
+          diagramsExtracted: uploadResult.summary.diagramsExtracted || diagrams.filter((d: any) => d.status === 'completed').length,
           questions: updatedQuestions,
           outputFile: outputPath,
           outputFileName,
@@ -100,6 +101,7 @@ export async function POST(request: NextRequest) {
             testId: uploadResult.testId,
             uploaded: uploadResult.summary.uploaded,
             diagramsUploaded: uploadResult.summary.diagramsUploaded,
+            diagramsExtracted: uploadResult.summary.diagramsExtracted,
             filesCleanedUp: uploadResult.summary.filesCleanedUp
           }
         });

@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Brain, Sparkles, Loader2, AlertCircle, ChevronRight, BookOpen, Clock, TrendingUp, Zap, Settings, ArrowRight } from 'lucide-react'
+import { Brain, Sparkles, Loader2, AlertCircle, BookOpen, TrendingUp, Zap, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 
 export default function GenerateTestPage() {
@@ -61,7 +61,7 @@ export default function GenerateTestPage() {
     { id: 'waves', name: 'Waves & Oscillations', icon: '〰️' }
   ]
 
-  const handleQuickTest = async (preset: any) => {
+  const handleQuickTest = async (preset: { topic: string; difficulty: string; count: number; type: string }) => {
     setGenerating(true)
     setError(null)
     
@@ -111,7 +111,7 @@ export default function GenerateTestPage() {
         }))
         router.push(`/test/${data.test.id}`)
       }
-    } catch (err: any) {
+    } catch (err) {
       setError(err.message || 'An error occurred while generating the test')
     } finally {
       setGenerating(false)
@@ -156,7 +156,7 @@ export default function GenerateTestPage() {
         }))
         router.push(`/test/${data.test.id}`)
       }
-    } catch (err: any) {
+    } catch (err) {
       setError(err.message || 'An error occurred while generating the test')
     } finally {
       setGenerating(false)

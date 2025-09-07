@@ -276,15 +276,16 @@ export default function AnalyticsPage() {
       
       history.forEach(test => {
         if (test.topicBreakdown) {
-          Object.entries(test.topicBreakdown).forEach(([topic, stats]: [string, any]) => {
+          Object.entries(test.topicBreakdown).forEach(([topic, stats]) => {
             if (!topicStats[topic]) {
               topicStats[topic] = { attempted: 0, correct: 0, totalTime: 0, scores: [] }
             }
-            topicStats[topic].attempted += stats.attempted || 0
-            topicStats[topic].correct += stats.correct || 0
-            topicStats[topic].totalTime += stats.totalTime || 0
-            if (stats.attempted > 0) {
-              topicStats[topic].scores.push((stats.correct / stats.attempted) * 100)
+            const topicData = stats as any
+            topicStats[topic].attempted += topicData.attempted || 0
+            topicStats[topic].correct += topicData.correct || 0
+            topicStats[topic].totalTime += topicData.totalTime || 0
+            if (topicData.attempted > 0) {
+              topicStats[topic].scores.push((topicData.correct / topicData.attempted) * 100)
             }
           })
         }
@@ -327,8 +328,9 @@ export default function AnalyticsPage() {
         if (test.difficultyBreakdown) {
           Object.entries(test.difficultyBreakdown).forEach(([difficulty, stats]) => {
             if (difficultyStats[difficulty]) {
-              difficultyStats[difficulty].attempted += stats.attempted || 0
-              difficultyStats[difficulty].correct += stats.correct || 0
+              const diffData = stats as any
+              difficultyStats[difficulty].attempted += diffData.attempted || 0
+              difficultyStats[difficulty].correct += diffData.correct || 0
             }
           })
         }
@@ -343,7 +345,7 @@ export default function AnalyticsPage() {
       }))
       
       // Recent tests with trend
-      const recentTests = allHistory.slice(0, 5).map((test, index) => {
+      const recentTests = allHistory.slice(0, 5).map((test: any, index: number) => {
         let trend: 'up' | 'down' | 'same' = 'same'
         if (index < allHistory.length - 1) {
           const prevTest = allHistory[index + 1]

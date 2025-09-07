@@ -3,12 +3,12 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { Brain, CheckCircle, Sparkles, Trophy, BarChart3, ArrowRight } from 'lucide-react'
+import { Brain, CheckCircle, Sparkles, Trophy, BarChart3 } from 'lucide-react'
 
 export default function AuthPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const router = useRouter()
+  // const router = useRouter()  // Unused - will be needed for navigation after auth
   const supabase = createClient()
 
   const handleGoogleSignIn = async () => {
@@ -28,8 +28,8 @@ export default function AuthPage() {
       })
 
       if (error) throw error
-    } catch (err: any) {
-      setError(err.message || 'Failed to sign in with Google')
+    } catch (err) {
+      setError((err as Error).message || 'Failed to sign in with Google')
       setLoading(false)
     }
   }
