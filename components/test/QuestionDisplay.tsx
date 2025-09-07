@@ -2,6 +2,7 @@
 
 import { UnifiedQuestion } from '@/lib/utils/questionTransformer'
 import LatexRenderer from './LatexRenderer'
+import MatchingAnswerInput from './MatchingAnswerInput'
 
 interface QuestionDisplayProps {
   question: UnifiedQuestion
@@ -245,74 +246,23 @@ export default function QuestionDisplay({
               
               return (
                 <>
-                  <div className="p-4 bg-[var(--color-info)]/10 border border-[var(--color-info)]/20 rounded-[var(--radius-base)]">
+                  <div className="p-4 bg-[var(--color-info)]/10 border border-[var(--color-info)]/20 rounded-[var(--radius-base)] mb-4">
                     <p className="text-[var(--text-sm)] text-[var(--color-info)]">
                       <strong>Instructions:</strong> Match the items from {columnAName} with the correct items in {columnBName}.
-                      Enter your answer as pairs (e.g., {hasLetterOptions ? '"1-p, 2-q, 3-r, 4-s"' : '"1-a, 2-b, 3-c, 4-d"'}).
+                      Click the dropdown next to each item in {columnAName} to select its match from {columnBName}.
                     </p>
                   </div>
                   
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Column A/I */}
-                    <div className="space-y-2">
-                      <h4 className="font-semibold text-[var(--foreground)] mb-3">{columnAName}</h4>
-                      {question.content.columnA?.map((item: any, idx: number) => (
-                        <div key={idx} className="p-3 bg-[var(--background-secondary)] rounded-[var(--radius-sm)] border border-[var(--border-color)]">
-                          <span className="font-medium text-[var(--color-primary)] mr-2">
-                            {hasNumberOptions ? `(${idx + 1})` : `${idx + 1}.`}
-                          </span>
-                          {typeof item === 'string' ? (
-                            <LatexRenderer content={item} className="inline text-[var(--foreground)]" />
-                          ) : (
-                            <LatexRenderer content={item.text || item.value || item} className="inline text-[var(--foreground)]" />
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                    
-                    {/* Column B/II */}
-                    <div className="space-y-2">
-                      <h4 className="font-semibold text-[var(--foreground)] mb-3">{columnBName}</h4>
-                      {question.content.columnB?.map((item: any, idx: number) => (
-                        <div key={idx} className="p-3 bg-[var(--background-secondary)] rounded-[var(--radius-sm)] border border-[var(--border-color)]">
-                          <span className="font-medium text-[var(--color-primary)] mr-2">
-                            {hasLetterOptions 
-                              ? `(${String.fromCharCode(112 + idx)})` // p, q, r, s
-                              : `(${String.fromCharCode(97 + idx)})` // a, b, c, d
-                            }
-                          </span>
-                          {typeof item === 'string' ? (
-                            <LatexRenderer content={item} className="inline text-[var(--foreground)]" />
-                          ) : (
-                            <LatexRenderer content={item.text || item.value || item} className="inline text-[var(--foreground)]" />
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                  
-                  {/* Answer Input */}
-                  <div className="mt-4">
-                    <label className="text-[var(--foreground)] font-medium block mb-2">
-                      Your Answer (e.g., {hasLetterOptions ? '"1-p, 2-q, 3-r, 4-s"' : '"1-a, 2-b, 3-c, 4-d"'}):
-                    </label>
-                    <input
-                      type="text"
-                      value={selectedAnswer || ''}
-                      onChange={(e) => onAnswerSelect(e.target.value)}
-                      placeholder="Enter your matching pairs"
-                      disabled={mode === 'view'}
-                      className="w-full px-4 py-3 border border-[var(--border-color)] rounded-[var(--radius-base)] bg-[var(--background)] text-[var(--foreground)] placeholder-[var(--foreground-muted)] transition-all duration-[var(--transition-base)] hover:border-[var(--border-color-hover)] focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
-                    />
-                    {showAnswer && question.content.correctMatches && (
-                      <div className="mt-2 p-2 bg-[var(--color-success)]/10 rounded-[var(--radius-sm)] text-[var(--text-sm)]">
-                        <span className="font-semibold text-[var(--color-success)]">Correct Answer: </span>
-                        <span className="text-[var(--foreground)]">
-                          {Object.entries(question.content.correctMatches).map(([key, value]) => `${key}-${value}`).join(', ')}
-                        </span>
-                      </div>
-                    )}
-                  </div>
+                  {/* Interactive Matching Component */}
+                  <MatchingAnswerInput
+                    columnA={question.content.columnA || []}
+                    columnB={question.content.columnB || []}
+                    value={selectedAnswer as string}
+                    onChange={(value) => onAnswerSelect(value)}
+                    disabled={mode === 'view'}
+                    showAnswer={showAnswer}
+                    correctAnswer={question.content.correctMatches || (typeof question.content.correctAnswer === 'string' ? question.content.correctAnswer : undefined)}
+                  />
                 </>
               )
             })()}

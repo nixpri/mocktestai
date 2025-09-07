@@ -142,8 +142,8 @@ export function transformDatabaseQuestion(question: any): UnifiedQuestion | null
     // If not found in separate fields, try to extract from question text
     if (!assertion && !reason && questionText) {
       // Look for STATEMENT-1 and STATEMENT-2 pattern
-      const statement1Match = questionText.match(/STATEMENT-1[:\s]*(.*?)(?=STATEMENT-2|because|BECAUSE|$)/s)
-      const statement2Match = questionText.match(/STATEMENT-2[:\s]*(.*?)$/s)
+      const statement1Match = questionText.match(/STATEMENT-1[:\s]*([\s\S]*?)(?=STATEMENT-2|because|BECAUSE|$)/)
+      const statement2Match = questionText.match(/STATEMENT-2[:\s]*([\s\S]*?)$/)
       
       if (statement1Match && statement2Match) {
         assertion = statement1Match[1].trim()
